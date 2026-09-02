@@ -1,0 +1,11 @@
+node_modules/
+database.sqlite
+config/
+data_backup_local/
+server.jw
+/index.html
+package-lock.json
+data/backups/
+data/cierres/
+data/server.js
+data/sog_database_backup.json
