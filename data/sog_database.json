@@ -1,193 +1,185 @@
 {
-  "clientes": [
-    {
-      "id": 1788381612869,
-      "rif": "",
-      "nombre": "Angel García",
-      "telefono": "",
-      "direccion": "",
-      "deuda_inicial_dinero": 0,
-      "deuda_inicial_vacios": 200,
-      "deuda_vacios": 200
-    }
-  ],
+  "clientes": [],
   "proveedores": [
     {
       "id": 0,
       "rif": "J-00000000-0",
-      "nombre": "EMPRESAS POLAR / PROVEEDOR",
+      "nombre": "ALIMENTOS POLAR / PROV",
       "telefono": "0800-POLAR",
       "direccion": "Planta / Agencia Central",
-      "deuda_inicial_dinero": 1260,
+      "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "General"
+      "categoria": "Alimentos"
     },
     {
       "id": 1,
-      "rif": "",
-      "nombre": "Cervecería Polar",
+      "rif": "J-00006372-9",
+      "nombre": "Cervecería POLAR / PROV",
       "telefono": "",
       "direccion": "",
-      "deuda_inicial_dinero": 580,
+      "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
       "categoria": "Cervecería"
+    },
+    {
+      "id": 2,
+      "rif": "",
+      "nombre": "Maltín POLAR / PROV",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "Maltas"
+    },
+    {
+      "id": 3,
+      "rif": "",
+      "nombre": "PEPSI",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "Pepsi"
+    },
+    {
+      "id": 4,
+      "rif": "",
+      "nombre": "Sangrías / PROV",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "Sangrías"
+    },
+    {
+      "id": 5,
+      "rif": "",
+      "nombre": "Yogurt",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "Yogurt"
+    },
+    {
+      "id": 6,
+      "rif": "",
+      "nombre": "Bebidas Instantaneas",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "Bebidas Instantaneas"
+    },
+    {
+      "id": 7,
+      "rif": "",
+      "nombre": "P&G",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "P&G"
+    },
+    {
+      "id": 8,
+      "rif": "",
+      "nombre": "Detergentes y Limpieza",
+      "telefono": "",
+      "direccion": "",
+      "deuda_inicial_dinero": 0,
+      "deuda_vacios": 0,
+      "deuda_inicial_vacios": 0,
+      "categoria": "Detergentes y Limpieza"
     }
   ],
   "productos": [
     {
-      "id": 1788381646103,
+      "id": 1788408970596,
       "codigo": "",
-      "nombre": "Light",
+      "nombre": "Polar LIGHT LAT 355ml",
       "categoria": "Cervecería",
-      "stock": 150,
-      "stock_cajas": 150,
-      "precio": 10,
-      "precio_caja": 10,
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 16.65,
+      "precio_caja": 16.65,
       "unid_por_caja": 24,
       "unidades_por_caja": 24,
-      "cajas_por_paleta": 60,
-      "usa_gabera": true,
+      "cajas_por_paleta": 130,
+      "usa_gabera": false,
       "exento_iva": false
     },
     {
-      "id": 1788382382002,
+      "id": 1788409044739,
       "codigo": "",
-      "nombre": "Papa",
-      "categoria": "General",
-      "stock": 110,
-      "stock_cajas": 110,
-      "precio": 1,
-      "precio_caja": 1,
+      "nombre": "Polar PILSEN LAT 355ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 16.65,
+      "precio_caja": 16.65,
       "unid_por_caja": 24,
       "unidades_por_caja": 24,
-      "cajas_por_paleta": 60,
+      "cajas_por_paleta": 130,
       "usa_gabera": false,
-      "exento_iva": true
+      "exento_iva": false
+    },
+    {
+      "id": 1788409177052,
+      "codigo": "",
+      "nombre": "Polar PILSEN LAT 250ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 14.13,
+      "precio_caja": 14.13,
+      "unid_por_caja": 24,
+      "unidades_por_caja": 24,
+      "cajas_por_paleta": 195,
+      "usa_gabera": false,
+      "exento_iva": false
+    },
+    {
+      "id": 1788409259853,
+      "codigo": "",
+      "nombre": "Polar LIGHT LAT 250ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 14.13,
+      "precio_caja": 14.13,
+      "unid_por_caja": 24,
+      "unidades_por_caja": 24,
+      "cajas_por_paleta": 195,
+      "usa_gabera": false,
+      "exento_iva": false
+    },
+    {
+      "id": 1788409432966,
+      "codigo": "",
+      "nombre": "Polar LIGHT ret 222ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 14.93,
+      "precio_caja": 14.93,
+      "unid_por_caja": 36,
+      "unidades_por_caja": 36,
+      "cajas_por_paleta": 72,
+      "usa_gabera": true,
+      "exento_iva": false
     }
   ],
   "pedidos": [],
-  "movimientos": [
-    {
-      "id": 1,
-      "cliente_id": "1788381612869",
-      "cuenta_id": "1788381612869",
-      "tipo": "FACTURA",
-      "fecha": "2026-09-02T16:42:57.165Z",
-      "detalle": "Factura",
-      "monto": 1160,
-      "subtotal": 1000,
-      "iva": 160,
-      "items": [
-        {
-          "prod_id": 1788381646103,
-          "nombre": "Light",
-          "empaque": "caja",
-          "cantidad": 100,
-          "cant_cajas": 100,
-          "precio_base": 10,
-          "precio_final": 10,
-          "descuento": 0,
-          "total": 1000,
-          "exento_iva": false
-        }
-      ],
-      "usuario": "TenshiGab"
-    },
-    {
-      "id": 2,
-      "cliente_id": "1788381612869",
-      "cuenta_id": "1788381612869",
-      "prod_id": 1788381646103,
-      "tipo": "SUMA_VACIOS",
-      "fecha": "2026-09-02T16:42:57.166Z",
-      "detalle": "Suma de vacíos: Light",
-      "monto": 100,
-      "saldo_vacios": 200,
-      "usuario": "TenshiGab"
-    },
-    {
-      "id": 3,
-      "cliente_id": "1",
-      "cuenta_id": "1",
-      "tipo": "COMPRA_PROVEEDOR",
-      "fecha": "2026-09-02T16:45:17.019Z",
-      "detalle": "Compra a Cervecería Polar",
-      "monto": 580,
-      "subtotal": 500,
-      "iva": 80,
-      "items": [
-        {
-          "prod_id": 1788381646103,
-          "nombre": "Light",
-          "empaque": "caja",
-          "cantidad": 50,
-          "cant_cajas": 50,
-          "precio_base": 10,
-          "precio_final": 10,
-          "descuento": 0,
-          "total": 500,
-          "exento_iva": false
-        }
-      ],
-      "usuario": "TenshiGab"
-    },
-    {
-      "id": 4,
-      "cliente_id": "1788381612869",
-      "cuenta_id": "1788381612869",
-      "tipo": "PAGO_RECIBIDO",
-      "fecha": "2026-09-02T16:46:18.114Z",
-      "detalle": "Pago / Abono de Cliente",
-      "monto": 1260,
-      "referencia": "Pago",
-      "deuda_anterior": 1260,
-      "deuda_restante": 0,
-      "usuario": "admin",
-      "moneda": "Bs",
-      "monto_original": 12600,
-      "dolar": 10
-    },
-    {
-      "id": 5,
-      "cliente_id": "0",
-      "cuenta_id": "0",
-      "tipo": "COMPRA_PROVEEDOR",
-      "fecha": "2026-09-02T16:54:40.222Z",
-      "detalle": "Compra a EMPRESAS POLAR / PROVEEDOR",
-      "monto": 1260,
-      "subtotal": 1100,
-      "iva": 160,
-      "items": [
-        {
-          "prod_id": 1788382382002,
-          "nombre": "Papa",
-          "empaque": "caja",
-          "cantidad": 100,
-          "cant_cajas": 100,
-          "precio_base": 1,
-          "precio_final": 1,
-          "descuento": 0,
-          "total": 100,
-          "exento_iva": true
-        },
-        {
-          "prod_id": 1788381646103,
-          "nombre": "Light",
-          "empaque": "caja",
-          "cantidad": 100,
-          "cant_cajas": 100,
-          "precio_base": 10,
-          "precio_final": 10,
-          "descuento": 0,
-          "total": 1000,
-          "exento_iva": false
-        }
-      ],
-      "usuario": "TenshiGab"
-    }
-  ],
+  "movimientos": [],
   "gastos": [],
   "trabajadores": [],
   "usuarios": [
@@ -199,57 +191,32 @@
       "rol": "Admin",
       "color": "#D4AF37",
       "labor": "Ingeniero de Sistemas"
-    },
-    {
-      "id": 2,
-      "usuario": "Ángel",
-      "clave": "4242",
-      "nombre": "Ángel",
-      "rol": "Contador",
-      "color": "#ffffff",
-      "labor": ""
     }
   ],
-  "cierres": [
-    {
-      "fecha": "2026-09-02",
-      "total_ventas": 1160,
-      "total_cobros": 1260,
-      "total_pagos_proveedor": 0,
-      "total_gastos": 100,
-      "ganancia_neta": 1160,
-      "total_movimientos": 5,
-      "dolar_dia": 10,
-      "cerrado_por": "Ángel",
-      "cerrado_a": "2026-09-02T16:57:43.024Z"
-    }
-  ],
-  "ultimoCierre": {
-    "fecha": "2026-09-02",
-    "total_ventas": 1160,
-    "total_cobros": 1260,
-    "total_pagos_proveedor": 0,
-    "total_gastos": 100,
-    "ganancia_neta": 1160,
-    "total_movimientos": 5,
-    "dolar_dia": 10,
-    "cerrado_por": "Ángel",
-    "cerrado_a": "2026-09-02T16:57:43.024Z"
-  },
-  "cierreBloqueado": true,
-  "dolarActual": 10,
+  "cierres": [],
+  "ultimoCierre": null,
+  "cierreBloqueado": false,
+  "dolarActual": null,
   "categorias": [
     "General",
-    "Cervecería"
+    "Cervecería",
+    "Pepsi",
+    "Alimentos",
+    "Maltas",
+    "Sangrías",
+    "Yogurt",
+    "Bebidas Instantaneas",
+    "Detergentes y Limpieza",
+    "P&G"
   ],
   "nextId": {
     "clientes": 1,
-    "proveedores": 2,
+    "proveedores": 9,
     "productos": 1,
-    "pedidos": 4,
-    "movimientos": 6,
-    "gastos": 2,
+    "pedidos": 1,
+    "movimientos": 1,
+    "gastos": 1,
     "trabajadores": 1,
-    "usuarios": 3
+    "usuarios": 2
   }
 }
