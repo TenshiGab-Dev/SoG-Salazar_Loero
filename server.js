@@ -652,6 +652,13 @@ app.post('/api/backup', (_req, res) => {
     else res.status(500).json({ error: "Error creando backup" });
 });
 
+// Ruta para descargar el JSON completo (respaldo)
+app.get('/api/exportar', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename=sog_database.json');
+    res.send(JSON.stringify(db, null, 2));
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en el puerto ${PORT}`);
     console.log(`Base de datos: ${DB_FILE}`);
