@@ -372,7 +372,7 @@
                 cargarListaGastos();
                 cargarListaCategorias();
                 cargarListaProveedores();
-                cargarEdicionRapida(); // Nueva función
+                cargarEdicionRapida();
                 actualizarDolarDisplay();
             } catch (err) { console.error("Error:", err); }
         }
@@ -579,7 +579,7 @@
                     <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th></th></tr></thead>
                     <tbody>`;
             dbProveedores.forEach(p => {
-                if(Number(p.id) === 0) return; // No editar POLAR
+                if(Number(p.id) === 0) return;
                 html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
                     <td><input type="text" class="form-control form-control-sm" value="${p.nombre}" data-campo="nombre"></td>
                     <td><input type="text" class="form-control form-control-sm" value="${p.rif||''}" data-campo="rif"></td>
@@ -637,7 +637,6 @@
                 else if(input.type === 'number') datos[campo] = Number(input.value) || 0;
                 else datos[campo] = input.value;
             });
-            // Asegurar deuda_vacios y deuda_inicial_vacios coherentes
             if(datos.deuda_vacios !== undefined) {
                 datos.deuda_inicial_vacios = datos.deuda_vacios;
             }
@@ -738,9 +737,7 @@
         }
 
         // ==================== EDICIÓN DE PRECIOS (ahora integrada en edición rápida) ====================
-        // Se mantiene la función por compatibilidad pero no se usa
         function cargarListaPreciosEdit() {
-            // Redirigir a la nueva edición rápida
             if(document.getElementById('edicion-rapida-container')) cargarEdicionRapida();
         }
 
@@ -1157,7 +1154,6 @@
             if(!ped) return;
             pedidoActualDespacho = ped;
             checkItemsDespacho = (ped.items||[]).map(i => ({...i, checked: false, errorStock: false}));
-            // Verificar stock para cada ítem
             checkItemsDespacho.forEach(item => {
                 const prod = dbProductos.find(p => p.id == item.prod_id);
                 if(prod && Number(item.cant_cajas||0) > Number(prod.stock||0)) item.errorStock = true;
