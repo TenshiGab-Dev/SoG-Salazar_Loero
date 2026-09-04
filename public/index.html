@@ -94,6 +94,14 @@
         .meta-quincena { border: 1px solid var(--color-oro-noble); border-radius: 8px; padding: 10px; margin-bottom: 10px; background: var(--color-blanco); }
         .meta-quincena-title { background: var(--color-azul-medianoche); color: var(--color-oro-noble); padding: 8px 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; }
         .bs-tag { font-size: 0.65rem; color: var(--color-gris-suave); }
+        .edicion-rapida-tabla { width: 100%; border-collapse: collapse; }
+        .edicion-rapida-tabla th, .edicion-rapida-tabla td { border: 1px solid rgba(212,175,55,0.3); padding: 6px; font-size: 0.8rem; }
+        .edicion-rapida-tabla th { background: var(--color-azul-medianoche); color: var(--color-oro-noble); }
+        .edicion-rapida-tabla input[type="text"], .edicion-rapida-tabla input[type="number"] { width: 100%; border: 1px solid var(--color-oro-noble); border-radius: 4px; padding: 4px 6px; font-size: 0.8rem; }
+        .edicion-rapida-tabla input[type="checkbox"] { width: auto; }
+        .btn-guardar-fila { background-color: var(--color-verde-oliva); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; }
+        .btn-guardar-fila:hover { background-color: #3d6b34; }
+        .buscador-rapido { margin-bottom: 10px; }
         @media (min-width: 768px) { .container { max-width: 800px; } .modal-dialog { max-width: 600px; } }
     </style>
 </head>
@@ -284,7 +292,7 @@
         <div id="sec-config" style="display:none;">
             <div class="d-flex justify-content-between mb-3"><h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-shield-lock me-2" style="color: var(--color-oro-noble);"></i>Configuración</h6><button class="btn btn-sm btn-dorado" onclick="ver('dashboard')">Volver</button></div>
             <div class="config-section"><div class="config-title"><i class="bi bi-building"></i> Proveedores</div><div id="lista-proveedores-config" class="mb-2"><div class="text-muted small">Sin proveedores</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formProveedor')">+ Agregar Proveedor</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formProveedor"><input type="hidden" id="prov-edit-id"><input type="text" id="prov-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre del Proveedor *"><input type="text" id="prov-rif" class="form-control form-control-sm mb-2" placeholder="RIF"><input type="text" id="prov-tel" class="form-control form-control-sm mb-2" placeholder="Teléfono"><input type="text" id="prov-dir" class="form-control form-control-sm mb-2" placeholder="Dirección"><select class="form-select form-select-sm mb-2" id="prov-categoria"><option value="General">General</option></select><div class="row g-2 mb-2"><div class="col-6"><label class="small">Deuda Inicial ($)</label><input type="number" id="prov-deuda" class="form-control form-control-sm" step="0.01"></div><div class="col-6"><label class="small">Vacíos (Auto)</label><input type="number" id="prov-vacios" class="form-control form-control-sm" disabled></div></div><div class="d-flex gap-2"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarProveedor()">Guardar</button><button class="btn btn-dorado btn-sm w-100" onclick="toggleForm('formProveedor')">Cancelar</button></div></div></div>
-            <div class="config-section"><div class="config-title"><i class="bi bi-tag"></i> Edición Rápida de Precios</div><div id="lista-precios-edit"><div class="text-center text-muted small">Sin productos</div></div></div>
+            <div class="config-section"><div class="config-title"><i class="bi bi-lightning-charge"></i> Edición Rápida de Gestión</div><div id="edicion-rapida-container"><div class="text-center text-muted">Cargando...</div></div></div>
             <div class="config-section"><div class="config-title"><i class="bi bi-people"></i> Usuarios</div><div id="lista-usuarios" class="mb-2"><div class="text-muted small">Sin usuarios</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formUsuario')">+ Agregar Usuario</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formUsuario"><input type="text" id="usr-usuario" class="form-control form-control-sm mb-2" placeholder="Usuario *"><input type="password" id="usr-clave" class="form-control form-control-sm mb-2" placeholder="Contraseña"><input type="text" id="usr-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre completo"><input type="text" id="usr-labor" class="form-control form-control-sm mb-2" placeholder="Labor / Cargo"><select class="form-select form-select-sm mb-2" id="usr-rol"><option value="Operador">Operador</option><option value="Contador">Contador</option><option value="Dueño">Dueño</option><option value="Admin">Admin</option></select><input type="color" id="usr-color" class="form-control form-control-sm mb-2" value="#D4AF37"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarUsuario()">Guardar</button></div></div>
             <div class="config-section"><div class="config-title"><i class="bi bi-graph-up"></i> Cierre Diario</div><div class="d-flex gap-2"><button class="btn btn-dorado btn-sm" onclick="desbloquearCierre()">Desbloquear Cierre</button><button class="btn btn-peligro btn-sm" onclick="borrarUltimoCierre()">Borrar Último Cierre</button></div></div>
             <div class="config-section"><div class="config-title" style="color: var(--color-rojo-vino);"><i class="bi bi-exclamation-triangle" style="color: var(--color-rojo-vino);"></i> Zona de Peligro</div><button class="btn btn-peligro btn-sm" onclick="confirmarLimpieza()">Limpiar Todo el Sistema</button></div>
@@ -364,7 +372,7 @@
                 cargarListaGastos();
                 cargarListaCategorias();
                 cargarListaProveedores();
-                cargarListaPreciosEdit();
+                cargarEdicionRapida(); // Nueva función
                 actualizarDolarDisplay();
             } catch (err) { console.error("Error:", err); }
         }
@@ -504,13 +512,166 @@
             if(sec === 'analisis-productos') cargarAnalisisProductos();
             if(sec === 'analisis-clientes') cargarAnalisisClientes();
             if(sec === 'gastos') { cargarListaTrabajadores(); cargarListaGastos(); }
-            if(sec === 'config') { cargarListaUsuarios(); cargarListaProveedores(); cargarListaPreciosEdit(); }
+            if(sec === 'config') { cargarListaUsuarios(); cargarListaProveedores(); cargarEdicionRapida(); }
             if(sec === 'metas') { cargarMetas(); }
             if(sec === 'dashboard') { actualizarContadores(); actualizarAlertas(); }
         }
 
         function cerrarMenu() { offcanvasMenu.hide(); }
         function toggleForm(id) { const el = document.getElementById(id); const bs = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, {toggle:false}); el.classList.contains('show') ? bs.hide() : bs.show(); }
+
+        // ==================== EDICIÓN RÁPIDA DE GESTIÓN ====================
+        function cargarEdicionRapida() {
+            const cont = document.getElementById('edicion-rapida-container');
+            if(!cont) return;
+            let html = '';
+
+            // --- PRODUCTOS ---
+            html += `<div class="mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-box me-2"></i>Productos</h6>
+                <input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-productos" placeholder="Buscar producto..." oninput="filtrarTabla('productos', this.value)">
+                <div style="overflow-x:auto;">
+                <table class="edicion-rapida-tabla" id="tabla-productos">
+                    <thead><tr><th>Nombre</th><th>Código</th><th>Stock</th><th>Precio $</th><th>Unid/Caja</th><th>Cajas/Paleta</th><th>Gabera</th><th>Exento IVA</th><th></th></tr></thead>
+                    <tbody>`;
+            dbProductos.forEach(p => {
+                html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
+                    <td><input type="text" class="form-control form-control-sm" value="${p.nombre}" data-campo="nombre"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${p.codigo||''}" data-campo="codigo"></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${p.stock||0}" data-campo="stock"></td>
+                    <td><input type="number" step="0.01" class="form-control form-control-sm" value="${p.precio||0}" data-campo="precio"></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${p.unid_por_caja||24}" data-campo="unid_por_caja"></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${p.cajas_por_paleta||60}" data-campo="cajas_por_paleta"></td>
+                    <td><input type="checkbox" class="form-check-input" ${p.usa_gabera?'checked':''} data-campo="usa_gabera"></td>
+                    <td><input type="checkbox" class="form-check-input" ${p.exento_iva?'checked':''} data-campo="exento_iva"></td>
+                    <td><button class="btn-guardar-fila" onclick="guardarFilaProducto(${p.id})">Guardar</button></td>
+                </tr>`;
+            });
+            html += `</tbody></table></div></div>`;
+
+            // --- CLIENTES ---
+            html += `<div class="mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-people me-2"></i>Clientes</h6>
+                <input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-clientes" placeholder="Buscar cliente..." oninput="filtrarTabla('clientes', this.value)">
+                <div style="overflow-x:auto;">
+                <table class="edicion-rapida-tabla" id="tabla-clientes">
+                    <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th>Vacíos</th><th></th></tr></thead>
+                    <tbody>`;
+            dbClientes.forEach(c => {
+                html += `<tr data-id="${c.id}" data-nombre="${c.nombre.toLowerCase()}">
+                    <td><input type="text" class="form-control form-control-sm" value="${c.nombre}" data-campo="nombre"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${c.rif||''}" data-campo="rif"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${c.telefono||''}" data-campo="telefono"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${c.direccion||''}" data-campo="direccion"></td>
+                    <td><input type="number" step="0.01" class="form-control form-control-sm" value="${c.deuda_inicial_dinero||0}" data-campo="deuda_inicial_dinero"></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${c.deuda_vacios||c.deuda_inicial_vacios||0}" data-campo="deuda_vacios"></td>
+                    <td><button class="btn-guardar-fila" onclick="guardarFilaCliente(${c.id})">Guardar</button></td>
+                </tr>`;
+            });
+            html += `</tbody></table></div></div>`;
+
+            // --- PROVEEDORES ---
+            html += `<div class="mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-building me-2"></i>Proveedores</h6>
+                <input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-proveedores" placeholder="Buscar proveedor..." oninput="filtrarTabla('proveedores', this.value)">
+                <div style="overflow-x:auto;">
+                <table class="edicion-rapida-tabla" id="tabla-proveedores">
+                    <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th></th></tr></thead>
+                    <tbody>`;
+            dbProveedores.forEach(p => {
+                if(Number(p.id) === 0) return; // No editar POLAR
+                html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
+                    <td><input type="text" class="form-control form-control-sm" value="${p.nombre}" data-campo="nombre"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${p.rif||''}" data-campo="rif"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${p.telefono||''}" data-campo="telefono"></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${p.direccion||''}" data-campo="direccion"></td>
+                    <td><input type="number" step="0.01" class="form-control form-control-sm" value="${p.deuda_inicial_dinero||0}" data-campo="deuda_inicial_dinero"></td>
+                    <td><button class="btn-guardar-fila" onclick="guardarFilaProveedor(${p.id})">Guardar</button></td>
+                </tr>`;
+            });
+            html += `</tbody></table></div></div>`;
+
+            cont.innerHTML = html;
+        }
+
+        function filtrarTabla(tipo, texto) {
+            const input = document.getElementById(`buscador-${tipo}`);
+            const tabla = document.getElementById(`tabla-${tipo}`);
+            if(!input || !tabla) return;
+            const filas = tabla.querySelectorAll('tbody tr');
+            const busqueda = texto.toLowerCase();
+            filas.forEach(fila => {
+                const nombre = fila.getAttribute('data-nombre') || '';
+                fila.style.display = nombre.includes(busqueda) ? '' : 'none';
+            });
+        }
+
+        async function guardarFilaProducto(id) {
+            const fila = document.querySelector(`#tabla-productos tr[data-id="${id}"]`);
+            if(!fila) return;
+            const datos = {};
+            fila.querySelectorAll('input[data-campo]').forEach(input => {
+                const campo = input.getAttribute('data-campo');
+                if(input.type === 'checkbox') datos[campo] = input.checked;
+                else if(input.type === 'number') datos[campo] = Number(input.value) || 0;
+                else datos[campo] = input.value;
+            });
+            mostrarSpinner();
+            await fetch(`/api/productos/rapido/${id}`, {
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(datos)
+            }).catch(()=>{});
+            notificar('Producto actualizado', 'success');
+            await cargarDatosServidor();
+            ocultarSpinner();
+        }
+
+        async function guardarFilaCliente(id) {
+            const fila = document.querySelector(`#tabla-clientes tr[data-id="${id}"]`);
+            if(!fila) return;
+            const datos = {};
+            fila.querySelectorAll('input[data-campo]').forEach(input => {
+                const campo = input.getAttribute('data-campo');
+                if(input.type === 'checkbox') datos[campo] = input.checked;
+                else if(input.type === 'number') datos[campo] = Number(input.value) || 0;
+                else datos[campo] = input.value;
+            });
+            // Asegurar deuda_vacios y deuda_inicial_vacios coherentes
+            if(datos.deuda_vacios !== undefined) {
+                datos.deuda_inicial_vacios = datos.deuda_vacios;
+            }
+            mostrarSpinner();
+            await fetch(`/api/clientes/${id}`, {
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(datos)
+            }).catch(()=>{});
+            notificar('Cliente actualizado', 'success');
+            await cargarDatosServidor();
+            ocultarSpinner();
+        }
+
+        async function guardarFilaProveedor(id) {
+            const fila = document.querySelector(`#tabla-proveedores tr[data-id="${id}"]`);
+            if(!fila) return;
+            const datos = {};
+            fila.querySelectorAll('input[data-campo]').forEach(input => {
+                const campo = input.getAttribute('data-campo');
+                if(input.type === 'checkbox') datos[campo] = input.checked;
+                else if(input.type === 'number') datos[campo] = Number(input.value) || 0;
+                else datos[campo] = input.value;
+            });
+            mostrarSpinner();
+            await fetch(`/api/proveedores/${id}`, {
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(datos)
+            }).catch(()=>{});
+            notificar('Proveedor actualizado', 'success');
+            await cargarDatosServidor();
+            ocultarSpinner();
+        }
 
         // ==================== METAS ====================
         async function cargarMetas() {
@@ -523,19 +684,19 @@
             const mes = mesInput.value;
             const div = document.getElementById('meta-contenido');
             if(!div) return;
-            
+
             const productosCerveceria = dbProductos.filter(p => p.categoria === 'Cervecería');
             if(!productosCerveceria.length) { div.innerHTML = '<div class="text-muted small">No hay productos en categoría Cervecería</div>'; return; }
-            
+
             const diasEnMes = new Date(parseInt(mes.split('-')[0]), parseInt(mes.split('-')[1]), 0).getDate();
             const primeraQuincena = {};
             const segundaQuincena = {};
-            
+
             productosCerveceria.forEach(p => {
                 primeraQuincena[p.nombre] = 0;
                 segundaQuincena[p.nombre] = 0;
             });
-            
+
             dbPedidos.filter(p => (p.fecha||'').startsWith(mes)).forEach(p => {
                 const dia = parseInt((p.fecha||'').split('T')[0].split('-')[2]);
                 const esPrimera = dia <= 15;
@@ -553,7 +714,7 @@
                     }
                 });
             });
-            
+
             let html = '';
             html += '<div class="meta-quincena"><div class="meta-quincena-title">Primera Quincena (1-15)</div>';
             let totalPrimera = 0;
@@ -562,7 +723,7 @@
                 html += `<div class="d-flex justify-content-between small border-bottom py-1"><span>${nombre}</span><strong>${cant} cjs</strong></div>`;
             });
             html += `<div class="balance-total">Total Primera Quincena: ${totalPrimera} cjs</div></div>`;
-            
+
             html += '<div class="meta-quincena"><div class="meta-quincena-title">Segunda Quincena (16-31)</div>';
             let totalSegunda = 0;
             Object.entries(segundaQuincena).forEach(([nombre, cant]) => {
@@ -570,41 +731,17 @@
                 html += `<div class="d-flex justify-content-between small border-bottom py-1"><span>${nombre}</span><strong>${cant} cjs</strong></div>`;
             });
             html += `<div class="balance-total">Total Segunda Quincena: ${totalSegunda} cjs</div></div>`;
-            
+
             html += `<div class="balance-total" style="font-size: 1.1rem; border: 2px solid var(--color-oro-noble); border-radius: 8px; padding: 10px;">TOTAL MENSUAL: ${totalPrimera + totalSegunda} cjs</div>`;
-            
+
             div.innerHTML = html;
         }
 
-        // ==================== EDICIÓN DE PRECIOS ====================
+        // ==================== EDICIÓN DE PRECIOS (ahora integrada en edición rápida) ====================
+        // Se mantiene la función por compatibilidad pero no se usa
         function cargarListaPreciosEdit() {
-            const div = document.getElementById('lista-precios-edit');
-            if(!div) return;
-            if(!dbProductos.length) { div.innerHTML = '<div class="text-center text-muted small">Sin productos</div>'; return; }
-            const categoriasConProductos = {};
-            dbCategorias.forEach(cat => {
-                const productos = dbProductos.filter(p => p.categoria === cat).sort((a,b) => a.nombre.localeCompare(b.nombre));
-                if(productos.length > 0) categoriasConProductos[cat] = productos;
-            });
-            let html = '<div class="precio-edit-list">';
-            Object.entries(categoriasConProductos).forEach(([categoria, productos]) => {
-                html += `<div class="precio-categoria-header" data-bs-toggle="collapse" data-bs-target="#precio-cat-${categoria.replace(/\s+/g, '-')}"><span>${categoria}</span><span class="badge" style="background: var(--color-oro-noble); color: var(--color-azul-medianoche);">${productos.length}</span></div>`;
-                html += `<div class="collapse" id="precio-cat-${categoria.replace(/\s+/g, '-')}">`;
-                productos.forEach(p => {
-                    html += `<div class="precio-item"><span class="small">${p.nombre}</span><input type="number" class="precio-input" value="${Number(p.precio||0).toFixed(2)}" onchange="actualizarPrecioRapido(${p.id}, this.value)"></div>`;
-                });
-                html += '</div>';
-            });
-            html += '</div>';
-            div.innerHTML = html;
-        }
-
-        async function actualizarPrecioRapido(id, nuevoPrecio) {
-            const precio = Number(nuevoPrecio);
-            if(precio < 0) return notificar('Precio inválido', 'warning');
-            await fetch(`/api/productos/precio/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({precio}) }).catch(()=>{});
-            notificar('Precio actualizado', 'success');
-            await cargarDatosServidor();
+            // Redirigir a la nueva edición rápida
+            if(document.getElementById('edicion-rapida-container')) cargarEdicionRapida();
         }
 
         // ==================== RESUMEN DE PEDIDOS ====================
@@ -875,12 +1012,12 @@
             const lista = document.getElementById('lista-carrito');
             const detalleIva = document.getElementById('detalle-iva');
             const lblSubtotal = document.getElementById('lbl-subtotal');
-            if(!carrito.length) { 
-                lista.innerHTML = '<div class="text-center text-muted small">Sin productos</div>'; 
+            if(!carrito.length) {
+                lista.innerHTML = '<div class="text-center text-muted small">Sin productos</div>';
                 document.getElementById('lbl-total').innerText = '$0.00';
                 if(lblSubtotal) lblSubtotal.innerText = '';
                 if(detalleIva) detalleIva.innerHTML = '';
-                return; 
+                return;
             }
             let html = '';
             let subtotal = 0;
@@ -889,7 +1026,7 @@
                 html += `<div class="d-flex justify-content-between border-bottom pb-1 mb-1" style="font-size:0.8rem"><div><strong>${item.nombre}</strong> ${item.exento_iva ? '<span class="badge bg-success">Exento</span>' : ''}<br><span class="text-muted">${item.cantidad} ${item.empaque} x $${item.precio_base.toFixed(2)}</span>${item.descuento > 0 ? `<span class="precio-descuento">-${item.descuento}% = $${item.precio_final.toFixed(2)}/unid</span>` : ''}</div><div class="text-end"><strong>$${item.total.toFixed(2)}</strong><br><i class="bi bi-x-circle text-danger" style="cursor:pointer" onclick="eliminarDelCarrito(${i})"></i></div></div>`;
             });
             lista.innerHTML = html;
-            
+
             const aplicarIva = document.getElementById('aplicar-iva').checked;
             let baseIva = 0;
             carrito.forEach(item => {
@@ -897,10 +1034,10 @@
             });
             const iva = aplicarIva ? baseIva * 0.16 : 0;
             const totalFinal = subtotal + iva;
-            
+
             if(lblSubtotal) lblSubtotal.innerText = `Subtotal: ${formatoMoneda(subtotal)}`;
             if(detalleIva) {
-                detalleIva.innerHTML = aplicarIva ? 
+                detalleIva.innerHTML = aplicarIva ?
                     `<div class="d-flex justify-content-between"><span>IVA (16%):</span><strong>${formatoMoneda(iva)}</strong></div>` : '';
             }
             document.getElementById('lbl-total').innerText = formatoMoneda(totalFinal);
@@ -922,7 +1059,7 @@
             const esProveedor = dbProveedores.some(p => String(p.id) === String(clienteId));
             const cuenta = esProveedor ? dbProveedores.find(p => String(p.id) === String(clienteId)) : dbClientes.find(c => String(c.id) === String(clienteId));
             if(!cuenta) { ocultarSpinner(); return notificar('Cuenta no encontrada', 'danger'); }
-            
+
             let subtotal = 0;
             carrito.forEach(item => { subtotal += item.total; });
             const aplicarIva = document.getElementById('aplicar-iva').checked;
@@ -930,7 +1067,7 @@
             carrito.forEach(item => { if(!item.exento_iva) baseIva += item.total; });
             const iva = aplicarIva ? baseIva * 0.16 : 0;
             const total = subtotal + iva;
-            
+
             if(editId) {
                 const idx = dbPedidos.findIndex(p => p.id == editId);
                 if(idx !== -1) {
@@ -999,13 +1136,18 @@
             const resumen = {};
             pendientes.forEach(p => (p.items||[]).forEach(i => {
                 const key = i.nombre || 'Producto';
-                if(!resumen[key]) resumen[key] = { cantidad: 0, pedidos: 0 };
+                if(!resumen[key]) resumen[key] = { cantidad: 0, pedidos: 0, stockDisponible: dbProductos.find(prod => prod.id == i.prod_id)?.stock || 0 };
                 resumen[key].cantidad += Number(i.cant_cajas||i.cantidad||0);
                 resumen[key].pedidos++;
             }));
             let html = '';
             let totalCajas = 0;
-            Object.entries(resumen).forEach(([nombre, datos]) => { totalCajas += datos.cantidad; html += `<div class="camion-item"><span><strong>${nombre}</strong><br><small class="text-muted">${datos.pedidos} pedido(s)</small></span><span class="fw-bold">${datos.cantidad} cjs</span></div>`; });
+            Object.entries(resumen).forEach(([nombre, datos]) => {
+                totalCajas += datos.cantidad;
+                const faltante = datos.cantidad - datos.stockDisponible;
+                const etiquetaContraPedido = faltante > 0 ? `<span class="badge bg-danger">Contra-Pedido: ${faltante} cjs</span>` : '';
+                html += `<div class="camion-item"><span><strong>${nombre}</strong><br><small class="text-muted">${datos.pedidos} pedido(s) | Stock: ${datos.stockDisponible} cjs</small> ${etiquetaContraPedido}</span><span class="fw-bold">${datos.cantidad} cjs</span></div>`;
+            });
             html += `<div class="camion-total">Total: ${totalCajas} cajas</div>`;
             document.getElementById('carga-camion').innerHTML = html;
         }
@@ -1014,7 +1156,12 @@
             const ped = dbPedidos.find(p => p.id == pedidoId);
             if(!ped) return;
             pedidoActualDespacho = ped;
-            checkItemsDespacho = (ped.items||[]).map(i => ({...i, checked: false}));
+            checkItemsDespacho = (ped.items||[]).map(i => ({...i, checked: false, errorStock: false}));
+            // Verificar stock para cada ítem
+            checkItemsDespacho.forEach(item => {
+                const prod = dbProductos.find(p => p.id == item.prod_id);
+                if(prod && Number(item.cant_cajas||0) > Number(prod.stock||0)) item.errorStock = true;
+            });
             renderCheckDespacho();
             modalCheckDespacho.show();
         }
@@ -1023,21 +1170,37 @@
             const div = document.getElementById('lista-check-despacho');
             let html = '';
             checkItemsDespacho.forEach((item, i) => {
-                html += `<div class="check-item-despacho ${item.checked ? 'checked' : ''}" onclick="toggleCheckDespacho(${i})"><span>${item.checked ? '✅' : '⬜'}</span><div><strong>${item.nombre}</strong><br><small class="text-muted">${item.cantidad} ${item.empaque} x $${Number(item.precio_base||0).toFixed(2)} = $${Number(item.total||0).toFixed(2)}</small></div></div>`;
+                const error = item.errorStock ? '<span class="text-danger small">Stock insuficiente</span>' : '';
+                html += `<div class="check-item-despacho ${item.checked ? 'checked' : ''}" onclick="toggleCheckDespacho(${i})"><span>${item.checked ? '✅' : '⬜'}</span><div><strong>${item.nombre}</strong><br><small class="text-muted">${item.cantidad} ${item.empaque} x $${Number(item.precio_base||0).toFixed(2)} = $${Number(item.total||0).toFixed(2)}</small> ${error}</div></div>`;
             });
             div.innerHTML = html;
             const btn = document.getElementById('btn-confirmar-despacho');
             const todosChecked = checkItemsDespacho.every(i => i.checked);
-            btn.disabled = !todosChecked;
-            btn.style.opacity = todosChecked ? '1' : '0.5';
+            const hayErrorStock = checkItemsDespacho.some(i => i.errorStock);
+            btn.disabled = !todosChecked || hayErrorStock;
+            btn.style.opacity = (!todosChecked || hayErrorStock) ? '0.5' : '1';
+            if(hayErrorStock) {
+                btn.title = 'Hay productos sin stock suficiente';
+            } else {
+                btn.title = '';
+            }
         }
 
-        function toggleCheckDespacho(index) { checkItemsDespacho[index].checked = !checkItemsDespacho[index].checked; renderCheckDespacho(); }
+        function toggleCheckDespacho(index) { 
+            if(checkItemsDespacho[index].errorStock) {
+                notificar('No se puede confirmar este ítem: stock insuficiente', 'danger');
+                return;
+            }
+            checkItemsDespacho[index].checked = !checkItemsDespacho[index].checked; 
+            renderCheckDespacho(); 
+        }
 
         async function confirmarDespacho() {
             if(!pedidoActualDespacho) return;
             const todosChecked = checkItemsDespacho.every(i => i.checked);
             if(!todosChecked) return notificar('Confirme todos los productos', 'warning');
+            const hayErrorStock = checkItemsDespacho.some(i => i.errorStock);
+            if(hayErrorStock) return notificar('Hay productos sin stock suficiente', 'danger');
             mostrarSpinner();
             const ped = dbPedidos.find(p => p.id == pedidoActualDespacho.id);
             if(!ped) { ocultarSpinner(); return; }
@@ -1112,7 +1275,7 @@
             const esProveedor = dbProveedores.some(p => String(p.id) === String(cuentaId));
             const cuenta = esProveedor ? dbProveedores.find(p => String(p.id) === String(cuentaId)) : dbClientes.find(c => String(c.id) === String(cuentaId));
             if(!cuenta) { ocultarSpinner(); return notificar('Cuenta no encontrada', 'danger'); }
-            
+
             let montoFinal = montoInput;
             let esBs = false;
             if(metodo === 'Efectivo Bs' || metodo === 'Pago Móvil' || metodo === 'Transferencia') {
@@ -1120,7 +1283,7 @@
                 if(!dolarActual) { ocultarSpinner(); return notificar('Registre el dólar del día primero', 'warning'); }
                 montoFinal = montoInput / dolarActual;
             }
-            
+
             const deuda = Number(cuenta.deuda_inicial_dinero)||0;
             if(montoFinal > deuda) { ocultarSpinner(); return notificar(`Supera deuda (${formatoMoneda(deuda)})`, 'danger'); }
             if(deuda <= 0) { ocultarSpinner(); return notificar('Sin deuda pendiente', 'warning'); }

@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.0.1)
+ * SoG - System of Gestión (Versión 1.1.0)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -29,7 +29,17 @@ const METAS_DIR = path.join(DATA_DIR, 'metas');
 const defaultDB = {
     clientes: [],
     proveedores: [
-        { id: 0, rif: 'J-00000000-0', nombre: 'EMPRESAS POLAR / PROVEEDOR', telefono: '0800-POLAR', direccion: 'Planta / Agencia Central', deuda_inicial_dinero: 0, deuda_vacios: 0, deuda_inicial_vacios: 0, categoria: 'General' }
+        {
+            id: 0,
+            rif: 'J-00000000-0',
+            nombre: 'ALIMENTOS POLAR / PROV',
+            telefono: '0800-POLAR',
+            direccion: 'Planta / Agencia Central',
+            deuda_inicial_dinero: 0,
+            deuda_vacios: 0,
+            deuda_inicial_vacios: 0,
+            categorias: ['Alimentos']
+        }
     ],
     productos: [],
     pedidos: [],
@@ -55,8 +65,26 @@ function loadDatabase() {
             const parsed = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
             if (!parsed.proveedores) parsed.proveedores = [];
             if (!parsed.proveedores.some(p => Number(p.id) === 0)) {
-                parsed.proveedores.unshift({ id: 0, rif: 'J-00000000-0', nombre: 'EMPRESAS POLAR / PROVEEDOR', telefono: '0800-POLAR', direccion: 'Planta / Agencia Central', deuda_inicial_dinero: 0, deuda_vacios: 0, deuda_inicial_vacios: 0, categoria: 'General' });
+                parsed.proveedores.unshift({
+                    id: 0,
+                    rif: 'J-00000000-0',
+                    nombre: 'ALIMENTOS POLAR / PROV',
+                    telefono: '0800-POLAR',
+                    direccion: 'Planta / Agencia Central',
+                    deuda_inicial_dinero: 0,
+                    deuda_vacios: 0,
+                    deuda_inicial_vacios: 0,
+                    categorias: ['Alimentos']
+                });
             }
+            // Migrar proveedor.categoria a categorias (array)
+            parsed.proveedores.forEach(prov => {
+                if (!prov.categorias && prov.categoria) {
+                    prov.categorias = [prov.categoria];
+                } else if (!prov.categorias) {
+                    prov.categorias = ['General'];
+                }
+            });
             if (parsed.clientes) parsed.clientes = parsed.clientes.filter(c => Number(c.id) !== 0);
             if (!parsed.categorias || !parsed.categorias.length) parsed.categorias = ['General'];
             if (!parsed.gastos) parsed.gastos = [];
@@ -86,7 +114,7 @@ function getNextId(entity) {
 function hacerBackup() {
     const fecha = new Date().toISOString().split('T')[0];
     const backupFile = path.join(BACKUPS_DIR, `backup_${fecha}.json`);
-    try { fs.writeFileSync(backupFile, JSON.stringify(db, null, 2), 'utf8'); console.log(`Backup creado: ${backupFile}`); return backupFile; }
+    try { fs.writeFileSync(backupFile, JSON.stringify(db, null, 2), 'utf8'); return backupFile; }
     catch (e) { console.error("Error backup:", e.message); return null; }
 }
 
@@ -117,6 +145,7 @@ app.post('/api/logout', (_req, res) => res.json({ ok: true }));
 
 // Usuarios
 app.get('/api/usuarios', (_req, res) => res.json(db.usuarios.map(u => ({ id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol, color: u.color, labor: u.labor }))));
+
 app.post('/api/usuarios', (req, res) => {
     const { id, usuario, clave, nombre, rol, color, labor } = req.body;
     if (id) {
@@ -128,37 +157,77 @@ app.post('/api/usuarios', (req, res) => {
     } else {
         db.usuarios.push({ id: getNextId('usuarios'), usuario: usuario || 'usuario', clave: clave || '1234', nombre: nombre || usuario || 'Usuario', rol: rol || 'Operador', color: color || '#D4AF37', labor: labor || '' });
     }
-    saveDatabase(); res.json({ ok: true });
+    saveDatabase();
+    res.json({ ok: true });
 });
+
 app.delete('/api/usuarios/:id', (req, res) => {
     const { id } = req.params;
     if (Number(id) === 1) return res.status(400).json({ error: "No se puede eliminar al admin" });
-    db.usuarios = db.usuarios.filter(u => u.id != id); saveDatabase(); res.json({ ok: true });
+    db.usuarios = db.usuarios.filter(u => u.id != id);
+    saveDatabase();
+    res.json({ ok: true });
 });
 
 // Proveedores
 app.get('/api/proveedores', (_req, res) => res.json(db.proveedores || []));
+
 app.post('/api/proveedores', (req, res) => {
-    const { id, rif, nombre, telefono, direccion, deuda_inicial_dinero, deuda_vacios, categoria } = req.body;
+    const { id, rif, nombre, telefono, direccion, deuda_inicial_dinero, categorias, categoria } = req.body;
+    const cats = Array.isArray(categorias) ? categorias : (categoria ? [categoria] : ['General']);
     if (id !== undefined && id !== null && id !== '') {
         const idx = db.proveedores.findIndex(p => String(p.id) === String(id));
-        const provObj = { id: Number(id), rif: rif || '', nombre: nombre || 'Proveedor', telefono: telefono || '', direccion: direccion || '', deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0, deuda_vacios: 0, deuda_inicial_vacios: 0, categoria: categoria || 'General' };
-        if (idx !== -1) db.proveedores[idx] = provObj; else db.proveedores.push(provObj);
+        const provObj = {
+            id: Number(id),
+            rif: rif || '',
+            nombre: nombre || 'Proveedor',
+            telefono: telefono || '',
+            direccion: direccion || '',
+            deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0,
+            deuda_vacios: 0,
+            deuda_inicial_vacios: 0,
+            categorias: cats
+        };
+        if (idx !== -1) db.proveedores[idx] = provObj;
+        else db.proveedores.push(provObj);
     } else {
-        db.proveedores.push({ id: getNextId('proveedores'), rif: rif || '', nombre: nombre || 'Proveedor', telefono: telefono || '', direccion: direccion || '', deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0, deuda_vacios: 0, deuda_inicial_vacios: 0, categoria: categoria || 'General' });
+        db.proveedores.push({
+            id: getNextId('proveedores'),
+            rif: rif || '',
+            nombre: nombre || 'Proveedor',
+            telefono: telefono || '',
+            direccion: direccion || '',
+            deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0,
+            deuda_vacios: 0,
+            deuda_inicial_vacios: 0,
+            categorias: cats
+        });
     }
-    saveDatabase(); res.json({ ok: true });
+    saveDatabase();
+    res.json({ ok: true });
 });
+
 app.put('/api/proveedores/:id', (req, res) => {
     const { id } = req.params;
     const idx = db.proveedores.findIndex(p => String(p.id) === String(id));
-    if (idx !== -1) { db.proveedores[idx] = { ...db.proveedores[idx], ...req.body }; saveDatabase(); res.json({ ok: true }); }
-    else res.status(404).json({ error: "Proveedor no encontrado" });
+    if (idx !== -1) {
+        const body = { ...req.body };
+        if (body.categoria && !body.categorias) body.categorias = [body.categoria];
+        if (body.categorias) body.categorias = Array.isArray(body.categorias) ? body.categorias : [body.categorias];
+        db.proveedores[idx] = { ...db.proveedores[idx], ...body };
+        saveDatabase();
+        res.json({ ok: true });
+    } else {
+        res.status(404).json({ error: "Proveedor no encontrado" });
+    }
 });
+
 app.delete('/api/proveedores/:id', (req, res) => {
     const { id } = req.params;
     if (Number(id) === 0) return res.status(400).json({ error: "No se puede eliminar POLAR" });
-    db.proveedores = db.proveedores.filter(p => String(p.id) !== String(id)); saveDatabase(); res.json({ ok: true });
+    db.proveedores = db.proveedores.filter(p => String(p.id) !== String(id));
+    saveDatabase();
+    res.json({ ok: true });
 });
 
 // Clientes
@@ -168,46 +237,89 @@ app.get('/api/clientes', (req, res) => {
     if (q) clientes = clientes.filter(c => (c.nombre && c.nombre.toLowerCase().includes(q)) || (c.rif && c.rif.includes(q)));
     res.json(clientes);
 });
+
 app.post('/api/clientes', (req, res) => {
     const { id, rif, nombre, telefono, direccion, deuda_inicial_dinero, deuda_inicial_vacios, deuda_vacios } = req.body;
     if (id !== undefined && id !== null && id !== '') {
         const idx = db.clientes.findIndex(c => String(c.id) === String(id));
-        const cliObj = { id: Number(id), rif: rif || '', nombre: nombre || 'Sin Nombre', telefono: telefono || '', direccion: direccion || '', deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0, deuda_inicial_vacios: Number(deuda_inicial_vacios || deuda_vacios) || 0, deuda_vacios: Number(deuda_vacios || deuda_inicial_vacios) || 0 };
-        if (idx !== -1) db.clientes[idx] = cliObj; else db.clientes.push(cliObj);
+        const cliObj = {
+            id: Number(id),
+            rif: rif || '',
+            nombre: nombre || 'Sin Nombre',
+            telefono: telefono || '',
+            direccion: direccion || '',
+            deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0,
+            deuda_inicial_vacios: Number(deuda_inicial_vacios || deuda_vacios) || 0,
+            deuda_vacios: Number(deuda_vacios || deuda_inicial_vacios) || 0
+        };
+        if (idx !== -1) db.clientes[idx] = cliObj;
+        else db.clientes.push(cliObj);
     } else {
-        db.clientes.push({ id: getNextId('clientes'), rif: rif || '', nombre: nombre || 'Sin Nombre', telefono: telefono || '', direccion: direccion || '', deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0, deuda_inicial_vacios: Number(deuda_inicial_vacios || deuda_vacios) || 0, deuda_vacios: Number(deuda_vacios || deuda_inicial_vacios) || 0 });
+        db.clientes.push({
+            id: getNextId('clientes'),
+            rif: rif || '',
+            nombre: nombre || 'Sin Nombre',
+            telefono: telefono || '',
+            direccion: direccion || '',
+            deuda_inicial_dinero: Number(deuda_inicial_dinero) || 0,
+            deuda_inicial_vacios: Number(deuda_inicial_vacios || deuda_vacios) || 0,
+            deuda_vacios: Number(deuda_vacios || deuda_inicial_vacios) || 0
+        });
     }
-    saveDatabase(); res.json({ ok: true });
+    saveDatabase();
+    res.json({ ok: true });
 });
+
 app.put('/api/clientes/:id', (req, res) => {
     const { id } = req.params;
     const idx = db.clientes.findIndex(c => String(c.id) === String(id));
     if (idx !== -1) { db.clientes[idx] = { ...db.clientes[idx], ...req.body }; saveDatabase(); res.json({ ok: true }); }
     else res.status(404).json({ error: "Cliente no encontrado" });
 });
+
 app.delete('/api/clientes/:id', (req, res) => {
     const { id } = req.params;
     db.clientes = db.clientes.filter(c => String(c.id) !== String(id));
     db.movimientos = db.movimientos.filter(m => String(m.cliente_id) !== String(id) && String(m.cuenta_id) !== String(id));
     db.pedidos = db.pedidos.filter(p => String(p.cliente_id) !== String(id));
-    saveDatabase(); res.json({ ok: true });
+    saveDatabase();
+    res.json({ ok: true });
 });
 
 // Productos
 app.get('/api/productos', (_req, res) => res.json(db.productos));
+
 app.post('/api/productos', (req, res) => {
     const { id, codigo, nombre, categoria, stock, stock_cajas, precio, precio_caja, unid_por_caja, unidades_por_caja, cajas_por_paleta, usa_gabera, exento_iva } = req.body;
-    const prodObj = { id: id ? Number(id) : getNextId('productos'), codigo: codigo || '', nombre: nombre || 'Sin Nombre', categoria: categoria || 'General', stock: Number(stock || stock_cajas) || 0, stock_cajas: Number(stock || stock_cajas) || 0, precio: Number(precio || precio_caja) || 0, precio_caja: Number(precio || precio_caja) || 0, unid_por_caja: Number(unid_por_caja || unidades_por_caja) || 24, unidades_por_caja: Number(unid_por_caja || unidades_por_caja) || 24, cajas_por_paleta: Number(cajas_por_paleta) || 60, usa_gabera: Boolean(usa_gabera), exento_iva: Boolean(exento_iva) };
+    const prodObj = {
+        id: id ? Number(id) : getNextId('productos'),
+        codigo: codigo || '',
+        nombre: nombre || 'Sin Nombre',
+        categoria: categoria || 'General',
+        stock: Number(stock || stock_cajas) || 0,
+        stock_cajas: Number(stock || stock_cajas) || 0,
+        precio: Number(precio || precio_caja) || 0,
+        precio_caja: Number(precio || precio_caja) || 0,
+        unid_por_caja: Number(unid_por_caja || unidades_por_caja) || 24,
+        unidades_por_caja: Number(unid_por_caja || unidades_por_caja) || 24,
+        cajas_por_paleta: Number(cajas_por_paleta) || 60,
+        usa_gabera: Boolean(usa_gabera),
+        exento_iva: Boolean(exento_iva)
+    };
     const idx = db.productos.findIndex(p => p.id === prodObj.id);
-    if (idx !== -1) db.productos[idx] = prodObj; else db.productos.push(prodObj);
-    saveDatabase(); res.json({ ok: true });
+    if (idx !== -1) db.productos[idx] = prodObj;
+    else db.productos.push(prodObj);
+    saveDatabase();
+    res.json({ ok: true });
 });
+
 app.put('/api/productos/:id', (req, res) => {
     const { id } = req.params;
     const idx = db.productos.findIndex(p => p.id == id);
     if (idx !== -1) { db.productos[idx] = { ...db.productos[idx], ...req.body }; saveDatabase(); res.json({ ok: true }); }
     else res.status(404).json({ error: "Producto no encontrado" });
 });
+
 app.put('/api/productos/precio/:id', (req, res) => {
     const { id } = req.params;
     const { precio } = req.body;
@@ -215,9 +327,31 @@ app.put('/api/productos/precio/:id', (req, res) => {
     if (idx !== -1) { db.productos[idx].precio = Number(precio) || 0; db.productos[idx].precio_caja = Number(precio) || 0; saveDatabase(); res.json({ ok: true }); }
     else res.status(404).json({ error: "Producto no encontrado" });
 });
+
+// Edición rápida ampliada
+app.put('/api/productos/rapido/:id', (req, res) => {
+    const { id } = req.params;
+    const { nombre, codigo, stock, precio, unid_por_caja, cajas_por_paleta, usa_gabera, exento_iva } = req.body;
+    const idx = db.productos.findIndex(p => p.id == id);
+    if (idx !== -1) {
+        if (nombre !== undefined) db.productos[idx].nombre = nombre;
+        if (codigo !== undefined) db.productos[idx].codigo = codigo;
+        if (stock !== undefined) { db.productos[idx].stock = Number(stock) || 0; db.productos[idx].stock_cajas = Number(stock) || 0; }
+        if (precio !== undefined) { db.productos[idx].precio = Number(precio) || 0; db.productos[idx].precio_caja = Number(precio) || 0; }
+        if (unid_por_caja !== undefined) { db.productos[idx].unid_por_caja = Number(unid_por_caja) || 24; db.productos[idx].unidades_por_caja = Number(unid_por_caja) || 24; }
+        if (cajas_por_paleta !== undefined) db.productos[idx].cajas_por_paleta = Number(cajas_por_paleta) || 60;
+        if (usa_gabera !== undefined) db.productos[idx].usa_gabera = Boolean(usa_gabera);
+        if (exento_iva !== undefined) db.productos[idx].exento_iva = Boolean(exento_iva);
+        saveDatabase();
+        res.json({ ok: true, producto: db.productos[idx] });
+    } else res.status(404).json({ error: "Producto no encontrado" });
+});
+
 app.delete('/api/productos/:id', (req, res) => {
     const { id } = req.params;
-    db.productos = db.productos.filter(p => p.id != id); saveDatabase(); res.json({ ok: true });
+    db.productos = db.productos.filter(p => p.id != id);
+    saveDatabase();
+    res.json({ ok: true });
 });
 
 // Categorías
@@ -231,26 +365,32 @@ app.put('/api/categorias/:nombre', (req, res) => {
     const { nombre } = req.params;
     const { nuevoNombre } = req.body;
     const idx = db.categorias.findIndex(c => c === nombre);
-    if (idx !== -1) { db.categorias[idx] = nuevoNombre || nombre; db.productos.forEach(p => { if (p.categoria === nombre) p.categoria = nuevoNombre || nombre; }); saveDatabase(); res.json({ ok: true, categorias: db.categorias }); }
-    else res.status(404).json({ error: "Categoría no encontrada" });
+    if (idx !== -1) {
+        db.categorias[idx] = nuevoNombre || nombre;
+        db.productos.forEach(p => { if (p.categoria === nombre) p.categoria = nuevoNombre || nombre; });
+        saveDatabase();
+        res.json({ ok: true, categorias: db.categorias });
+    } else res.status(404).json({ error: "Categoría no encontrada" });
 });
 app.delete('/api/categorias/:nombre', (req, res) => {
     const { nombre } = req.params;
     if (nombre === 'General') return res.status(400).json({ error: "No se puede eliminar General" });
     db.categorias = db.categorias.filter(c => c !== nombre);
     db.productos.forEach(p => { if (p.categoria === nombre) p.categoria = 'General'; });
-    saveDatabase(); res.json({ ok: true, categorias: db.categorias });
+    saveDatabase();
+    res.json({ ok: true, categorias: db.categorias });
 });
 
 // Dólar
 app.post('/api/dolar', (req, res) => {
     const { valor } = req.body;
     db.dolarActual = Number(valor) || null;
-    saveDatabase(); res.json({ ok: true, dolar: db.dolarActual });
+    saveDatabase();
+    res.json({ ok: true, dolar: db.dolarActual });
 });
 app.get('/api/dolar', (_req, res) => res.json({ dolar: db.dolarActual }));
 
-// Pedidos (CORREGIDO: reserva stock al crear, libera al editar/eliminar)
+// Pedidos (reserva stock al crear pendiente)
 app.get('/api/pedidos', (_req, res) => {
     const pedidos = db.pedidos.map(p => {
         const cliente = db.clientes.find(c => String(c.id) === String(p.cliente_id));
@@ -261,7 +401,7 @@ app.get('/api/pedidos', (_req, res) => {
 });
 
 app.post('/api/pedidos', (req, res) => {
-    const { cliente_id, serial_factura, serial, total, monto, tipo, tipo_doc, items, fecha, usuario, subtotal, iva, exento_iva } = req.body;
+    const { cliente_id, serial_factura, serial, total, monto, tipo, tipo_doc, items, fecha, usuario, subtotal, iva, moneda, monto_original, dolar } = req.body;
     const esProveedor = db.proveedores.some(p => String(p.id) === String(cliente_id));
     const cliente = esProveedor ? db.proveedores.find(p => String(p.id) === String(cliente_id)) : db.clientes.find(c => String(c.id) === String(cliente_id));
     const pedidoObj = {
@@ -278,12 +418,14 @@ app.post('/api/pedidos', (req, res) => {
         fecha: fecha || fechaVenezuela(),
         creado_por: usuario || 'admin',
         es_proveedor: esProveedor,
-        nombre_cliente: cliente ? cliente.nombre : 'Desconocido'
+        nombre_cliente: cliente ? cliente.nombre : 'Desconocido',
+        moneda: moneda || null,
+        monto_original: monto_original || null,
+        dolar: dolar || null
     };
     db.pedidos.push(pedidoObj);
 
     if (pedidoObj.estado === 'pendiente') {
-        // RESERVAR STOCK INMEDIATAMENTE
         (items || []).forEach(item => {
             const prod = db.productos.find(p => p.id == item.prod_id);
             if (prod && !esProveedor) {
@@ -292,13 +434,14 @@ app.post('/api/pedidos', (req, res) => {
             }
         });
     } else {
-        // Factura directa: descontar y registrar movimiento
         if (cliente) cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + pedidoObj.total;
         (items || []).forEach(item => {
             const prod = db.productos.find(p => p.id == item.prod_id);
             if (prod) {
-                if (esProveedor) { prod.stock = (Number(prod.stock) || 0) + Number(item.cant_cajas || 0); prod.stock_cajas = prod.stock; }
-                else {
+                if (esProveedor) {
+                    prod.stock = (Number(prod.stock) || 0) + Number(item.cant_cajas || 0);
+                    prod.stock_cajas = prod.stock;
+                } else {
                     prod.stock = Math.max(0, (Number(prod.stock) || 0) - Number(item.cant_cajas || 0));
                     prod.stock_cajas = prod.stock;
                     if (prod.usa_gabera && cliente) {
@@ -309,7 +452,9 @@ app.post('/api/pedidos', (req, res) => {
             }
         });
         db.movimientos.push({
-            id: getNextId('movimientos'), cliente_id: cliente_id, cuenta_id: cliente_id,
+            id: getNextId('movimientos'),
+            cliente_id: cliente_id,
+            cuenta_id: cliente_id,
             tipo: esProveedor ? 'COMPRA_PROVEEDOR' : 'FACTURA',
             fecha: pedidoObj.fecha,
             detalle: esProveedor ? `Compra a ${cliente?.nombre || 'Proveedor'}` : 'Factura',
@@ -317,7 +462,10 @@ app.post('/api/pedidos', (req, res) => {
             subtotal: pedidoObj.subtotal,
             iva: pedidoObj.iva,
             items: items || [],
-            usuario: usuario || 'admin'
+            usuario: usuario || 'admin',
+            moneda: moneda || null,
+            monto_original: monto_original || null,
+            dolar: dolar || null
         });
     }
     saveDatabase();
@@ -328,29 +476,21 @@ app.put('/api/pedidos/:id', (req, res) => {
     const { id } = req.params;
     const idx = db.pedidos.findIndex(p => p.id == id);
     if (idx === -1) return res.status(404).json({ error: "Pedido no encontrado" });
-
     const pedidoAnterior = db.pedidos[idx];
     const esProveedor = db.proveedores.some(p => String(p.id) === String(pedidoAnterior.cliente_id));
-
-    // Liberar stock anterior si era pendiente
     if (pedidoAnterior.estado === 'pendiente' || pedidoAnterior.estado === 'Pendiente') {
         (pedidoAnterior.items || []).forEach(item => {
             const prod = db.productos.find(p => p.id == item.prod_id);
             if (prod && !esProveedor) { prod.stock = (Number(prod.stock) || 0) + Number(item.cant_cajas || 0); prod.stock_cajas = prod.stock; }
         });
     }
-
-    // Actualizar pedido
     db.pedidos[idx] = { ...db.pedidos[idx], ...req.body };
-
-    // Reservar stock nuevo si sigue pendiente
     if (db.pedidos[idx].estado === 'pendiente' || db.pedidos[idx].estado === 'Pendiente') {
         (db.pedidos[idx].items || []).forEach(item => {
             const prod = db.productos.find(p => p.id == item.prod_id);
             if (prod && !esProveedor) { prod.stock = Math.max(0, (Number(prod.stock) || 0) - Number(item.cant_cajas || 0)); prod.stock_cajas = prod.stock; }
         });
     }
-
     saveDatabase();
     res.json({ ok: true });
 });
@@ -359,27 +499,23 @@ app.post('/api/pedidos/:id/facturar', (req, res) => {
     const { id } = req.params;
     const pedido = db.pedidos.find(p => p.id == id);
     if (!pedido) return res.status(404).json({ error: "Pedido no encontrado" });
-
     const esProveedor = db.proveedores.some(p => String(p.id) === String(pedido.cliente_id));
     const cliente = esProveedor ? db.proveedores.find(p => String(p.id) === String(pedido.cliente_id)) : db.clientes.find(c => String(c.id) === String(pedido.cliente_id));
-
     pedido.estado = 'completado';
     pedido.tipo = 'factura';
-
     if (cliente) cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + Number(pedido.total || 0);
-
-    // Stock ya está descontado por reserva, solo confirmar gabera
     (pedido.items || []).forEach(item => {
         const prod = db.productos.find(p => p.id == item.prod_id);
         if (prod) {
-            if (esProveedor) { prod.stock = (Number(prod.stock) || 0) + Number(item.cant_cajas || 0); prod.stock_cajas = prod.stock; }
-            else if (prod.usa_gabera && cliente) {
+            if (esProveedor) {
+                prod.stock = (Number(prod.stock) || 0) + Number(item.cant_cajas || 0);
+                prod.stock_cajas = prod.stock;
+            } else if (prod.usa_gabera && cliente) {
                 cliente.deuda_vacios = (Number(cliente.deuda_vacios || 0) || 0) + Number(item.cant_cajas || 0);
                 cliente.deuda_inicial_vacios = cliente.deuda_vacios;
             }
         }
     });
-
     db.movimientos.push({
         id: getNextId('movimientos'),
         cliente_id: pedido.cliente_id,
@@ -391,10 +527,11 @@ app.post('/api/pedidos/:id/facturar', (req, res) => {
         subtotal: pedido.subtotal,
         iva: pedido.iva,
         items: pedido.items || [],
-        usuario: pedido.creado_por || 'admin'
+        usuario: pedido.creado_por || 'admin',
+        moneda: pedido.moneda || null,
+        monto_original: pedido.monto_original || null,
+        dolar: pedido.dolar || null
     });
-
-    // +Vacíos
     (pedido.items || []).forEach(item => {
         const prod = db.productos.find(p => p.id == item.prod_id);
         if (prod && prod.usa_gabera && !esProveedor && cliente) {
@@ -412,7 +549,6 @@ app.post('/api/pedidos/:id/facturar', (req, res) => {
             });
         }
     });
-
     saveDatabase();
     res.json({ ok: true });
 });
@@ -462,10 +598,12 @@ app.post('/api/movimientos', (req, res) => {
     saveDatabase();
     res.json({ ok: true, id: movObj.id });
 });
+
 app.get('/api/movimientos/:cuenta_id', (req, res) => {
     const { cuenta_id } = req.params;
     res.json(db.movimientos.filter(m => String(m.cliente_id) === String(cuenta_id) || String(m.cuenta_id) === String(cuenta_id)));
 });
+
 app.get('/api/movimientos', (_req, res) => res.json(db.movimientos));
 app.delete('/api/movimientos/:id', (req, res) => {
     const { id } = req.params;
@@ -474,7 +612,7 @@ app.delete('/api/movimientos/:id', (req, res) => {
     res.json({ ok: true });
 });
 
-// Pagos (CORREGIDO: acepta moneda, monto_original, dolar)
+// Pagos
 app.post('/api/pagos', (req, res) => {
     const { tipo_transaccion, cliente_id, cuenta_id, metodo_pago, metodo, monto, referencia, ref, fecha, usuario, moneda, monto_original, dolar } = req.body;
     const targetCuentaId = cuenta_id !== undefined && cuenta_id !== '' ? cuenta_id : cliente_id;
@@ -553,23 +691,36 @@ app.delete('/api/trabajadores/:id', (req, res) => {
 });
 
 // Metas
-app.get('/api/metas/:mes', (req, res) => {
-    const { mes } = req.params;
-    const metaFile = path.join(METAS_DIR, `meta_${mes}.json`);
+app.get('/api/metas/:categoria/:mes', (req, res) => {
+    const { categoria, mes } = req.params;
+    const safeCat = categoria.replace(/[^a-zA-Z0-9]/g, '_');
+    const metaFile = path.join(METAS_DIR, `meta_${safeCat}_${mes}.json`);
     if (fs.existsSync(metaFile)) res.json(JSON.parse(fs.readFileSync(metaFile, 'utf8')));
-    else res.json({ mes: mes, primera_quincena: {}, segunda_quincena: {}, total_mensual: 0 });
+    else res.json({ categoria, mes, primera_quincena: {}, segunda_quincena: {}, total_mensual: 0 });
 });
+
 app.post('/api/metas', (req, res) => {
-    const { mes, primera_quincena, segunda_quincena } = req.body;
-    const metaFile = path.join(METAS_DIR, `meta_${mes}.json`);
+    const { categoria, mes, primera_quincena, segunda_quincena } = req.body;
+    const safeCat = (categoria || 'General').replace(/[^a-zA-Z0-9]/g, '_');
+    const metaFile = path.join(METAS_DIR, `meta_${safeCat}_${mes}.json`);
+    const totalPrimera = Object.values(primera_quincena || {}).reduce((s, v) => s + Number(v || 0), 0);
+    const totalSegunda = Object.values(segunda_quincena || {}).reduce((s, v) => s + Number(v || 0), 0);
     const metaObj = {
-        mes: mes,
+        categoria,
+        mes,
         primera_quincena: primera_quincena || {},
         segunda_quincena: segunda_quincena || {},
-        total_mensual: (Object.values(primera_quincena || {}).reduce((s, v) => s + Number(v || 0), 0) + Object.values(segunda_quincena || {}).reduce((s, v) => s + Number(v || 0), 0))
+        total_mensual: totalPrimera + totalSegunda
     };
     fs.writeFileSync(metaFile, JSON.stringify(metaObj, null, 2), 'utf8');
     res.json({ ok: true, meta: metaObj });
+});
+
+// Exportación
+app.get('/api/exportar', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename=sog_database.json');
+    res.send(JSON.stringify(db, null, 2));
 });
 
 // Limpieza
@@ -582,7 +733,7 @@ app.post('/api/limpiar', (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Cierre diario (CORREGIDO: usa fechaVenezuela y limpia completados/gastos)
+// Cierre diario
 app.post('/api/cierre', (req, res) => {
     if (db.cierreBloqueado) return res.status(400).json({ error: "El cierre ya fue realizado hoy" });
     const hoy = fechaVenezuela().split('T')[0];
@@ -615,17 +766,10 @@ app.post('/api/cierre', (req, res) => {
     db.ultimoCierre = cierreObj;
     db.cierreBloqueado = true;
 
-    // Limpiar gastos del día (solo del día actual)
-    db.gastos = (db.gastos || []).filter(g => {
-        const f = g.fecha ? new Date(g.fecha) : new Date();
-        return f.toISOString().split('T')[0] !== hoy;
-    });
-
-    // Limpiar pedidos completados del día (mantener pendientes)
+    db.gastos = (db.gastos || []).filter(g => (g.fecha || '').split('T')[0] !== hoy);
     db.pedidos = db.pedidos.filter(p => {
         if (p.estado === 'pendiente' || p.estado === 'Pendiente') return true;
-        const f = p.fecha ? new Date(p.fecha) : new Date();
-        return f.toISOString().split('T')[0] !== hoy;
+        return (p.fecha || '').split('T')[0] !== hoy;
     });
 
     hacerBackup();
@@ -634,8 +778,11 @@ app.post('/api/cierre', (req, res) => {
 });
 
 app.post('/api/cierre/desbloquear', (req, res) => {
-    db.cierreBloqueado = false; saveDatabase(); res.json({ ok: true });
+    db.cierreBloqueado = false;
+    saveDatabase();
+    res.json({ ok: true });
 });
+
 app.post('/api/cierre/borrar-ultimo', (req, res) => {
     if (db.cierres && db.cierres.length > 0) {
         db.cierres.pop();
@@ -644,19 +791,13 @@ app.post('/api/cierre/borrar-ultimo', (req, res) => {
         res.json({ ok: true });
     } else res.status(404).json({ error: "No hay cierres para borrar" });
 });
+
 app.get('/api/cierres', (_req, res) => res.json(db.cierres || []));
 
 app.post('/api/backup', (_req, res) => {
     const backupFile = hacerBackup();
     if (backupFile) res.json({ ok: true, archivo: backupFile });
     else res.status(500).json({ error: "Error creando backup" });
-});
-
-// Ruta para descargar el JSON completo (respaldo)
-app.get('/api/exportar', (_req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename=sog_database.json');
-    res.send(JSON.stringify(db, null, 2));
 });
 
 app.listen(PORT, () => {
