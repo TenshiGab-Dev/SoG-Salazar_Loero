@@ -10,7 +10,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Alimentos"
+      "categoria": "Alimentos",
+      "categorias": [
+        "Alimentos"
+      ]
     },
     {
       "id": 1,
@@ -21,7 +24,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Cervecería"
+      "categoria": "Cervecería",
+      "categorias": [
+        "Cervecería"
+      ]
     },
     {
       "id": 2,
@@ -32,7 +38,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Maltas"
+      "categoria": "Maltas",
+      "categorias": [
+        "Maltas"
+      ]
     },
     {
       "id": 3,
@@ -43,7 +52,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Pepsi"
+      "categoria": "Pepsi",
+      "categorias": [
+        "Pepsi"
+      ]
     },
     {
       "id": 4,
@@ -54,7 +66,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Sangrías"
+      "categoria": "Sangrías",
+      "categorias": [
+        "Sangrías"
+      ]
     },
     {
       "id": 5,
@@ -65,7 +80,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Yogurt"
+      "categoria": "Yogurt",
+      "categorias": [
+        "Yogurt"
+      ]
     },
     {
       "id": 6,
@@ -76,7 +94,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Bebidas Instantaneas"
+      "categoria": "Bebidas Instantaneas",
+      "categorias": [
+        "Bebidas Instantaneas"
+      ]
     },
     {
       "id": 7,
@@ -87,7 +108,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "P&G"
+      "categoria": "P&G",
+      "categorias": [
+        "P&G"
+      ]
     },
     {
       "id": 8,
@@ -98,7 +122,10 @@
       "deuda_inicial_dinero": 0,
       "deuda_vacios": 0,
       "deuda_inicial_vacios": 0,
-      "categoria": "Detergentes y Limpieza"
+      "categoria": "Detergentes y Limpieza",
+      "categorias": [
+        "Detergentes y Limpieza"
+      ]
     }
   ],
   "productos": [
@@ -460,6 +487,81 @@
       "unidades_por_caja": 6,
       "cajas_por_paleta": 60,
       "usa_gabera": false,
+      "exento_iva": false
+    },
+    {
+      "id": 1788525012712,
+      "codigo": "",
+      "nombre": "Polar PILSEN ret 222ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 14.93,
+      "precio_caja": 14.93,
+      "unid_por_caja": 36,
+      "unidades_por_caja": 36,
+      "cajas_por_paleta": 72,
+      "usa_gabera": true,
+      "exento_iva": false
+    },
+    {
+      "id": 1788525170835,
+      "codigo": "",
+      "nombre": "SOLERA ret 222ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 14.93,
+      "precio_caja": 14.93,
+      "unid_por_caja": 36,
+      "unidades_por_caja": 36,
+      "cajas_por_paleta": 72,
+      "usa_gabera": true,
+      "exento_iva": false
+    },
+    {
+      "id": 1788525340506,
+      "codigo": "",
+      "nombre": "SOLERA LIGHT LAT 250ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 0,
+      "precio_caja": 0,
+      "unid_por_caja": 24,
+      "unidades_por_caja": 24,
+      "cajas_por_paleta": 192,
+      "usa_gabera": false,
+      "exento_iva": false
+    },
+    {
+      "id": 1788525391423,
+      "codigo": "",
+      "nombre": "SOLERA LIGHT LAT 355ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 0,
+      "precio_caja": 0,
+      "unid_por_caja": 24,
+      "unidades_por_caja": 24,
+      "cajas_por_paleta": 130,
+      "usa_gabera": false,
+      "exento_iva": false
+    },
+    {
+      "id": 1788525596579,
+      "codigo": "",
+      "nombre": "SOLERA LIGHT ret 222ml",
+      "categoria": "Cervecería",
+      "stock": 0,
+      "stock_cajas": 0,
+      "precio": 0,
+      "precio_caja": 0,
+      "unid_por_caja": 36,
+      "unidades_por_caja": 36,
+      "cajas_por_paleta": 72,
+      "usa_gabera": true,
       "exento_iva": false
     }
   ],
