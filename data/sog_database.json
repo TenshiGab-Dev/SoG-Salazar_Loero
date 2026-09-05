@@ -1,4 +1,4 @@
-{
+9{
   "clientes": [],
   "proveedores": [
     { "id": 0, "rif": "J-00000000-0", "nombre": "ALIMENTOS POLAR / PROV", "telefono": "0800-POLAR", "direccion": "Planta / Agencia Central", "deuda_inicial_dinero": 0, "deuda_vacios": 0, "deuda_inicial_vacios": 0, "categoria": "Alimentos", "categorias": ["Alimentos"] },
@@ -12,6 +12,7 @@
     { "id": 8, "rif": "", "nombre": "Detergentes y Limpieza", "telefono": "", "direccion": "", "deuda_inicial_dinero": 0, "deuda_vacios": 0, "deuda_inicial_vacios": 0, "categoria": "Detergentes y Limpieza", "categorias": ["Detergentes y Limpieza"] }
   ],
   "productos": [
+    { "id": 1788530000042, "codigo": "", "nombre": "GOLD NARA pet 1.5L", "categoria": "Pepsi", "stock": 1, "stock_cajas": 1, "precio": 0, "precio_caja": 0, "unid_por_caja": 6, "unidades_por_caja": 6, "cajas_por_paleta": 60, "usa_gabera": false, "exento_iva": false }
     { "id": 1788408970596, "codigo": "", "nombre": "Polar LIGHT LAT 355ml", "categoria": "Cervecería", "stock": 5, "stock_cajas": 5, "precio": 16.65, "precio_caja": 16.65, "unid_por_caja": 24, "unidades_por_caja": 24, "cajas_por_paleta": 130, "usa_gabera": false, "exento_iva": false },
     { "id": 1788409044739, "codigo": "", "nombre": "Polar PILSEN LAT 355ml", "categoria": "Cervecería", "stock": 9, "stock_cajas": 9, "precio": 16.65, "precio_caja": 16.65, "unid_por_caja": 24, "unidades_por_caja": 24, "cajas_por_paleta": 130, "usa_gabera": false, "exento_iva": false },
     { "id": 1788409177052, "codigo": "", "nombre": "Polar PILSEN LAT 250ml", "categoria": "Cervecería", "stock": 5, "stock_cajas": 5, "precio": 14.13, "precio_caja": 14.13, "unid_por_caja": 24, "unidades_por_caja": 24, "cajas_por_paleta": 195, "usa_gabera": false, "exento_iva": false },
