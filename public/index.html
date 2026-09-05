@@ -102,6 +102,12 @@
         .btn-guardar-fila { background-color: var(--color-verde-oliva); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; }
         .btn-guardar-fila:hover { background-color: #3d6b34; }
         .buscador-rapido { margin-bottom: 10px; }
+        .collapse-header { cursor: pointer; background: var(--color-azul-medianoche); color: var(--color-oro-noble); padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .collapse-header:hover { background: var(--color-azul-profundo); }
+        .meta-card { border: 1px solid var(--color-oro-noble); border-radius: 10px; padding: 15px; margin-bottom: 10px; background: var(--color-blanco); cursor: pointer; transition: all 0.2s; }
+        .meta-card:hover { box-shadow: 0 4px 12px var(--color-sombra); transform: translateY(-1px); }
+        .progress { height: 8px; }
+        .badge-contrapedido { background-color: #ffc107; color: #000; margin-left: 5px; }
         @media (min-width: 768px) { .container { max-width: 800px; } .modal-dialog { max-width: 600px; } }
     </style>
 </head>
@@ -208,9 +214,9 @@
             </div>
             <div class="d-grid gap-2 mb-3">
                 <button class="btn btn-dorado fw-bold" onclick="ver('movimientos')"><i class="bi bi-clock-history me-2"></i>Ver Movimientos</button>
-                <button class="btn btn-dorado fw-bold" onclick="ver('cierre')"><i class="bi bi-graph-up me-2"></i>Análisis y Cierres</button>
                 <button class="btn btn-dorado fw-bold" onclick="ver('gastos')"><i class="bi bi-wallet2 me-2"></i>Gastos</button>
-                <button class="btn btn-dorado fw-bold" onclick="ver('metas')"><i class="bi bi-trophy me-2"></i>Metas Cervecería</button>
+                <button class="btn btn-dorado fw-bold" onclick="ver('metas')"><i class="bi bi-trophy me-2"></i>Metas</button>
+                <button class="btn btn-dorado fw-bold" onclick="ver('cierre')"><i class="bi bi-graph-up me-2"></i>Análisis y Cierres</button>
             </div>
             <div class="card p-3" style="border: 1px solid var(--color-oro-noble);"><div class="d-flex justify-content-between border-bottom pb-2 mb-2" style="border-color: var(--color-oro-noble) !important;"><h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-graph-up me-2" style="color: var(--color-oro-noble);"></i>Resumen Diario</h6><button class="btn btn-sm btn-peligro" onclick="realizarCierre()">Cierre de Caja</button></div><div class="d-flex justify-content-between fs-6"><span class="text-muted">Ventas: <strong id="lbl-ventas-hoy" style="color: var(--color-azul-medianoche);">$0.00</strong></span><span class="text-muted">Cobrado: <strong id="lbl-cobrado-hoy" style="color: var(--color-verde-oliva);">$0.00</strong></span></div></div>
         </div>
@@ -218,14 +224,19 @@
         <!-- METAS -->
         <div id="sec-metas" style="display:none;" class="card p-3" style="border: 1px solid var(--color-oro-noble);">
             <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: var(--color-oro-noble) !important;">
-                <h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-trophy me-2" style="color: var(--color-oro-noble);"></i>Metas de Cervecería</h6>
+                <h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-trophy me-2" style="color: var(--color-oro-noble);"></i>Metas</h6>
                 <button class="btn btn-sm btn-dorado" onclick="ver('dashboard')">Volver</button>
             </div>
             <div class="mb-3">
-                <label class="small text-muted">Seleccionar mes para ver metas</label>
-                <input type="month" id="meta-mes" class="form-control form-control-sm" onchange="cargarMetas()">
+                <label class="small text-muted">Agregar meta por categoría</label>
+                <div class="d-flex gap-2">
+                    <select id="meta-categoria" class="form-select form-select-sm"></select>
+                    <input type="number" id="meta-cantidad" class="form-control form-control-sm" placeholder="Cantidad cjs" min="1">
+                    <button class="btn btn-dorado-solid btn-sm" onclick="agregarMeta()">+</button>
+                </div>
             </div>
-            <div id="meta-contenido"><div class="text-center text-muted py-3">Seleccione un mes</div></div>
+            <div id="meta-lista" class="mb-3"></div>
+            <div id="meta-contenido"><div class="text-center text-muted py-3">Seleccione una meta para ver detalle</div></div>
         </div>
 
         <!-- PEDIDOS -->
@@ -291,16 +302,18 @@
         <!-- CONFIGURACIÓN -->
         <div id="sec-config" style="display:none;">
             <div class="d-flex justify-content-between mb-3"><h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-shield-lock me-2" style="color: var(--color-oro-noble);"></i>Configuración</h6><button class="btn btn-sm btn-dorado" onclick="ver('dashboard')">Volver</button></div>
-            <div class="config-section"><div class="config-title"><i class="bi bi-building"></i> Proveedores</div><div id="lista-proveedores-config" class="mb-2"><div class="text-muted small">Sin proveedores</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formProveedor')">+ Agregar Proveedor</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formProveedor"><input type="hidden" id="prov-edit-id"><input type="text" id="prov-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre del Proveedor *"><input type="text" id="prov-rif" class="form-control form-control-sm mb-2" placeholder="RIF"><input type="text" id="prov-tel" class="form-control form-control-sm mb-2" placeholder="Teléfono"><input type="text" id="prov-dir" class="form-control form-control-sm mb-2" placeholder="Dirección"><select class="form-select form-select-sm mb-2" id="prov-categoria"><option value="General">General</option></select><div class="row g-2 mb-2"><div class="col-6"><label class="small">Deuda Inicial ($)</label><input type="number" id="prov-deuda" class="form-control form-control-sm" step="0.01"></div><div class="col-6"><label class="small">Vacíos (Auto)</label><input type="number" id="prov-vacios" class="form-control form-control-sm" disabled></div></div><div class="d-flex gap-2"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarProveedor()">Guardar</button><button class="btn btn-dorado btn-sm w-100" onclick="toggleForm('formProveedor')">Cancelar</button></div></div></div>
+            <div class="config-section"><div class="config-title"><i class="bi bi-building"></i> Proveedores</div><div id="lista-proveedores-config" class="mb-2"><div class="text-muted small">Sin proveedores</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formProveedor')">+ Agregar Proveedor</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formProveedor"><input type="hidden" id="prov-edit-id"><input type="text" id="prov-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre del Proveedor *"><input type="text" id="prov-rif" class="form-control form-control-sm mb-2" placeholder="RIF"><input type="text" id="prov-tel" class="form-control form-control-sm mb-2" placeholder="Teléfono"><input type="text" id="prov-dir" class="form-control form-control-sm mb-2" placeholder="Dirección"><div class="mb-2"><label class="small text-muted">Categorías</label><div id="prov-categorias-checkbox"></div></div><div class="row g-2 mb-2"><div class="col-6"><label class="small">Deuda Inicial ($)</label><input type="number" id="prov-deuda" class="form-control form-control-sm" step="0.01"></div><div class="col-6"><label class="small">Vacíos (Auto)</label><input type="number" id="prov-vacios" class="form-control form-control-sm" disabled></div></div><div class="d-flex gap-2"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarProveedor()">Guardar</button><button class="btn btn-dorado btn-sm w-100" onclick="toggleForm('formProveedor')">Cancelar</button></div></div></div>
             <div class="config-section"><div class="config-title"><i class="bi bi-lightning-charge"></i> Edición Rápida de Gestión</div><div id="edicion-rapida-container"><div class="text-center text-muted">Cargando...</div></div></div>
             <div class="config-section"><div class="config-title"><i class="bi bi-people"></i> Usuarios</div><div id="lista-usuarios" class="mb-2"><div class="text-muted small">Sin usuarios</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formUsuario')">+ Agregar Usuario</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formUsuario"><input type="text" id="usr-usuario" class="form-control form-control-sm mb-2" placeholder="Usuario *"><input type="password" id="usr-clave" class="form-control form-control-sm mb-2" placeholder="Contraseña"><input type="text" id="usr-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre completo"><input type="text" id="usr-labor" class="form-control form-control-sm mb-2" placeholder="Labor / Cargo"><select class="form-select form-select-sm mb-2" id="usr-rol"><option value="Operador">Operador</option><option value="Contador">Contador</option><option value="Dueño">Dueño</option><option value="Admin">Admin</option></select><input type="color" id="usr-color" class="form-control form-control-sm mb-2" value="#D4AF37"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarUsuario()">Guardar</button></div></div>
             <div class="config-section"><div class="config-title"><i class="bi bi-graph-up"></i> Cierre Diario</div><div class="d-flex gap-2"><button class="btn btn-dorado btn-sm" onclick="desbloquearCierre()">Desbloquear Cierre</button><button class="btn btn-peligro btn-sm" onclick="borrarUltimoCierre()">Borrar Último Cierre</button></div></div>
+            <div class="config-section"><div class="config-title"><i class="bi bi-upload"></i> Importar Respaldo</div><input type="file" id="archivo-importar" accept=".json" class="form-control form-control-sm mb-2"><button class="btn btn-dorado-solid btn-sm" onclick="importarRespaldo()">Subir y Restaurar</button></div>
+            <div class="config-section"><div class="config-title"><i class="bi bi-download"></i> Respaldo</div><button class="btn btn-dorado-solid btn-sm" onclick="descargarRespaldo()">Descargar Respaldo</button></div>
             <div class="config-section"><div class="config-title" style="color: var(--color-rojo-vino);"><i class="bi bi-exclamation-triangle" style="color: var(--color-rojo-vino);"></i> Zona de Peligro</div><button class="btn btn-peligro btn-sm" onclick="confirmarLimpieza()">Limpiar Todo el Sistema</button></div>
         </div>
     </div>
 
     <!-- MENÚ LATERAL -->
-    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><div class="menu-item-separator"></div><a href="#" class="list-group-item" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><div class="menu-item-separator"></div><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><div class="menu-item-separator"></div><a href="#" class="list-group-item" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><div class="menu-item-separator"></div><a href="#" class="list-group-item" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><div class="menu-item-separator"></div><a href="#" class="list-group-item" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><div class="menu-item-separator"></div><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.0.1</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
+    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('pedidos'); cerrarMenu();"><i class="bi bi-truck me-3"></i>Pedidos</a><a href="#" class="list-group-item" onclick="ver('clientes'); cerrarMenu();"><i class="bi bi-people me-3"></i>Clientes</a><a href="#" class="list-group-item" onclick="ver('productos'); cerrarMenu();"><i class="bi bi-box-seam me-3"></i>Almacén</a><a href="#" class="list-group-item" onclick="ver('vacios'); cerrarMenu();"><i class="bi bi-box-arrow-in-down me-3"></i>Vacíos</a><a href="#" class="list-group-item" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.2.5</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
 
     <!-- MODAL FACTURA -->
     <div class="modal fade" id="modalFactura" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-receipt me-2"></i>Documento</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><input type="hidden" id="pedido-edit-id"><div class="mb-2"><label class="small text-muted">Tipo</label><select class="form-select form-select-sm" id="doc-tipo"><option value="pedido">Pedido</option><option value="factura">Factura</option></select></div><div class="mb-2 position-relative"><div class="d-flex justify-content-between"><label class="small text-muted">Cuenta</label><span class="badge-polar" onclick="mostrarProveedoresEnModal()"><i class="bi bi-building"></i> PROVEEDORES</span></div><input type="text" class="form-control form-control-sm" id="search-cliente" placeholder="Buscar..." oninput="buscarCliente(this.value)"><div id="res-cliente" class="search-results d-none"></div><input type="hidden" id="cliente_id"></div><div class="mb-2"><label class="small text-muted">Serial</label><input type="text" class="form-control form-control-sm" id="factura-serial" placeholder="001-000000"></div><div class="border rounded p-2 mb-2" style="border-color: var(--color-oro-noble);"><label class="small text-muted">Producto</label><input type="text" class="form-control form-control-sm" id="prod-input" placeholder="Buscar producto..." oninput="buscarProductoModal(this.value)"><div id="res-producto" class="search-results d-none"></div><input type="hidden" id="modal-prod-id"><div class="row g-2 mt-1"><div class="col-3"><label class="small">Empaque</label><select class="form-select form-select-sm" id="empaque" onchange="actualizarPrecioEmpaqueModal()"><option value="caja">Caja</option><option value="unidad">Unidad</option><option value="paleta">Paleta</option></select></div><div class="col-3"><label class="small">Cant</label><input type="number" class="form-control form-control-sm" id="cant" value="1"></div><div class="col-3"><label class="small">Desc%</label><input type="number" class="form-control form-control-sm" id="descuento" value="0"></div><div class="col-3"><label class="small">Precio$</label><input type="number" class="form-control form-control-sm" id="precio_unit" step="0.01"></div></div><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="aplicar-iva" checked><label class="form-check-label small">Aplicar IVA (16%)</label></div><button class="btn btn-dorado-solid btn-sm w-100 mt-1" onclick="agregarAlCarrito()">Añadir</button></div><div><div class="d-flex justify-content-between"><small class="fw-bold">Detalle:</small><small class="text-danger" style="cursor:pointer;" onclick="vaciarCarrito()">Vaciar</small></div><div id="lista-carrito" class="border rounded p-2" style="min-height:80px; max-height:150px; overflow-y:auto; border-color: var(--color-oro-noble) !important;"><div class="text-center text-muted small">Sin productos</div></div><div id="detalle-iva" class="small mt-2"></div></div></div><div class="modal-footer" style="background: var(--color-azul-medianoche); border-top: 1px solid var(--color-oro-noble);"><div class="text-end"><small class="text-muted" id="lbl-subtotal"></small><span class="fw-bold" style="color: var(--color-oro-noble);" id="lbl-total">$0.00</span></div><button class="btn btn-dorado-solid" onclick="guardarPedido()">Procesar</button></div></div></div></div>
@@ -317,6 +330,7 @@
         let modalFact, modalCheckDespacho, modalDetalleDia, offcanvasMenu;
         let carrito = [];
         let dbClientes = [], dbProveedores = [], dbProductos = [], dbMovimientos = [], dbPedidos = [], dbCierres = [], dbCategorias = ['General'], dbGastos = [], dbUsuarios = [], dbTrabajadores = [];
+        let metasDB = {};
         let productoSeleccionadoModal = null;
         let currentUser = { id: 1, usuario: 'TenshiGab', nombre: 'Angel García', rol: 'Admin', color: '#D4AF37', labor: 'Ingeniero de Sistemas' };
         let vaciosSeleccionados = new Map();
@@ -336,7 +350,7 @@
 
         async function cargarDatosServidor() {
             try {
-                const [resCli, resProv, resProd, resPed, resMov, resCierres, resCat, resGastos, resUsu, resTrab, resDolar] = await Promise.all([
+                const [resCli, resProv, resProd, resPed, resMov, resCierres, resCat, resGastos, resUsu, resTrab, resDolar, resMetas] = await Promise.all([
                     fetch('/api/clientes').then(r => r.json()).catch(() => []),
                     fetch('/api/proveedores').then(r => r.json()).catch(() => []),
                     fetch('/api/productos').then(r => r.json()).catch(() => []),
@@ -347,7 +361,8 @@
                     fetch('/api/gastos').then(r => r.json()).catch(() => []),
                     fetch('/api/usuarios').then(r => r.json()).catch(() => []),
                     fetch('/api/trabajadores').then(r => r.json()).catch(() => []),
-                    fetch('/api/dolar').then(r => r.json()).catch(() => ({dolar: null}))
+                    fetch('/api/dolar').then(r => r.json()).catch(() => ({dolar: null})),
+                    fetch('/api/metas').then(r => r.json()).catch(() => ({}))
                 ]);
                 dbClientes = Array.isArray(resCli) ? resCli : [];
                 dbProveedores = Array.isArray(resProv) ? resProv : [];
@@ -360,6 +375,7 @@
                 dbUsuarios = Array.isArray(resUsu) ? resUsu : [];
                 dbTrabajadores = Array.isArray(resTrab) ? resTrab : [];
                 dolarActual = resDolar.dolar || null;
+                metasDB = resMetas || {};
                 actualizarContadores();
                 actualizarAlertas();
                 actualizarSelectPago();
@@ -373,6 +389,7 @@
                 cargarListaCategorias();
                 cargarListaProveedores();
                 cargarEdicionRapida();
+                cargarMetas();
                 actualizarDolarDisplay();
             } catch (err) { console.error("Error:", err); }
         }
@@ -526,14 +543,8 @@
             if(!cont) return;
             let html = '';
 
-            // --- PRODUCTOS ---
-            html += `<div class="mb-4">
-                <h6 class="fw-bold mb-2"><i class="bi bi-box me-2"></i>Productos</h6>
-                <input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-productos" placeholder="Buscar producto..." oninput="filtrarTabla('productos', this.value)">
-                <div style="overflow-x:auto;">
-                <table class="edicion-rapida-tabla" id="tabla-productos">
-                    <thead><tr><th>Nombre</th><th>Código</th><th>Stock</th><th>Precio $</th><th>Unid/Caja</th><th>Cajas/Paleta</th><th>Gabera</th><th>Exento IVA</th><th></th></tr></thead>
-                    <tbody>`;
+            html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prod"><i class="bi bi-box me-2"></i>Productos <i class="bi bi-chevron-down ms-auto"></i></div>`;
+            html += `<div class="collapse" id="edit-prod"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-productos" placeholder="Buscar producto..." oninput="filtrarTabla('productos', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-productos"><thead><tr><th>Nombre</th><th>Código</th><th>Stock</th><th>Precio $</th><th>Unid/Caja</th><th>Cajas/Paleta</th><th></th></tr></thead><tbody>`;
             dbProductos.forEach(p => {
                 html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
                     <td><input type="text" class="form-control form-control-sm" value="${p.nombre}" data-campo="nombre"></td>
@@ -542,21 +553,13 @@
                     <td><input type="number" step="0.01" class="form-control form-control-sm" value="${p.precio||0}" data-campo="precio"></td>
                     <td><input type="number" class="form-control form-control-sm" value="${p.unid_por_caja||24}" data-campo="unid_por_caja"></td>
                     <td><input type="number" class="form-control form-control-sm" value="${p.cajas_por_paleta||60}" data-campo="cajas_por_paleta"></td>
-                    <td><input type="checkbox" class="form-check-input" ${p.usa_gabera?'checked':''} data-campo="usa_gabera"></td>
-                    <td><input type="checkbox" class="form-check-input" ${p.exento_iva?'checked':''} data-campo="exento_iva"></td>
                     <td><button class="btn-guardar-fila" onclick="guardarFilaProducto(${p.id})">Guardar</button></td>
                 </tr>`;
             });
             html += `</tbody></table></div></div>`;
 
-            // --- CLIENTES ---
-            html += `<div class="mb-4">
-                <h6 class="fw-bold mb-2"><i class="bi bi-people me-2"></i>Clientes</h6>
-                <input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-clientes" placeholder="Buscar cliente..." oninput="filtrarTabla('clientes', this.value)">
-                <div style="overflow-x:auto;">
-                <table class="edicion-rapida-tabla" id="tabla-clientes">
-                    <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th>Vacíos</th><th></th></tr></thead>
-                    <tbody>`;
+            html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-cli"><i class="bi bi-people me-2"></i>Clientes <i class="bi bi-chevron-down ms-auto"></i></div>`;
+            html += `<div class="collapse" id="edit-cli"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-clientes" placeholder="Buscar cliente..." oninput="filtrarTabla('clientes', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-clientes"><thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th>Vacíos</th><th></th></tr></thead><tbody>`;
             dbClientes.forEach(c => {
                 html += `<tr data-id="${c.id}" data-nombre="${c.nombre.toLowerCase()}">
                     <td><input type="text" class="form-control form-control-sm" value="${c.nombre}" data-campo="nombre"></td>
@@ -570,14 +573,8 @@
             });
             html += `</tbody></table></div></div>`;
 
-            // --- PROVEEDORES ---
-            html += `<div class="mb-4">
-                <h6 class="fw-bold mb-2"><i class="bi bi-building me-2"></i>Proveedores</h6>
-                <input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-proveedores" placeholder="Buscar proveedor..." oninput="filtrarTabla('proveedores', this.value)">
-                <div style="overflow-x:auto;">
-                <table class="edicion-rapida-tabla" id="tabla-proveedores">
-                    <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th></th></tr></thead>
-                    <tbody>`;
+            html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prov"><i class="bi bi-building me-2"></i>Proveedores <i class="bi bi-chevron-down ms-auto"></i></div>`;
+            html += `<div class="collapse" id="edit-prov"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-proveedores" placeholder="Buscar proveedor..." oninput="filtrarTabla('proveedores', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-proveedores"><thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th></th></tr></thead><tbody>`;
             dbProveedores.forEach(p => {
                 if(Number(p.id) === 0) return;
                 html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
@@ -595,9 +592,8 @@
         }
 
         function filtrarTabla(tipo, texto) {
-            const input = document.getElementById(`buscador-${tipo}`);
             const tabla = document.getElementById(`tabla-${tipo}`);
-            if(!input || !tabla) return;
+            if(!tabla) return;
             const filas = tabla.querySelectorAll('tbody tr');
             const busqueda = texto.toLowerCase();
             filas.forEach(fila => {
@@ -617,11 +613,8 @@
                 else datos[campo] = input.value;
             });
             mostrarSpinner();
-            await fetch(`/api/productos/rapido/${id}`, {
-                method:'PUT',
-                headers:{'Content-Type':'application/json'},
-                body: JSON.stringify(datos)
-            }).catch(()=>{});
+            const res = await fetch(`/api/productos/rapido/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(datos) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             notificar('Producto actualizado', 'success');
             await cargarDatosServidor();
             ocultarSpinner();
@@ -637,15 +630,10 @@
                 else if(input.type === 'number') datos[campo] = Number(input.value) || 0;
                 else datos[campo] = input.value;
             });
-            if(datos.deuda_vacios !== undefined) {
-                datos.deuda_inicial_vacios = datos.deuda_vacios;
-            }
+            if(datos.deuda_vacios !== undefined) datos.deuda_inicial_vacios = datos.deuda_vacios;
             mostrarSpinner();
-            await fetch(`/api/clientes/${id}`, {
-                method:'PUT',
-                headers:{'Content-Type':'application/json'},
-                body: JSON.stringify(datos)
-            }).catch(()=>{});
+            const res = await fetch(`/api/clientes/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(datos) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             notificar('Cliente actualizado', 'success');
             await cargarDatosServidor();
             ocultarSpinner();
@@ -662,83 +650,89 @@
                 else datos[campo] = input.value;
             });
             mostrarSpinner();
-            await fetch(`/api/proveedores/${id}`, {
-                method:'PUT',
-                headers:{'Content-Type':'application/json'},
-                body: JSON.stringify(datos)
-            }).catch(()=>{});
+            const res = await fetch(`/api/proveedores/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(datos) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             notificar('Proveedor actualizado', 'success');
             await cargarDatosServidor();
             ocultarSpinner();
         }
 
         // ==================== METAS ====================
-        async function cargarMetas() {
-            const mesInput = document.getElementById('meta-mes');
-            if(!mesInput) return;
-            if(!mesInput.value) {
-                const hoy = new Date();
-                mesInput.value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-            }
-            const mes = mesInput.value;
+        function cargarMetas() {
+            const selectCat = document.getElementById('meta-categoria');
+            if(selectCat) selectCat.innerHTML = dbCategorias.map(c => `<option value="${c}">${c}</option>`).join('');
+            const lista = document.getElementById('meta-lista');
+            if(!lista) return;
+            const hoy = new Date();
+            const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+            let html = '';
+            Object.entries(metasDB).forEach(([categoria, mesMeta]) => {
+                const cantidadMeta = mesMeta[mesActual] || 0;
+                if(cantidadMeta > 0) {
+                    const compras = dbMovimientos.filter(m => (m.tipo||'').includes('COMPRA_PROVEEDOR') && (m.fecha||'').startsWith(mesActual));
+                    let totalComprado = 0;
+                    compras.forEach(m => {
+                        (m.items||[]).forEach(item => {
+                            const prod = dbProductos.find(p => p.id == item.prod_id);
+                            if(prod && prod.categoria === categoria) totalComprado += Number(item.cant_cajas||item.cantidad||0);
+                        });
+                    });
+                    const restante = cantidadMeta - totalComprado;
+                    const pct = Math.min(100, (totalComprado / cantidadMeta) * 100);
+                    html += `<div class="meta-card" onclick="verDetalleMeta('${categoria}','${mesActual}')">
+                        <div class="d-flex justify-content-between"><strong>${categoria}</strong><span class="badge" style="background:var(--color-oro-noble);color:#000">${totalComprado}/${cantidadMeta} cjs</span></div>
+                        <div class="progress mt-2"><div class="progress-bar" style="width:${pct}%"></div></div>
+                        <small class="text-muted">Restante: ${restante > 0 ? restante + ' cjs' : 'Cumplido'}</small>
+                    </div>`;
+                }
+            });
+            lista.innerHTML = html || '<div class="text-muted small">Sin metas para este mes</div>';
+        }
+
+        async function agregarMeta() {
+            const categoria = document.getElementById('meta-categoria').value;
+            const cantidad = Number(document.getElementById('meta-cantidad').value);
+            if(!categoria || !cantidad || cantidad <= 0) return notificar('Complete los campos', 'warning');
+            const hoy = new Date();
+            const mes = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+            mostrarSpinner();
+            const res = await fetch('/api/metas', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({categoria, mes, cantidad}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+            notificar('Meta guardada', 'success');
+            document.getElementById('meta-cantidad').value = '';
+            await cargarDatosServidor();
+            ocultarSpinner();
+        }
+
+        function verDetalleMeta(categoria, mes) {
             const div = document.getElementById('meta-contenido');
             if(!div) return;
-
-            const productosCerveceria = dbProductos.filter(p => p.categoria === 'Cervecería');
-            if(!productosCerveceria.length) { div.innerHTML = '<div class="text-muted small">No hay productos en categoría Cervecería</div>'; return; }
-
-            const diasEnMes = new Date(parseInt(mes.split('-')[0]), parseInt(mes.split('-')[1]), 0).getDate();
-            const primeraQuincena = {};
-            const segundaQuincena = {};
-
-            productosCerveceria.forEach(p => {
-                primeraQuincena[p.nombre] = 0;
-                segundaQuincena[p.nombre] = 0;
-            });
-
-            dbPedidos.filter(p => (p.fecha||'').startsWith(mes)).forEach(p => {
-                const dia = parseInt((p.fecha||'').split('T')[0].split('-')[2]);
-                const esPrimera = dia <= 15;
-                (p.items||[]).forEach(i => {
-                    const prod = dbProductos.find(x => x.id == i.prod_id);
-                    if(prod && prod.categoria === 'Cervecería') {
-                        const cant = Number(i.cant_cajas||i.cantidad||0);
-                        if(esPrimera) {
-                            if(!primeraQuincena[prod.nombre]) primeraQuincena[prod.nombre] = 0;
-                            primeraQuincena[prod.nombre] += cant;
-                        } else {
-                            if(!segundaQuincena[prod.nombre]) segundaQuincena[prod.nombre] = 0;
-                            segundaQuincena[prod.nombre] += cant;
-                        }
+            const cantidadMeta = metasDB[categoria]?.[mes] || 0;
+            const compras = dbMovimientos.filter(m => (m.tipo||'').includes('COMPRA_PROVEEDOR') && (m.fecha||'').startsWith(mes));
+            const productos = dbProductos.filter(p => p.categoria === categoria);
+            const primera = {}, segunda = {};
+            productos.forEach(p => { primera[p.nombre] = 0; segunda[p.nombre] = 0; });
+            let totalComprado = 0;
+            compras.forEach(m => {
+                const dia = parseInt((m.fecha||'').split('T')[0].split('-')[2]);
+                (m.items||[]).forEach(item => {
+                    const prod = dbProductos.find(p => p.id == item.prod_id);
+                    if(prod && prod.categoria === categoria) {
+                        const cant = Number(item.cant_cajas||item.cantidad||0);
+                        totalComprado += cant;
+                        if(dia <= 15) primera[prod.nombre] = (primera[prod.nombre]||0) + cant;
+                        else segunda[prod.nombre] = (segunda[prod.nombre]||0) + cant;
                     }
                 });
             });
-
-            let html = '';
-            html += '<div class="meta-quincena"><div class="meta-quincena-title">Primera Quincena (1-15)</div>';
-            let totalPrimera = 0;
-            Object.entries(primeraQuincena).forEach(([nombre, cant]) => {
-                totalPrimera += cant;
-                html += `<div class="d-flex justify-content-between small border-bottom py-1"><span>${nombre}</span><strong>${cant} cjs</strong></div>`;
-            });
-            html += `<div class="balance-total">Total Primera Quincena: ${totalPrimera} cjs</div></div>`;
-
-            html += '<div class="meta-quincena"><div class="meta-quincena-title">Segunda Quincena (16-31)</div>';
-            let totalSegunda = 0;
-            Object.entries(segundaQuincena).forEach(([nombre, cant]) => {
-                totalSegunda += cant;
-                html += `<div class="d-flex justify-content-between small border-bottom py-1"><span>${nombre}</span><strong>${cant} cjs</strong></div>`;
-            });
-            html += `<div class="balance-total">Total Segunda Quincena: ${totalSegunda} cjs</div></div>`;
-
-            html += `<div class="balance-total" style="font-size: 1.1rem; border: 2px solid var(--color-oro-noble); border-radius: 8px; padding: 10px;">TOTAL MENSUAL: ${totalPrimera + totalSegunda} cjs</div>`;
-
+            let html = `<h6 class="fw-bold mb-2">${categoria} - Meta: ${cantidadMeta} cjs</h6>`;
+            html += `<div class="d-flex justify-content-between"><span>Llevado: ${totalComprado} cjs</span><span>Restante: ${Math.max(0, cantidadMeta-totalComprado)} cjs</span></div>`;
+            html += '<div class="meta-quincena"><div class="meta-quincena-title">Primera Quincena</div>';
+            Object.entries(primera).forEach(([nombre, cant]) => { html += `<div class="d-flex justify-content-between small"><span>${nombre}</span><strong>${cant} cjs</strong></div>`; });
+            html += '</div><div class="meta-quincena"><div class="meta-quincena-title">Segunda Quincena</div>';
+            Object.entries(segunda).forEach(([nombre, cant]) => { html += `<div class="d-flex justify-content-between small"><span>${nombre}</span><strong>${cant} cjs</strong></div>`; });
+            html += '</div>';
             div.innerHTML = html;
-        }
-
-        // ==================== EDICIÓN DE PRECIOS (ahora integrada en edición rápida) ====================
-        function cargarListaPreciosEdit() {
-            if(document.getElementById('edicion-rapida-container')) cargarEdicionRapida();
         }
 
         // ==================== RESUMEN DE PEDIDOS ====================
@@ -748,10 +742,11 @@
             const hoy = fechaActualVenezuela().split('T')[0];
             const pedidosHoy = dbPedidos.filter(p => (p.fecha||'').split('T')[0] === hoy);
             if(!pedidosHoy.length) { div.innerHTML = '<div class="text-muted small">Sin pedidos hoy</div>'; return; }
-            const totalFacturado = pedidosHoy.reduce((s,p) => s + Number(p.total||0), 0);
+            const pedidosClientes = pedidosHoy.filter(p => !p.es_proveedor && !dbProveedores.some(pr => String(pr.id) === String(p.cliente_id)));
+            const totalFacturado = pedidosClientes.reduce((s,p) => s + Number(p.total||0), 0);
             const clientesMap = {};
-            pedidosHoy.forEach(p => {
-                const nombre = p.nombre_cliente || p.cliente_nombre || (p.es_proveedor ? 'Proveedor' : 'Cliente');
+            pedidosClientes.forEach(p => {
+                const nombre = p.nombre_cliente || p.cliente_nombre || 'Cliente';
                 if(!clientesMap[nombre]) clientesMap[nombre] = { total: 0, productoEstrella: '', cantidadProducto: 0 };
                 clientesMap[nombre].total += Number(p.total||0);
                 (p.items||[]).forEach(i => {
@@ -764,7 +759,7 @@
             });
             const topClientes = Object.entries(clientesMap).sort((a,b) => b[1].total - a[1].total).slice(0, 3);
             const productosMap = {};
-            pedidosHoy.forEach(p => {
+            pedidosClientes.forEach(p => {
                 (p.items||[]).forEach(i => {
                     const nombre = i.nombre || 'Producto';
                     if(!productosMap[nombre]) productosMap[nombre] = 0;
@@ -804,8 +799,10 @@
                 });
                 let html = '';
                 Object.entries(porCategoria).forEach(([categoria, productos]) => {
-                    html += `<div class="small fw-bold mb-1 mt-2">${categoria} (${productos.length})</div>`;
+                    html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#cat-${categoria.replace(/\s+/g,'-')}"><span>${categoria} (${productos.length})</span><i class="bi bi-chevron-down"></i></div>`;
+                    html += `<div class="collapse" id="cat-${categoria.replace(/\s+/g,'-')}">`;
                     productos.forEach(p => { html += `<div class="d-flex justify-content-between small border-bottom py-1 ps-2"><span>${p.nombre}</span><strong>${p.stock} cjs</strong></div>`; });
+                    html += '</div>';
                 });
                 div.innerHTML = html;
             } else {
@@ -819,8 +816,10 @@
                 });
                 let html = '';
                 Object.entries(porCategoria).forEach(([categoria, productos]) => {
-                    html += `<div class="small fw-bold mb-1 mt-2">${categoria} (${productos.length})</div>`;
+                    html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#cat-${categoria.replace(/\s+/g,'-')}"><span>${categoria} (${productos.length})</span><i class="bi bi-chevron-down"></i></div>`;
+                    html += `<div class="collapse" id="cat-${categoria.replace(/\s+/g,'-')}">`;
                     productos.forEach(p => { html += `<div class="d-flex justify-content-between small border-bottom py-1 ps-2 text-muted"><span>${p.nombre}</span><strong>0 cjs</strong></div>`; });
+                    html += '</div>';
                 });
                 div.innerHTML = html;
             }
@@ -910,13 +909,17 @@
             carrito = [];
             document.getElementById('pedido-edit-id').value = '';
             document.getElementById('doc-tipo').value = 'pedido';
+            document.getElementById('doc-tipo').disabled = false;
             document.getElementById('cliente_id').value = '';
             document.getElementById('search-cliente').value = '';
             document.getElementById('factura-serial').value = '';
             productoSeleccionadoModal = null;
             buscandoProveedores = false;
             document.getElementById('search-cliente').placeholder = 'Buscar cliente...';
+            document.getElementById('search-cliente').readOnly = false;
+            document.getElementById('search-cliente').disabled = false;
             document.getElementById('aplicar-iva').checked = true;
+            document.getElementById('search-cliente').removeAttribute('data-prov-cats');
             renderCarrito();
             modalFact.show();
         }
@@ -928,6 +931,9 @@
             document.getElementById('cliente_id').value = '';
             input.placeholder = buscandoProveedores ? 'Buscar proveedor...' : 'Buscar cliente...';
             document.getElementById('res-cliente').classList.add('d-none');
+            if (!buscandoProveedores) {
+                input.removeAttribute('data-prov-cats');
+            }
         }
 
         function buscarCliente(q) {
@@ -941,12 +947,27 @@
             div.classList.remove('d-none');
         }
 
-        function selCliente(id, nombre) { document.getElementById('cliente_id').value = id; document.getElementById('search-cliente').value = nombre; document.getElementById('res-cliente').classList.add('d-none'); }
+        function selCliente(id, nombre) {
+            document.getElementById('cliente_id').value = id;
+            document.getElementById('search-cliente').value = nombre;
+            document.getElementById('res-cliente').classList.add('d-none');
+            if(buscandoProveedores) {
+                const prov = dbProveedores.find(p => String(p.id) === String(id));
+                if(prov) document.getElementById('search-cliente').setAttribute('data-prov-cats', JSON.stringify(prov.categorias || []));
+            } else {
+                document.getElementById('search-cliente').removeAttribute('data-prov-cats');
+            }
+        }
 
         function buscarProductoModal(q) {
             const div = document.getElementById('res-producto');
             if(!q || q.length < 2) { div.classList.add('d-none'); return; }
-            const filt = dbProductos.filter(p => p.nombre.toLowerCase().includes(q.toLowerCase()) || (p.codigo||'').includes(q));
+            let filt = dbProductos.filter(p => p.nombre.toLowerCase().includes(q.toLowerCase()) || (p.codigo||'').includes(q));
+            const provCats = document.getElementById('search-cliente').getAttribute('data-prov-cats');
+            if(provCats) {
+                const cats = JSON.parse(provCats);
+                filt = filt.filter(p => cats.includes(p.categoria));
+            }
             if(!filt.length) { div.classList.add('d-none'); return; }
             div.innerHTML = filt.map(p => `<div class="p-2 border-bottom" style="cursor:pointer" onmousedown="selProductoModal(${p.id})">${p.nombre} - $${p.precio} [${p.stock}]</div>`).join('');
             div.classList.remove('d-none');
@@ -980,23 +1001,44 @@
             const precioBase = Number(document.getElementById('precio_unit').value);
             if(cant <= 0) return notificar('Cantidad inválida', 'warning');
             const esProveedor = dbProveedores.some(p => String(p.id) === String(clienteId));
-            if(!esProveedor) {
-                const stockDisponible = Number(productoSeleccionadoModal.stock) || 0;
-                let cantCajas = cant;
-                if(emp === 'unidad') cantCajas = cant / (Number(productoSeleccionadoModal.unid_por_caja)||1);
-                if(emp === 'paleta') cantCajas = cant * (Number(productoSeleccionadoModal.cajas_por_paleta)||1);
-                const acumulado = carrito.filter(i => i.prod_id == productoSeleccionadoModal.id).reduce((s,i) => s + i.cant_cajas, 0);
-                if(acumulado + cantCajas > stockDisponible) {
-                    return notificar(`Stock insuficiente: ${stockDisponible} cjs disponibles`, 'danger');
-                }
-            }
             let cantCajas = cant;
             if(emp === 'unidad') cantCajas = cant / (Number(productoSeleccionadoModal.unid_por_caja)||1);
             if(emp === 'paleta') cantCajas = cant * (Number(productoSeleccionadoModal.cajas_por_paleta)||1);
             const total = (cant * precioBase) * (1 - desc/100);
             const precioFinal = total / cant;
             const exentoIva = productoSeleccionadoModal.exento_iva === true;
-            carrito.push({ prod_id: productoSeleccionadoModal.id, nombre: productoSeleccionadoModal.nombre, empaque: emp, cantidad: cant, cant_cajas: cantCajas, precio_base: precioBase, precio_final: precioFinal, descuento: desc, total: total, exento_iva: exentoIva });
+
+            let contrapedido = false;
+            let faltante = 0;
+            if(!esProveedor) {
+                const stockFisico = Number(productoSeleccionadoModal.stock) || 0;
+                const reservado = dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor).reduce((sum, ped) => {
+                    const item = ped.items.find(i => i.prod_id == productoSeleccionadoModal.id);
+                    return sum + (item ? Number(item.cant_cajas || 0) : 0);
+                }, 0);
+                const disponibleReal = Math.max(0, stockFisico - reservado);
+                if(cantCajas > disponibleReal) {
+                    contrapedido = true;
+                    faltante = cantCajas - disponibleReal;
+                }
+            }
+
+            carrito.push({
+                prod_id: productoSeleccionadoModal.id,
+                nombre: productoSeleccionadoModal.nombre,
+                empaque: emp,
+                cantidad: cant,
+                cant_cajas: cantCajas,
+                precio_base: precioBase,
+                precio_final: precioFinal,
+                descuento: desc,
+                total: total,
+                exento_iva: exentoIva,
+                unid_por_caja: productoSeleccionadoModal.unid_por_caja || 24,
+                cajas_por_paleta: productoSeleccionadoModal.cajas_por_paleta || 60,
+                contrapedido,
+                faltante
+            });
             document.getElementById('prod-input').value = '';
             document.getElementById('modal-prod-id').value = '';
             document.getElementById('cant').value = '1';
@@ -1020,30 +1062,84 @@
             let subtotal = 0;
             carrito.forEach((item, i) => {
                 subtotal += item.total;
-                html += `<div class="d-flex justify-content-between border-bottom pb-1 mb-1" style="font-size:0.8rem"><div><strong>${item.nombre}</strong> ${item.exento_iva ? '<span class="badge bg-success">Exento</span>' : ''}<br><span class="text-muted">${item.cantidad} ${item.empaque} x $${item.precio_base.toFixed(2)}</span>${item.descuento > 0 ? `<span class="precio-descuento">-${item.descuento}% = $${item.precio_final.toFixed(2)}/unid</span>` : ''}</div><div class="text-end"><strong>$${item.total.toFixed(2)}</strong><br><i class="bi bi-x-circle text-danger" style="cursor:pointer" onclick="eliminarDelCarrito(${i})"></i></div></div>`;
+                const badgeCP = item.contrapedido ? `<span class="badge badge-contrapedido" title="Contra-pedido: faltan ${item.faltante} cjs">CP</span>` : '';
+                html += `<div class="d-flex justify-content-between border-bottom pb-1 mb-1" style="font-size:0.8rem">
+                    <div><strong>${item.nombre}</strong> ${badgeCP} ${item.exento_iva ? '<span class="badge bg-success">Exento</span>' : ''}<br>
+                    <span class="text-muted">${item.cantidad} ${item.empaque} x $${item.precio_base.toFixed(2)}</span>
+                    ${item.descuento > 0 ? `<span class="precio-descuento">-${item.descuento}% = $${item.precio_final.toFixed(2)}/unid</span>` : ''}
+                    ${item.contrapedido ? `<span class="text-danger small d-block">Faltan ${item.faltante} cjs</span>` : ''}
+                    <button class="btn btn-sm py-0 text-primary" onclick="editarItemCarrito(${i})"><i class="bi bi-pencil"></i></button>
+                    </div>
+                    <div class="text-end"><strong>$${item.total.toFixed(2)}</strong><br><i class="bi bi-x-circle text-danger" style="cursor:pointer" onclick="eliminarDelCarrito(${i})"></i></div>
+                </div>`;
             });
             lista.innerHTML = html;
 
             const aplicarIva = document.getElementById('aplicar-iva').checked;
             let baseIva = 0;
-            carrito.forEach(item => {
-                if(!item.exento_iva) baseIva += item.total;
-            });
+            carrito.forEach(item => { if(!item.exento_iva) baseIva += item.total; });
             const iva = aplicarIva ? baseIva * 0.16 : 0;
             const totalFinal = subtotal + iva;
 
             if(lblSubtotal) lblSubtotal.innerText = `Subtotal: ${formatoMoneda(subtotal)}`;
             if(detalleIva) {
-                detalleIva.innerHTML = aplicarIva ?
-                    `<div class="d-flex justify-content-between"><span>IVA (16%):</span><strong>${formatoMoneda(iva)}</strong></div>` : '';
+                detalleIva.innerHTML = aplicarIva ? `<div class="d-flex justify-content-between"><span>IVA (16%):</span><strong>${formatoMoneda(iva)}</strong></div>` : '';
             }
             document.getElementById('lbl-total').innerText = formatoMoneda(totalFinal);
+        }
+
+        function editarItemCarrito(index) {
+            const item = carrito[index];
+            if(!item) return;
+            const nuevaCant = prompt('Nueva cantidad:', item.cantidad);
+            if(nuevaCant === null) return;
+            const cantNum = Number(nuevaCant);
+            if(isNaN(cantNum) || cantNum <= 0) return notificar('Cantidad inválida', 'warning');
+            const nuevoPrecio = prompt('Nuevo precio base:', item.precio_base.toFixed(2));
+            if(nuevoPrecio === null) return;
+            const precioNum = Number(nuevoPrecio);
+            if(isNaN(precioNum) || precioNum <= 0) return notificar('Precio inválido', 'warning');
+            const nuevoDesc = prompt('Descuento (%):', item.descuento);
+            if(nuevoDesc === null) return;
+            const descNum = Number(nuevoDesc) || 0;
+
+            item.cantidad = cantNum;
+            item.precio_base = precioNum;
+            item.descuento = descNum;
+
+            let cantCajas = cantNum;
+            if(item.empaque === 'unidad') cantCajas = cantNum / (Number(item.unid_por_caja)||1);
+            if(item.empaque === 'paleta') cantCajas = cantNum * (Number(item.cajas_por_paleta)||1);
+            item.cant_cajas = cantCajas;
+
+            const esProveedor = dbProveedores.some(p => String(p.id) === String(document.getElementById('cliente_id').value));
+            if(!esProveedor) {
+                const prod = dbProductos.find(p => p.id == item.prod_id);
+                if(prod) {
+                    const stockFisico = Number(prod.stock) || 0;
+                    const reservado = dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor && p.id != document.getElementById('pedido-edit-id').value).reduce((sum, ped) => {
+                        const it = ped.items.find(i => i.prod_id == item.prod_id);
+                        return sum + (it ? Number(it.cant_cajas || 0) : 0);
+                    }, 0);
+                    const disponibleReal = Math.max(0, stockFisico - reservado);
+                    if(cantCajas > disponibleReal) {
+                        item.contrapedido = true;
+                        item.faltante = cantCajas - disponibleReal;
+                    } else {
+                        item.contrapedido = false;
+                        item.faltante = 0;
+                    }
+                }
+            }
+            const total = (cantNum * precioNum) * (1 - descNum/100);
+            item.total = total;
+            item.precio_final = total / cantNum;
+            renderCarrito();
         }
 
         function eliminarDelCarrito(i) { carrito.splice(i,1); renderCarrito(); }
         function vaciarCarrito() { carrito = []; renderCarrito(); }
 
-        // CORRECCIÓN: Editar pedido no crea duplicado
         async function guardarPedido() {
             const editId = document.getElementById('pedido-edit-id').value;
             const clienteId = document.getElementById('cliente_id').value;
@@ -1057,6 +1153,14 @@
             const cuenta = esProveedor ? dbProveedores.find(p => String(p.id) === String(clienteId)) : dbClientes.find(c => String(c.id) === String(clienteId));
             if(!cuenta) { ocultarSpinner(); return notificar('Cuenta no encontrada', 'danger'); }
 
+            if(docTipo === 'factura' && !esProveedor) {
+                const itemConFaltante = carrito.find(item => item.contrapedido);
+                if(itemConFaltante) {
+                    ocultarSpinner();
+                    return notificar(`No se puede facturar: ${itemConFaltante.nombre} tiene contra-pedido de ${itemConFaltante.faltante} cjs`, 'danger');
+                }
+            }
+
             let subtotal = 0;
             carrito.forEach(item => { subtotal += item.total; });
             const aplicarIva = document.getElementById('aplicar-iva').checked;
@@ -1065,53 +1169,40 @@
             const iva = aplicarIva ? baseIva * 0.16 : 0;
             const total = subtotal + iva;
 
-            if(editId) {
-                const idx = dbPedidos.findIndex(p => p.id == editId);
-                if(idx !== -1) {
-                    const pedidoAnterior = dbPedidos[idx];
-                    if(pedidoAnterior.estado === 'pendiente' || pedidoAnterior.estado === 'Pendiente') {
-                        (pedidoAnterior.items||[]).forEach(item => {
-                            const prod = dbProductos.find(p => p.id == item.prod_id);
-                            if(prod && !esProveedor) { prod.stock = (Number(prod.stock)||0) + Number(item.cant_cajas||0); prod.stock_cajas = prod.stock; }
-                        });
-                    }
-                    dbPedidos[idx] = { ...dbPedidos[idx], cliente_id: clienteId, nombre_cliente: cuenta.nombre, serial: serial, serial_factura: serial, tipo: docTipo, estado: docTipo === 'factura' ? 'completado' : 'pendiente', fecha: fechaActualVenezuela(), total: total, subtotal: subtotal, iva: iva, items: [...carrito], creado_por: currentUser.usuario, es_proveedor: esProveedor };
-                    if(docTipo === 'pedido') {
-                        carrito.forEach(item => {
-                            const prod = dbProductos.find(p => p.id == item.prod_id);
-                            if(prod && !esProveedor) { prod.stock = Math.max(0, (Number(prod.stock)||0) - Number(item.cant_cajas||0)); prod.stock_cajas = prod.stock; }
-                        });
-                    }
-                    await fetch(`/api/pedidos/${editId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(dbPedidos[idx]) }).catch(()=>{});
-                    notificar('Pedido actualizado', 'success');
+            const pedidoObj = {
+                id: editId || Date.now(),
+                cliente_id: clienteId,
+                nombre_cliente: cuenta.nombre,
+                serial: serial,
+                serial_factura: serial,
+                tipo: docTipo,
+                estado: docTipo === 'factura' ? 'completado' : 'pendiente',
+                fecha: fechaActualVenezuela(),
+                total: total,
+                subtotal: subtotal,
+                iva: iva,
+                items: [...carrito],
+                creado_por: currentUser.usuario,
+                es_proveedor: esProveedor,
+                contrapedido: carrito.some(i => i.contrapedido)
+            };
+
+            let res;
+            if (editId) {
+                const pedidoOriginal = dbPedidos.find(p => p.id == editId);
+                if(pedidoOriginal) {
+                    pedidoObj.cliente_id = pedidoOriginal.cliente_id;
+                    pedidoObj.nombre_cliente = pedidoOriginal.nombre_cliente;
+                    pedidoObj.tipo = pedidoOriginal.tipo;
+                    pedidoObj.estado = pedidoOriginal.estado;
+                    pedidoObj.es_proveedor = pedidoOriginal.es_proveedor;
                 }
+                res = await fetch(`/api/pedidos/${editId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(pedidoObj) });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+                notificar('Pedido actualizado', 'success');
             } else {
-                const pedidoObj = { id: Date.now(), cliente_id: clienteId, nombre_cliente: cuenta.nombre, serial: serial, serial_factura: serial, tipo: docTipo, estado: docTipo === 'factura' ? 'completado' : 'pendiente', fecha: fechaActualVenezuela(), total: total, subtotal: subtotal, iva: iva, items: [...carrito], creado_por: currentUser.usuario, es_proveedor: esProveedor };
-                dbPedidos.push(pedidoObj);
-                if(docTipo === 'factura') {
-                    carrito.forEach(item => {
-                        const prod = dbProductos.find(p => p.id == item.prod_id);
-                        if(prod) {
-                            if(esProveedor) { prod.stock += item.cant_cajas; prod.stock_cajas = prod.stock; }
-                            else { prod.stock = Math.max(0, prod.stock - item.cant_cajas); prod.stock_cajas = prod.stock; if(prod.usa_gabera) { cuenta.deuda_vacios = (Number(cuenta.deuda_vacios||0)||0) + item.cant_cajas; cuenta.deuda_inicial_vacios = cuenta.deuda_vacios; } }
-                        }
-                    });
-                    cuenta.deuda_inicial_dinero = (Number(cuenta.deuda_inicial_dinero)||0) + total;
-                    dbMovimientos.push({ id: Date.now()+1, cliente_id: clienteId, cuenta_id: clienteId, tipo: esProveedor ? 'COMPRA_PROVEEDOR' : 'FACTURA', fecha: fechaActualVenezuela(), detalle: esProveedor ? `Compra a ${cuenta.nombre}` : 'Factura', monto: total, subtotal: subtotal, iva: iva, items: [...carrito], usuario: currentUser.usuario });
-                    carrito.forEach(item => {
-                        const prod = dbProductos.find(p => p.id == item.prod_id);
-                        if(prod && prod.usa_gabera && !esProveedor) {
-                            dbMovimientos.push({ id: Date.now()+Math.random(), cliente_id: clienteId, cuenta_id: clienteId, prod_id: prod.id, tipo: 'SUMA_VACIOS', fecha: fechaActualVenezuela(), detalle: `Suma de vacíos: ${item.nombre}`, monto: item.cant_cajas, saldo_vacios: cuenta.deuda_vacios, usuario: currentUser.usuario });
-                        }
-                    });
-                } else {
-                    // Pedido pendiente: reservar stock
-                    carrito.forEach(item => {
-                        const prod = dbProductos.find(p => p.id == item.prod_id);
-                        if(prod && !esProveedor) { prod.stock = Math.max(0, (Number(prod.stock)||0) - Number(item.cant_cajas||0)); prod.stock_cajas = prod.stock; }
-                    });
-                }
-                await fetch('/api/pedidos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...pedidoObj, items: carrito, usuario: currentUser.usuario}) }).catch(()=>{});
+                res = await fetch('/api/pedidos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(pedidoObj) });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
                 notificar('Documento registrado con éxito', 'success');
             }
             modalFact.hide();
@@ -1123,7 +1214,11 @@
         function cargarListaPedidos() {
             const pend = dbPedidos.filter(p => p.estado === 'pendiente' || p.estado === 'Pendiente');
             const comp = dbPedidos.filter(p => p.estado !== 'pendiente' && p.estado !== 'Pendiente');
-            document.getElementById('lista-pedidos-pendientes').innerHTML = pend.length ? pend.map(p => `<div class="card mb-2" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente||p.cliente_nombre||'Cliente'} ${p.es_proveedor ? '<span class="badge bg-primary">PROVEEDOR</span>' : ''}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)} | Por: ${p.creado_por||'N/D'}</small><div class="small text-muted">${(p.items||[]).map(i => i.nombre).join(', ')}</div>${p.subtotal ? `<small class="text-muted d-block">Subtotal: ${formatoMoneda(p.subtotal)} | IVA: ${formatoMoneda(p.iva)}</small>` : ''}<div class="d-flex gap-1 mt-1"><button class="btn btn-dorado-solid btn-sm py-0" onclick="abrirCheckDespacho(${p.id})">Despachar</button><button class="btn btn-dorado btn-sm py-0" onclick="editarPedido(${p.id})"><i class="bi bi-pencil"></i></button>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarPedido(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div></div>`).join('') : '<div class="text-center text-muted small">Sin pendientes</div>';
+            document.getElementById('lista-pedidos-pendientes').innerHTML = pend.length ? pend.map(p => {
+                const tieneCP = (p.items||[]).some(i => i.contrapedido);
+                const badgeCP = tieneCP ? '<span class="badge badge-contrapedido">Contra-Pedido</span>' : '';
+                return `<div class="card mb-2" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente||p.cliente_nombre||'Cliente'} ${p.es_proveedor ? '<span class="badge bg-primary">PROVEEDOR</span>' : ''} ${badgeCP}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)} | Por: ${p.creado_por||'N/D'}</small><div class="small text-muted">${(p.items||[]).map(i => i.nombre).join(', ')}</div>${p.subtotal ? `<small class="text-muted d-block">Subtotal: ${formatoMoneda(p.subtotal)} | IVA: ${formatoMoneda(p.iva)}</small>` : ''}<div class="d-flex gap-1 mt-1"><button class="btn btn-dorado-solid btn-sm py-0" onclick="abrirCheckDespacho(${p.id})">Despachar</button><button class="btn btn-dorado btn-sm py-0" onclick="editarPedido(${p.id})"><i class="bi bi-pencil"></i></button>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarPedido(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div></div>`;
+            }).join('') : '<div class="text-center text-muted small">Sin pendientes</div>';
             document.getElementById('lista-pedidos-completados').innerHTML = comp.length ? comp.map(p => `<div class="card mb-1" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#comp-det-${p.id}"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente||p.cliente_nombre||'Cliente'} ${p.es_proveedor ? '<span class="badge bg-primary">PROVEEDOR</span>' : ''}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)}</small></div><div class="collapse" id="comp-det-${p.id}"><div class="small text-muted p-2">${(p.items||[]).map(i => `<div class="d-flex justify-content-between"><span>${i.cantidad} ${i.empaque}(s) ${i.nombre}</span><span>$${Number(i.total||0).toFixed(2)}</span></div>`).join('')}${p.subtotal ? `<div class="d-flex justify-content-between"><span>Subtotal:</span><span>${formatoMoneda(p.subtotal)}</span></div><div class="d-flex justify-content-between"><span>IVA:</span><span>${formatoMoneda(p.iva)}</span></div>` : ''}</div></div></div>`).join('') : '<div class="text-center text-muted small">Sin completados</div>';
         }
 
@@ -1133,17 +1228,22 @@
             const resumen = {};
             pendientes.forEach(p => (p.items||[]).forEach(i => {
                 const key = i.nombre || 'Producto';
-                if(!resumen[key]) resumen[key] = { cantidad: 0, pedidos: 0, stockDisponible: dbProductos.find(prod => prod.id == i.prod_id)?.stock || 0 };
+                if(!resumen[key]) {
+                    const prod = dbProductos.find(pr => pr.id == i.prod_id);
+                    const stockFisico = prod ? Number(prod.stock) : 0;
+                    resumen[key] = { cantidad: 0, pedidos: 0, stockDisponible: stockFisico, faltanteTotal: 0 };
+                }
                 resumen[key].cantidad += Number(i.cant_cajas||i.cantidad||0);
                 resumen[key].pedidos++;
+                if(i.contrapedido) resumen[key].faltanteTotal += i.faltante;
             }));
             let html = '';
             let totalCajas = 0;
             Object.entries(resumen).forEach(([nombre, datos]) => {
                 totalCajas += datos.cantidad;
-                const faltante = datos.cantidad - datos.stockDisponible;
-                const etiquetaContraPedido = faltante > 0 ? `<span class="badge bg-danger">Contra-Pedido: ${faltante} cjs</span>` : '';
-                html += `<div class="camion-item"><span><strong>${nombre}</strong><br><small class="text-muted">${datos.pedidos} pedido(s) | Stock: ${datos.stockDisponible} cjs</small> ${etiquetaContraPedido}</span><span class="fw-bold">${datos.cantidad} cjs</span></div>`;
+                const diferencia = datos.cantidad - datos.stockDisponible;
+                const etiquetaCP = diferencia > 0 ? `<span class="badge bg-danger ms-2">CP: ${diferencia} cjs</span>` : '';
+                html += `<div class="camion-item"><span><strong>${nombre}</strong><br><small class="text-muted">${datos.pedidos} pedido(s) | Stock: ${datos.stockDisponible} cjs</small>${etiquetaCP}</span><span class="fw-bold">${datos.cantidad} cjs</span></div>`;
             });
             html += `<div class="camion-total">Total: ${totalCajas} cajas</div>`;
             document.getElementById('carga-camion').innerHTML = html;
@@ -1156,7 +1256,16 @@
             checkItemsDespacho = (ped.items||[]).map(i => ({...i, checked: false, errorStock: false}));
             checkItemsDespacho.forEach(item => {
                 const prod = dbProductos.find(p => p.id == item.prod_id);
-                if(prod && Number(item.cant_cajas||0) > Number(prod.stock||0)) item.errorStock = true;
+                if(prod) {
+                    const stockFisico = Number(prod.stock) || 0;
+                    const reservado = dbPedidos.filter(x => (x.estado === 'pendiente' || x.estado === 'Pendiente') && !x.es_proveedor && x.id != ped.id).reduce((sum, p) => {
+                        const it = p.items.find(i => i.prod_id == item.prod_id);
+                        return sum + (it ? Number(it.cant_cajas || 0) : 0);
+                    }, 0);
+                    const disponible = Math.max(0, stockFisico - reservado);
+                    if(Number(item.cant_cajas||0) > disponible) item.errorStock = true;
+                    item.faltante = Math.max(0, Number(item.cant_cajas||0) - disponible);
+                }
             });
             renderCheckDespacho();
             modalCheckDespacho.show();
@@ -1166,8 +1275,8 @@
             const div = document.getElementById('lista-check-despacho');
             let html = '';
             checkItemsDespacho.forEach((item, i) => {
-                const error = item.errorStock ? '<span class="text-danger small">Stock insuficiente</span>' : '';
-                html += `<div class="check-item-despacho ${item.checked ? 'checked' : ''}" onclick="toggleCheckDespacho(${i})"><span>${item.checked ? '✅' : '⬜'}</span><div><strong>${item.nombre}</strong><br><small class="text-muted">${item.cantidad} ${item.empaque} x $${Number(item.precio_base||0).toFixed(2)} = $${Number(item.total||0).toFixed(2)}</small> ${error}</div></div>`;
+                const error = item.errorStock ? `<span class="text-danger small ms-2">Stock insuficiente (faltan ${item.faltante} cjs)</span>` : '';
+                html += `<div class="check-item-despacho ${item.checked ? 'checked' : ''}" onclick="toggleCheckDespacho(${i})"><span>${item.checked ? '✅' : '⬜'}</span><div><strong>${item.nombre}</strong> ${item.contrapedido ? '<span class="badge badge-contrapedido">CP</span>' : ''}<br><small class="text-muted">${item.cantidad} ${item.empaque} x $${Number(item.precio_base||0).toFixed(2)} = $${Number(item.total||0).toFixed(2)}</small>${error}</div></div>`;
             });
             div.innerHTML = html;
             const btn = document.getElementById('btn-confirmar-despacho');
@@ -1175,20 +1284,16 @@
             const hayErrorStock = checkItemsDespacho.some(i => i.errorStock);
             btn.disabled = !todosChecked || hayErrorStock;
             btn.style.opacity = (!todosChecked || hayErrorStock) ? '0.5' : '1';
-            if(hayErrorStock) {
-                btn.title = 'Hay productos sin stock suficiente';
-            } else {
-                btn.title = '';
-            }
+            btn.title = hayErrorStock ? 'Hay productos sin stock suficiente' : '';
         }
 
-        function toggleCheckDespacho(index) { 
+        function toggleCheckDespacho(index) {
             if(checkItemsDespacho[index].errorStock) {
-                notificar('No se puede confirmar este ítem: stock insuficiente', 'danger');
+                notificar('No se puede confirmar: stock insuficiente', 'danger');
                 return;
             }
-            checkItemsDespacho[index].checked = !checkItemsDespacho[index].checked; 
-            renderCheckDespacho(); 
+            checkItemsDespacho[index].checked = !checkItemsDespacho[index].checked;
+            renderCheckDespacho();
         }
 
         async function confirmarDespacho() {
@@ -1198,30 +1303,8 @@
             const hayErrorStock = checkItemsDespacho.some(i => i.errorStock);
             if(hayErrorStock) return notificar('Hay productos sin stock suficiente', 'danger');
             mostrarSpinner();
-            const ped = dbPedidos.find(p => p.id == pedidoActualDespacho.id);
-            if(!ped) { ocultarSpinner(); return; }
-            ped.estado = 'completado';
-            const esProveedor = dbProveedores.some(p => String(p.id) === String(ped.cliente_id));
-            const cuenta = esProveedor ? dbProveedores.find(p => String(p.id) === String(ped.cliente_id)) : dbClientes.find(c => String(c.id) === String(ped.cliente_id));
-            if(cuenta) cuenta.deuda_inicial_dinero = (Number(cuenta.deuda_inicial_dinero)||0) + Number(ped.total||0);
-            (ped.items||[]).forEach(item => {
-                const prod = dbProductos.find(p => p.id == item.prod_id);
-                if(prod) {
-                    if(esProveedor) { prod.stock += Number(item.cant_cajas||0); prod.stock_cajas = prod.stock; }
-                    else if(prod.usa_gabera && cuenta) {
-                        cuenta.deuda_vacios = (Number(cuenta.deuda_vacios||0)||0) + Number(item.cant_cajas||0);
-                        cuenta.deuda_inicial_vacios = cuenta.deuda_vacios;
-                    }
-                }
-            });
-            dbMovimientos.push({ id: Date.now(), cliente_id: ped.cliente_id, cuenta_id: ped.cliente_id, tipo: esProveedor ? 'COMPRA_PROVEEDOR' : 'FACTURA', fecha: fechaActualVenezuela(), detalle: esProveedor ? `Compra a ${cuenta?.nombre || 'Proveedor'}` : 'Factura', monto: Number(ped.total||0), subtotal: ped.subtotal, iva: ped.iva, items: ped.items, usuario: currentUser.usuario });
-            (ped.items||[]).forEach(item => {
-                const prod = dbProductos.find(p => p.id == item.prod_id);
-                if(prod && prod.usa_gabera && !esProveedor && cuenta) {
-                    dbMovimientos.push({ id: Date.now()+Math.random(), cliente_id: ped.cliente_id, cuenta_id: ped.cliente_id, prod_id: prod.id, tipo: 'SUMA_VACIOS', fecha: fechaActualVenezuela(), detalle: `Suma de vacíos: ${item.nombre}`, monto: Number(item.cant_cajas||0), saldo_vacios: cuenta.deuda_vacios, usuario: currentUser.usuario });
-                }
-            });
-            await fetch(`/api/pedidos/${ped.id}/facturar`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({items: ped.items}) }).catch(()=>{});
+            const res = await fetch(`/api/pedidos/${pedidoActualDespacho.id}/facturar`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({items: pedidoActualDespacho.items}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             modalCheckDespacho.hide();
             notificar('Pedido despachado con éxito', 'success');
             await cargarDatosServidor();
@@ -1231,16 +1314,8 @@
 
         async function eliminarPedido(id) {
             if(confirm('¿Eliminar pedido?')) {
-                const ped = dbPedidos.find(p => p.id == id);
-                if(ped && (ped.estado === 'pendiente' || ped.estado === 'Pendiente')) {
-                    const esProveedor = dbProveedores.some(p => String(p.id) === String(ped.cliente_id));
-                    (ped.items||[]).forEach(item => {
-                        const prod = dbProductos.find(p => p.id == item.prod_id);
-                        if(prod && !esProveedor) { prod.stock = (Number(prod.stock)||0) + Number(item.cant_cajas||0); prod.stock_cajas = prod.stock; }
-                    });
-                }
-                dbPedidos = dbPedidos.filter(p => p.id != id);
-                await fetch(`/api/pedidos/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/pedidos/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
                 await cargarDatosServidor();
                 ver('pedidos');
@@ -1252,15 +1327,30 @@
             if(!ped) return;
             document.getElementById('pedido-edit-id').value = ped.id;
             document.getElementById('doc-tipo').value = ped.tipo || 'pedido';
+            document.getElementById('doc-tipo').disabled = true;
             document.getElementById('cliente_id').value = ped.cliente_id;
             document.getElementById('search-cliente').value = ped.nombre_cliente || '';
+            document.getElementById('search-cliente').readOnly = true;
+            document.getElementById('search-cliente').disabled = true;
             document.getElementById('factura-serial').value = ped.serial || '';
             document.getElementById('aplicar-iva').checked = ped.iva > 0;
+            if(ped.es_proveedor) {
+                const prov = dbProveedores.find(p => String(p.id) === String(ped.cliente_id));
+                if(prov) document.getElementById('search-cliente').setAttribute('data-prov-cats', JSON.stringify(prov.categorias || []));
+            } else {
+                document.getElementById('search-cliente').removeAttribute('data-prov-cats');
+            }
             carrito = [...(ped.items||[])];
             renderCarrito();
             modalFact.show();
         }
 
+        function descargarRespaldo() {
+            window.location.href = '/api/backup/descargar';
+            notificar('Descargando respaldo...', 'info');
+        }
+
+        // ==================== PAGOS ====================
         async function registrarPago() {
             const cuentaId = document.getElementById('pago-cuenta-id').value;
             const metodo = document.getElementById('pago-metodo').value;
@@ -1283,36 +1373,20 @@
             const deuda = Number(cuenta.deuda_inicial_dinero)||0;
             if(montoFinal > deuda) { ocultarSpinner(); return notificar(`Supera deuda (${formatoMoneda(deuda)})`, 'danger'); }
             if(deuda <= 0) { ocultarSpinner(); return notificar('Sin deuda pendiente', 'warning'); }
-            cuenta.deuda_inicial_dinero = Math.max(0, deuda - montoFinal);
-            const tipo = esProveedor ? 'PAGO_PROVEEDOR' : 'PAGO_RECIBIDO';
-            const movPago = {
-                id: Date.now(),
-                cliente_id: cuentaId,
-                cuenta_id: cuentaId,
-                tipo,
-                fecha: fechaActualVenezuela(),
-                detalle: esProveedor ? `Pago a ${cuenta.nombre}` : 'Pago / Abono de Cliente',
-                monto: montoFinal,
-                referencia: document.getElementById('pago-ref').value,
-                usuario: currentUser.usuario,
-                deuda_anterior: deuda,
-                deuda_restante: cuenta.deuda_inicial_dinero,
-                moneda: esBs ? 'Bs' : null,
-                monto_original: esBs ? montoInput : null,
-                dolar: esBs ? dolarActual : null
-            };
-            dbMovimientos.push(movPago);
-            await fetch('/api/pagos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+
+            const res = await fetch('/api/pagos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
                 cliente_id: cuentaId,
                 cuenta_id: cuentaId,
                 monto: montoFinal,
-                tipo_transaccion: tipo,
+                tipo_transaccion: esProveedor ? 'PAGO_PROVEEDOR' : 'PAGO_RECIBIDO',
                 metodo_pago: metodo,
                 referencia: document.getElementById('pago-ref').value,
                 moneda: esBs ? 'Bs' : null,
                 monto_original: esBs ? montoInput : null,
                 dolar: esBs ? dolarActual : null
-            }) }).catch(()=>{});
+            }) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+
             notificar(`Pago registrado: ${esBs ? `Bs.${montoInput} = ${formatoMoneda(montoFinal)}` : formatoMoneda(montoFinal)}`, 'success');
             document.getElementById('pago-monto').value = '';
             document.getElementById('pago-ref').value = '';
@@ -1320,6 +1394,7 @@
             ocultarSpinner();
         }
 
+        // ==================== TRABAJADORES Y GASTOS ====================
         function cargarListaTrabajadores() {
             const select = document.getElementById('gasto-trabajador');
             if(select) select.innerHTML = '<option value="">Seleccione trabajador...</option>' + dbTrabajadores.map(t => `<option value="${t.id}">${t.nombre} - ${t.labor||'General'}</option>`).join('');
@@ -1335,7 +1410,8 @@
             const labor = document.getElementById('trab-labor').value.trim();
             const telefono = document.getElementById('trab-telefono').value.trim();
             if(!nombre) return notificar('Nombre obligatorio', 'warning');
-            await fetch('/api/trabajadores', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nombre, labor, telefono}) }).catch(()=>{});
+            const res = await fetch('/api/trabajadores', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nombre, labor, telefono}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
             notificar('Trabajador guardado', 'success');
             document.getElementById('trab-nombre').value = '';
             document.getElementById('trab-labor').value = '';
@@ -1347,7 +1423,8 @@
 
         async function eliminarTrabajador(id) {
             if(confirm('¿Eliminar trabajador?')) {
-                await fetch(`/api/trabajadores/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/trabajadores/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
                 await cargarDatosServidor();
                 ver('gastos');
@@ -1363,7 +1440,8 @@
             if(!monto || monto <= 0) return notificar('Monto inválido', 'warning');
             mostrarSpinner();
             const trabajador = dbTrabajadores.find(t => t.id == trabajadorId);
-            await fetch('/api/gastos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({monto, descripcion: `Pago a trabajador: ${trabajador?.nombre||'N/D'}`, referencia: ref, tipo: 'trabajador', trabajador_id: trabajadorId, trabajador_nombre: trabajador?.nombre, usuario: currentUser.usuario}) }).catch(()=>{});
+            const res = await fetch('/api/gastos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({monto, descripcion: `Pago a trabajador: ${trabajador?.nombre||'N/D'}`, referencia: ref, tipo: 'trabajador', trabajador_id: trabajadorId, trabajador_nombre: trabajador?.nombre, usuario: currentUser.usuario}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             notificar('Pago registrado', 'success');
             document.getElementById('gasto-trabajador-monto').value = '';
             document.getElementById('gasto-trabajador-ref').value = '';
@@ -1377,7 +1455,8 @@
             if(!monto || monto <= 0) return notificar('Monto inválido', 'warning');
             if(!descripcion) return notificar('Descripción obligatoria', 'warning');
             mostrarSpinner();
-            await fetch('/api/gastos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({monto, descripcion, tipo: 'general', usuario: currentUser.usuario}) }).catch(()=>{});
+            const res = await fetch('/api/gastos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({monto, descripcion, tipo: 'general', usuario: currentUser.usuario}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             notificar('Gasto registrado', 'success');
             document.getElementById('gasto-general-monto').value = '';
             document.getElementById('gasto-general-descripcion').value = '';
@@ -1393,43 +1472,15 @@
 
         async function eliminarGasto(id) {
             if(confirm('¿Eliminar gasto?')) {
-                await fetch(`/api/gastos/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/gastos/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Gasto eliminado', 'info');
                 await cargarDatosServidor();
                 ver('gastos');
             }
         }
 
-        async function registrarRetiroVacios() {
-            const cliId = document.getElementById('retiro-cliente-id').value;
-            if(!cliId) return notificar('Seleccione cliente', 'warning');
-            if(!vaciosSeleccionados.size) return notificar('Seleccione vacíos', 'warning');
-            mostrarSpinner();
-            const cliente = dbClientes.find(c => String(c.id) === String(cliId));
-            if(!cliente) { ocultarSpinner(); return notificar('Cliente no encontrado', 'danger'); }
-            const totalDisp = Number(cliente.deuda_vacios||cliente.deuda_inicial_vacios)||0;
-            let total = 0;
-            let detalle = '';
-            for(const [pid, cant] of vaciosSeleccionados) {
-                if(cant > 0) {
-                    if(total + cant > totalDisp) { ocultarSpinner(); return notificar(`Máximo: ${totalDisp}`, 'danger'); }
-                    total += cant;
-                    const nombre = pid === 'nativo' ? 'Varios' : (dbProductos.find(p => p.id == pid)?.nombre || 'Varios');
-                    detalle += (detalle ? ' + ' : '') + `${cant} ${nombre}`;
-                }
-            }
-            cliente.deuda_vacios = Math.max(0, totalDisp - total);
-            cliente.deuda_inicial_vacios = cliente.deuda_vacios;
-            dbMovimientos.push({ id: Date.now(), cliente_id: cliId, cuenta_id: cliId, tipo: 'RETIRO_VACIOS', fecha: fechaActualVenezuela(), detalle: 'Retiro de vacíos', monto: total, saldo_vacios: cliente.deuda_vacios, detalle_items: detalle, usuario: currentUser.usuario });
-            await fetch('/api/movimientos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({cliente_id: cliId, tipo: 'RETIRO_VACIOS', monto: total, saldo_vacios: cliente.deuda_vacios}) }).catch(()=>{});
-            await fetch(`/api/clientes/${cliId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliente) }).catch(()=>{});
-            notificar(`Retirados ${total} vacíos`, 'success');
-            vaciosSeleccionados.clear();
-            document.getElementById('retiro-cliente-id').value = '';
-            await cargarDatosServidor();
-            ocultarSpinner();
-        }
-
+        // ==================== CLIENTES Y PRODUCTOS ====================
         function cargarListaClientes() {
             const div = document.getElementById('lista-cli');
             if(!dbClientes.length) { div.innerHTML = '<div class="empty-box">Sin clientes</div>'; return; }
@@ -1444,8 +1495,11 @@
             if(!nombre) return notificar('Nombre obligatorio', 'warning');
             mostrarSpinner();
             const cliObj = { id: id ? Number(id) : Date.now(), nombre, rif: document.getElementById('cli-rif').value, telefono: document.getElementById('cli-tel').value, direccion: document.getElementById('cli-dir').value, deuda_inicial_dinero: Number(document.getElementById('cli-deuda-usd').value)||0, deuda_vacios: Number(document.getElementById('cli-deuda-vacios').value)||0, deuda_inicial_vacios: Number(document.getElementById('cli-deuda-vacios').value)||0 };
-            if(id) { const idx = dbClientes.findIndex(c => String(c.id) === String(id)); if(idx !== -1) dbClientes[idx] = cliObj; await fetch(`/api/clientes/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliObj) }).catch(()=>{}); notificar('Cliente actualizado', 'success'); }
-            else { dbClientes.push(cliObj); await fetch('/api/clientes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliObj) }).catch(()=>{}); notificar('Cliente guardado', 'success'); }
+            let res;
+            if(id) res = await fetch(`/api/clientes/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliObj) });
+            else res = await fetch('/api/clientes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliObj) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+            notificar(id ? 'Cliente actualizado' : 'Cliente guardado', 'success');
             toggleForm('formCliente');
             await cargarDatosServidor();
             ver('clientes');
@@ -1467,10 +1521,8 @@
 
         async function eliminarCliente(id) {
             if(confirm('¿Eliminar cliente, movimientos y pedidos?')) {
-                dbClientes = dbClientes.filter(c => String(c.id) !== String(id));
-                dbMovimientos = dbMovimientos.filter(m => String(m.cliente_id) !== String(id));
-                dbPedidos = dbPedidos.filter(p => String(p.cliente_id) !== String(id));
-                await fetch(`/api/clientes/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/clientes/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
                 await cargarDatosServidor();
                 ver('clientes');
@@ -1480,11 +1532,21 @@
         function cargarListaProductos() {
             const div = document.getElementById('lista-prod');
             if(!dbProductos.length) { div.innerHTML = '<div class="empty-box">Sin inventario</div>'; return; }
-            const ordenados = [...dbProductos].sort((a,b) => {
-                if(a.categoria !== b.categoria) return a.categoria.localeCompare(b.categoria);
-                return a.nombre.localeCompare(b.nombre);
+            const porCategoria = {};
+            dbCategorias.forEach(cat => {
+                const productos = dbProductos.filter(p => p.categoria === cat).sort((a,b) => a.nombre.localeCompare(b.nombre));
+                if(productos.length > 0) porCategoria[cat] = productos;
             });
-            div.innerHTML = ordenados.map(p => `<div class="card mb-2" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2 d-flex justify-content-between"><div><strong>${p.nombre}</strong> ${p.exento_iva ? '<span class="badge bg-success">Exento IVA</span>' : ''}<br><small class="text-muted">${p.codigo||'S/C'} | ${p.categoria||'General'} | Gabera: ${p.usa_gabera?'SÍ':'NO'}</small><br><span class="badge ${Number(p.stock)<5?'bg-danger':'bg-success'}">${p.stock} cjs</span> <span class="badge" style="background: var(--color-oro-noble); color: var(--color-azul-medianoche);">$${Number(p.precio||0).toFixed(2)}</span></div><div class="d-flex flex-column gap-1"><button class="btn btn-dorado btn-sm py-0" onclick="editarProducto(${p.id})"><i class="bi bi-pencil"></i></button>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarProducto(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div></div>`).join('');
+            let html = '';
+            Object.entries(porCategoria).forEach(([categoria, productos]) => {
+                html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#prod-cat-${categoria.replace(/\s+/g,'-')}"><span>${categoria} (${productos.length})</span><i class="bi bi-chevron-down"></i></div>`;
+                html += `<div class="collapse" id="prod-cat-${categoria.replace(/\s+/g,'-')}">`;
+                productos.forEach(p => {
+                    html += `<div class="card mb-2" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2 d-flex justify-content-between"><div><strong>${p.nombre}</strong> ${p.exento_iva ? '<span class="badge bg-success">Exento IVA</span>' : ''}<br><small class="text-muted">${p.codigo||'S/C'} | Gabera: ${p.usa_gabera?'SÍ':'NO'}</small><br><span class="badge ${Number(p.stock)<5?'bg-danger':'bg-success'}">${p.stock} cjs</span> <span class="badge" style="background: var(--color-oro-noble); color: var(--color-azul-medianoche);">$${Number(p.precio||0).toFixed(2)}</span></div><div class="d-flex flex-column gap-1"><button class="btn btn-dorado btn-sm py-0" onclick="editarProducto(${p.id})"><i class="bi bi-pencil"></i></button>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarProducto(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div></div>`;
+                });
+                html += '</div>';
+            });
+            div.innerHTML = html;
         }
 
         function resetFormProducto() { document.getElementById('prod-edit-id').value=''; document.getElementById('prod-cod').value=''; document.getElementById('prod-nom').value=''; document.getElementById('prod-categoria').value='General'; document.getElementById('prod-stk').value=''; document.getElementById('prod-prc').value=''; document.getElementById('prod-uxc').value='24'; document.getElementById('prod-cxp').value='60'; document.getElementById('prod-gabera').checked=false; document.getElementById('prod-exento-iva').checked=true; }
@@ -1495,8 +1557,11 @@
             if(!nombre) return notificar('Nombre obligatorio', 'warning');
             mostrarSpinner();
             const prodObj = { id: id ? Number(id) : Date.now(), codigo: document.getElementById('prod-cod').value, nombre, categoria: document.getElementById('prod-categoria').value, stock: Number(document.getElementById('prod-stk').value)||0, stock_cajas: Number(document.getElementById('prod-stk').value)||0, precio: Number(document.getElementById('prod-prc').value)||0, precio_caja: Number(document.getElementById('prod-prc').value)||0, unid_por_caja: Number(document.getElementById('prod-uxc').value)||24, cajas_por_paleta: Number(document.getElementById('prod-cxp').value)||60, usa_gabera: document.getElementById('prod-gabera').checked, exento_iva: document.getElementById('prod-exento-iva').checked };
-            if(id) { const idx = dbProductos.findIndex(p => p.id == id); if(idx !== -1) dbProductos[idx] = prodObj; await fetch(`/api/productos/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(prodObj) }).catch(()=>{}); notificar('Producto actualizado', 'success'); }
-            else { dbProductos.push(prodObj); await fetch('/api/productos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(prodObj) }).catch(()=>{}); notificar('Producto creado', 'success'); }
+            let res;
+            if(id) res = await fetch(`/api/productos/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(prodObj) });
+            else res = await fetch('/api/productos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(prodObj) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+            notificar(id ? 'Producto actualizado' : 'Producto creado', 'success');
             toggleForm('formProducto');
             await cargarDatosServidor();
             ver('productos');
@@ -1521,14 +1586,15 @@
 
         async function eliminarProducto(id) {
             if(confirm('¿Eliminar producto?')) {
-                dbProductos = dbProductos.filter(p => p.id != id);
-                await fetch(`/api/productos/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/productos/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
                 await cargarDatosServidor();
                 ver('productos');
             }
         }
 
+        // ==================== CONTROL DE VACÍOS ====================
         function cargarControlVacios() {
             const div = document.getElementById('lista-vacios-detalle');
             const gaberas = dbProductos.filter(p => p.usa_gabera);
@@ -1571,6 +1637,38 @@
             return html;
         }
 
+        async function registrarRetiroVacios() {
+            const cliId = document.getElementById('retiro-cliente-id').value;
+            if(!cliId) return notificar('Seleccione cliente', 'warning');
+            if(!vaciosSeleccionados.size) return notificar('Seleccione vacíos', 'warning');
+            mostrarSpinner();
+            const cliente = dbClientes.find(c => String(c.id) === String(cliId));
+            if(!cliente) { ocultarSpinner(); return notificar('Cliente no encontrado', 'danger'); }
+            const totalDisp = Number(cliente.deuda_vacios||cliente.deuda_inicial_vacios)||0;
+            let total = 0;
+            let detalle = '';
+            for(const [pid, cant] of vaciosSeleccionados) {
+                if(cant > 0) {
+                    if(total + cant > totalDisp) { ocultarSpinner(); return notificar(`Máximo: ${totalDisp}`, 'danger'); }
+                    total += cant;
+                    const nombre = pid === 'nativo' ? 'Varios' : (dbProductos.find(p => p.id == pid)?.nombre || 'Varios');
+                    detalle += (detalle ? ' + ' : '') + `${cant} ${nombre}`;
+                }
+            }
+            const resMov = await fetch('/api/movimientos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({cliente_id: cliId, tipo: 'RETIRO_VACIOS', monto: total, saldo_vacios: cliente.deuda_vacios}) });
+            if (!resMov.ok) { const err = await resMov.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+            cliente.deuda_vacios = Math.max(0, totalDisp - total);
+            cliente.deuda_inicial_vacios = cliente.deuda_vacios;
+            const resCli = await fetch(`/api/clientes/${cliId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliente) });
+            if (!resCli.ok) { const err = await resCli.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
+            notificar(`Retirados ${total} vacíos`, 'success');
+            vaciosSeleccionados.clear();
+            document.getElementById('retiro-cliente-id').value = '';
+            await cargarDatosServidor();
+            ocultarSpinner();
+        }
+
+        // ==================== MOVIMIENTOS Y ANÁLISIS ====================
         function cargarMovimientosCuenta() {
             const cuentaId = document.getElementById('mov-cuenta-select').value;
             const soloVacios = document.getElementById('mov-filtro-vacios').checked;
@@ -1607,14 +1705,10 @@
 
         async function eliminarMovimiento(id) {
             if(confirm('¿Eliminar movimiento?')) {
-                const mov = dbMovimientos.find(m => m.id == id);
-                if(mov && (mov.tipo||'').includes('RETIRO')) {
-                    const cliente = dbClientes.find(c => String(c.id) === String(mov.cliente_id));
-                    if(cliente) { cliente.deuda_vacios = (Number(cliente.deuda_vacios||0)||0) + Number(mov.monto||0); await fetch(`/api/clientes/${cliente.id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(cliente) }).catch(()=>{}); }
-                }
-                dbMovimientos = dbMovimientos.filter(m => m.id != id);
-                await fetch(`/api/movimientos/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/movimientos/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
+                await cargarDatosServidor();
                 cargarMovimientosCuenta();
             }
         }
@@ -1748,7 +1842,8 @@
             const clientesCompras = {};
             dbMovimientos.filter(m => (m.tipo||'').includes('FACTURA')).forEach(m => {
                 const cliente = dbClientes.find(c => String(c.id) === String(m.cliente_id));
-                const nombre = cliente ? cliente.nombre : 'Cliente';
+                if(!cliente) return;
+                const nombre = cliente.nombre;
                 if(!clientesCompras[nombre]) clientesCompras[nombre] = { monto: 0, frecuencia: 0 };
                 clientesCompras[nombre].monto += Number(m.monto||0);
                 clientesCompras[nombre].frecuencia++;
@@ -1812,7 +1907,8 @@
             const rol = document.getElementById('usr-rol').value;
             const color = document.getElementById('usr-color').value;
             if(!usuario) return notificar('Usuario obligatorio', 'warning');
-            await fetch('/api/usuarios', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({usuario, clave, nombre, labor, rol, color}) }).catch(()=>{});
+            const res = await fetch('/api/usuarios', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({usuario, clave, nombre, labor, rol, color}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
             notificar('Usuario guardado', 'success');
             document.getElementById('usr-usuario').value = '';
             document.getElementById('usr-clave').value = '';
@@ -1825,7 +1921,8 @@
 
         async function eliminarUsuario(id) {
             if(confirm('¿Eliminar usuario?')) {
-                await fetch(`/api/usuarios/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/usuarios/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
                 await cargarDatosServidor();
                 ver('config');
@@ -1838,10 +1935,41 @@
             if(!clave) return;
             if(clave !== '051123') return notificar('Contraseña incorrecta', 'danger');
             if(!confirm('¿LIMPIAR TODO? Se hará backup antes.')) return;
-            await fetch('/api/limpiar', { method:'POST' }).catch(()=>{});
+            const res = await fetch('/api/limpiar', { method:'POST' });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
             notificar('Sistema limpiado', 'info');
             await cargarDatosServidor();
             ver('dashboard');
+        }
+
+        async function importarRespaldo() {
+            const archivoInput = document.getElementById('archivo-importar');
+            if (!archivoInput.files || archivoInput.files.length === 0) {
+                return notificar('Seleccione un archivo JSON', 'warning');
+            }
+            const archivo = archivoInput.files[0];
+            const lector = new FileReader();
+            lector.onload = async (e) => {
+                try {
+                    const datos = JSON.parse(e.target.result);
+                    if (!confirm('¿Está seguro de importar este respaldo? Se hará un backup antes.')) return;
+                    mostrarSpinner();
+                    const res = await fetch('/api/importar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+                    if (res.ok) {
+                        notificar('Respaldo importado correctamente', 'success');
+                        archivoInput.value = '';
+                        await cargarDatosServidor();
+                    } else {
+                        const error = await res.json();
+                        notificar(error.error || 'Error al importar', 'danger');
+                    }
+                    ocultarSpinner();
+                } catch (error) {
+                    notificar('El archivo no es un JSON válido', 'danger');
+                    ocultarSpinner();
+                }
+            };
+            lector.readAsText(archivo);
         }
 
         async function cerrarSesion() {
@@ -1853,8 +1981,8 @@
         function cargarCategoriasSelect() {
             const select = document.getElementById('prod-categoria');
             if(select) select.innerHTML = dbCategorias.map(c => `<option value="${c}">${c}</option>`).join('');
-            const selectProv = document.getElementById('prov-categoria');
-            if(selectProv) selectProv.innerHTML = dbCategorias.map(c => `<option value="${c}">${c}</option>`).join('');
+            const selectProv = document.getElementById('prov-categorias-checkbox');
+            if(selectProv) selectProv.innerHTML = dbCategorias.map(c => `<div class="form-check"><input class="form-check-input" type="checkbox" value="${c}" id="prov-cat-${c}"><label class="form-check-label small" for="prov-cat-${c}">${c}</label></div>`).join('');
         }
 
         function cargarListaCategorias() {
@@ -1867,7 +1995,8 @@
         async function agregarCategoria() {
             const nombre = document.getElementById('cat-nombre').value.trim();
             if(!nombre) return notificar('Nombre obligatorio', 'warning');
-            await fetch('/api/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nombre}) }).catch(()=>{});
+            const res = await fetch('/api/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
             document.getElementById('cat-nombre').value = '';
             notificar('Categoría agregada', 'success');
             await cargarDatosServidor();
@@ -1876,14 +2005,16 @@
         async function editarCategoria(nombre) {
             const nuevoNombre = prompt('Nuevo nombre:', nombre);
             if(!nuevoNombre || nuevoNombre === nombre) return;
-            await fetch(`/api/categorias/${nombre}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nuevoNombre}) }).catch(()=>{});
+            const res = await fetch(`/api/categorias/${nombre}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nuevoNombre}) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
             notificar('Categoría actualizada', 'success');
             await cargarDatosServidor();
         }
 
         async function eliminarCategoria(nombre) {
             if(confirm(`¿Eliminar categoría "${nombre}"?`)) {
-                await fetch(`/api/categorias/${nombre}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/categorias/${nombre}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Categoría eliminada', 'info');
                 await cargarDatosServidor();
             }
@@ -1892,8 +2023,8 @@
         function cargarListaProveedores() {
             const divCli = document.getElementById('lista-proveedores');
             const divConfig = document.getElementById('lista-proveedores-config');
-            const htmlCli = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categoria ? `<span class="badge bg-primary">${p.categoria}</span>` : ''}<small class="text-muted d-block">${p.rif||'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div></div>`).join('');
-            const htmlConfig = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categoria ? `<span class="badge bg-primary">${p.categoria}</span>` : ''}<small class="text-muted d-block">${p.rif||'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div><div class="d-flex gap-1">${puedeGestionarProveedores() ? `<button class="btn btn-dorado btn-sm py-0" onclick="editarProveedor(${p.id})"><i class="bi bi-pencil"></i></button>` : ''}${puedeEliminar() && Number(p.id) !== 0 ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarProveedor(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div>`).join('');
+            const htmlCli = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categorias ? p.categorias.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') : ''}<small class="text-muted d-block">${p.rif||'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div></div>`).join('');
+            const htmlConfig = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categorias ? p.categorias.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') : ''}<small class="text-muted d-block">${p.rif||'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div><div class="d-flex gap-1">${puedeGestionarProveedores() ? `<button class="btn btn-dorado btn-sm py-0" onclick="editarProveedor(${p.id})"><i class="bi bi-pencil"></i></button>` : ''}${puedeEliminar() && Number(p.id) !== 0 ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarProveedor(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div>`).join('');
             if(divCli) divCli.innerHTML = htmlCli || '<div class="text-muted small">Sin proveedores</div>';
             if(divConfig) divConfig.innerHTML = htmlConfig || '<div class="text-muted small">Sin proveedores</div>';
         }
@@ -1906,16 +2037,20 @@
             document.getElementById('prov-dir').value = '';
             document.getElementById('prov-deuda').value = '';
             document.getElementById('prov-vacios').value = '';
-            document.getElementById('prov-categoria').value = 'General';
+            document.querySelectorAll('#prov-categorias-checkbox input').forEach(cb => cb.checked = false);
         }
 
         async function guardarProveedor() {
             const id = document.getElementById('prov-edit-id').value;
             const nombre = document.getElementById('prov-nombre').value.trim();
             if(!nombre) return notificar('Nombre obligatorio', 'warning');
+            const categorias = [];
+            document.querySelectorAll('#prov-categorias-checkbox input:checked').forEach(cb => categorias.push(cb.value));
+            if(categorias.length === 0) categorias.push('General');
             mostrarSpinner();
-            const provObj = { id: id ? Number(id) : undefined, nombre, rif: document.getElementById('prov-rif').value, telefono: document.getElementById('prov-tel').value, direccion: document.getElementById('prov-dir').value, deuda_inicial_dinero: Number(document.getElementById('prov-deuda').value)||0, deuda_vacios: 0, deuda_inicial_vacios: 0, categoria: document.getElementById('prov-categoria').value };
-            await fetch('/api/proveedores', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(provObj) }).catch(()=>{});
+            const provObj = { id: id ? Number(id) : undefined, nombre, rif: document.getElementById('prov-rif').value, telefono: document.getElementById('prov-tel').value, direccion: document.getElementById('prov-dir').value, deuda_inicial_dinero: Number(document.getElementById('prov-deuda').value)||0, deuda_vacios: 0, deuda_inicial_vacios: 0, categorias };
+            const res = await fetch('/api/proveedores', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(provObj) });
+            if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             notificar('Proveedor guardado', 'success');
             resetFormProveedor();
             toggleForm('formProveedor');
@@ -1935,13 +2070,16 @@
             document.getElementById('prov-deuda').value = p.deuda_inicial_dinero||0;
             document.getElementById('prov-vacios').value = p.deuda_vacios||p.deuda_inicial_vacios||0;
             document.getElementById('prov-vacios').disabled = true;
-            document.getElementById('prov-categoria').value = p.categoria || 'General';
+            document.querySelectorAll('#prov-categorias-checkbox input').forEach(cb => {
+                cb.checked = (p.categorias || []).includes(cb.value);
+            });
             toggleForm('formProveedor');
         }
 
         async function eliminarProveedor(id) {
             if(confirm('¿Eliminar proveedor?')) {
-                await fetch(`/api/proveedores/${id}`, { method:'DELETE' }).catch(()=>{});
+                const res = await fetch(`/api/proveedores/${id}`, { method:'DELETE' });
+                if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); return; }
                 notificar('Eliminado', 'info');
                 await cargarDatosServidor();
                 ver('config');
