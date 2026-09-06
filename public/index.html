@@ -216,7 +216,7 @@
                 <button class="btn btn-dorado fw-bold" onclick="ver('movimientos')"><i class="bi bi-clock-history me-2"></i>Ver Movimientos</button>
                 <button class="btn btn-dorado fw-bold" id="btn-ver-gastos" onclick="ver('gastos')"><i class="bi bi-wallet2 me-2"></i>Gastos</button>
                 <button class="btn btn-dorado fw-bold" id="btn-ver-metas" onclick="ver('metas')"><i class="bi bi-trophy me-2"></i>Metas</button>
-                <button class="btn btn-dorado fw-bold" onclick="ver('cierre')"><i class="bi bi-graph-up me-2"></i>Análisis y Cierres</button>
+                <button class="btn btn-dorado fw-bold" id="btn-ver-cierre" onclick="ver('cierre')"><i class="bi bi-graph-up me-2"></i>Análisis y Cierres</button>
             </div>
             <div class="card p-3" style="border: 1px solid var(--color-oro-noble);"><div class="d-flex justify-content-between border-bottom pb-2 mb-2" style="border-color: var(--color-oro-noble) !important;"><h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-graph-up me-2" style="color: var(--color-oro-noble);"></i>Resumen Diario</h6><button class="btn btn-sm btn-peligro" id="btn-cierre" onclick="realizarCierre()">Cierre de Caja</button></div><div class="d-flex justify-content-between fs-6"><span class="text-muted">Ventas: <strong id="lbl-ventas-hoy" style="color: var(--color-azul-medianoche);">$0.00</strong></span><span class="text-muted">Cobrado: <strong id="lbl-cobrado-hoy" style="color: var(--color-verde-oliva);">$0.00</strong></span></div></div>
         </div>
@@ -311,7 +311,7 @@
     </div>
 
     <!-- MENÚ LATERAL -->
-    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" id="menu-gastos" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" id="menu-metas" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" id="menu-config" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.3.2</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
+    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" id="menu-gastos" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" id="menu-metas" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" id="menu-cierre" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" id="menu-config" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.3.4</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
 
     <!-- MODAL FACTURA -->
     <div class="modal fade" id="modalFactura" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-receipt me-2"></i>Documento</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><input type="hidden" id="pedido-edit-id"><div class="mb-2"><label class="small text-muted">Tipo</label><select class="form-select form-select-sm" id="doc-tipo"><option value="pedido">Pedido</option><option value="factura">Factura</option></select></div><div class="mb-2 position-relative"><div class="d-flex justify-content-between"><label class="small text-muted">Cuenta</label><span class="badge-polar" onclick="mostrarProveedoresEnModal()" id="btn-proveedores"><i class="bi bi-building"></i> PROVEEDORES</span></div><input type="text" class="form-control form-control-sm" id="search-cliente" placeholder="Buscar..." oninput="buscarCliente(this.value)"><div id="res-cliente" class="search-results d-none"></div><input type="hidden" id="cliente_id"></div><div class="mb-2"><label class="small text-muted">Serial</label><input type="text" class="form-control form-control-sm" id="factura-serial" placeholder="001-000000"></div><div class="border rounded p-2 mb-2" style="border-color: var(--color-oro-noble);"><label class="small text-muted">Producto</label><input type="text" class="form-control form-control-sm" id="prod-input" placeholder="Buscar producto..." oninput="buscarProductoModal(this.value)"><div id="res-producto" class="search-results d-none"></div><input type="hidden" id="modal-prod-id"><div class="row g-2 mt-1"><div class="col-3"><label class="small">Empaque</label><select class="form-select form-select-sm" id="empaque" onchange="actualizarPrecioEmpaqueModal()"><option value="caja">Caja</option><option value="unidad">Unidad</option><option value="paleta">Paleta</option></select></div><div class="col-3"><label class="small">Cant</label><input type="number" class="form-control form-control-sm" id="cant" value="1"></div><div class="col-3"><label class="small">Desc%</label><input type="number" class="form-control form-control-sm" id="descuento" value="0"></div><div class="col-3"><label class="small">Precio$</label><input type="number" class="form-control form-control-sm" id="precio_unit" step="0.01"></div></div><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="aplicar-iva" checked><label class="form-check-label small">Aplicar IVA (16%)</label></div><button class="btn btn-dorado-solid btn-sm w-100 mt-1" onclick="agregarAlCarrito()">Añadir</button></div><div><div class="d-flex justify-content-between"><small class="fw-bold">Detalle:</small><small class="text-danger" style="cursor:pointer;" onclick="vaciarCarrito()">Vaciar</small></div><div id="lista-carrito" class="border rounded p-2" style="min-height:80px; max-height:150px; overflow-y:auto; border-color: var(--color-oro-noble) !important;"><div class="text-center text-muted small">Sin productos</div></div><div id="detalle-iva" class="small mt-2"></div></div></div><div class="modal-footer" style="background: var(--color-azul-medianoche); border-top: 1px solid var(--color-oro-noble);"><div class="text-end"><small class="text-muted" id="lbl-subtotal"></small><span class="fw-bold" style="color: var(--color-oro-noble);" id="lbl-total">$0.00</span></div><button class="btn btn-dorado-solid" onclick="guardarPedido()">Procesar</button></div></div></div></div>
@@ -338,6 +338,7 @@
         let buscandoProveedores = false;
         let dolarActual = null;
         let authToken = '';
+        let hayModalAbierto = false;
 
         function puedeEliminar() { return currentUser.rol === 'Admin'; }
         function puedeVerProveedores() { return currentUser.rol === 'Admin' || currentUser.rol === 'Dueño'; }
@@ -346,6 +347,7 @@
         function puedeVerConfig() { return currentUser.rol === 'Admin' || currentUser.rol === 'Dueño'; }
         function puedeVerZonaPeligro() { return currentUser.rol === 'Admin'; }
         function puedePagarProveedor() { return currentUser.rol === 'Admin' || currentUser.rol === 'Dueño'; }
+        function puedeVerAnalisis() { return currentUser.rol === 'Admin' || currentUser.rol === 'Dueño'; }
         function mostrarSpinner() { document.getElementById('spinner-overlay').style.display = 'flex'; }
         function ocultarSpinner() { setTimeout(() => { document.getElementById('spinner-overlay').style.display = 'none'; }, 500); }
 
@@ -387,18 +389,23 @@
                 aplicarRestricciones();
                 actualizarContadores();
                 actualizarAlertas();
-                actualizarSelectPago();
-                cargarListaClientesDropdowns();
-                cargarListaRetiroVacios();
-                cargarCargaCamion();
-                cargarCategoriasSelect();
-                cargarListaTrabajadores();
-                cargarListaUsuarios();
-                cargarListaGastos();
-                cargarListaCategorias();
-                cargarListaProveedores();
-                cargarEdicionRapida();
-                cargarMetas();
+                if (!hayModalAbierto) {
+                    // Solo recargar selects y listas si no hay modal abierto
+                    actualizarSelectPago();
+                    cargarListaClientesDropdowns();
+                    cargarListaRetiroVacios();
+                    cargarCargaCamion();
+                    cargarCategoriasSelect();
+                    cargarListaTrabajadores();
+                    cargarListaUsuarios();
+                    cargarListaGastos();
+                    cargarListaCategorias();
+                    cargarListaProveedores();
+                    cargarEdicionRapida();
+                    cargarMetas();
+                } else {
+                    // Si hay modal abierto, solo actualizar contadores y alertas, no tocar selects
+                }
                 actualizarDolarDisplay();
             } catch (err) { console.error("Error:", err); }
         }
@@ -414,6 +421,10 @@
             }
             if (!puedeVerConfig()) {
                 document.getElementById('menu-config').style.display = 'none';
+            }
+            if (!puedeVerAnalisis()) {
+                document.getElementById('btn-ver-cierre').style.display = 'none';
+                document.getElementById('menu-cierre').style.display = 'none';
             }
             if (!puedePagarProveedor()) {
                 document.getElementById('pago-tipo').innerHTML = '<option value="CLIENTE">Cobro a Cliente</option>';
@@ -496,9 +507,16 @@
             offcanvasMenu = new bootstrap.Offcanvas(document.getElementById('menuLateral'));
             document.getElementById('login-overlay').style.display = 'flex';
             sesionIniciada = false;
+
+            // Detectar apertura/cierre de modales para pausar/reanudar actualización automática
+            ['modalFactura', 'modalCheckDespacho', 'modalDetalleDia'].forEach(id => {
+                const el = document.getElementById(id);
+                el.addEventListener('show.bs.modal', () => { hayModalAbierto = true; });
+                el.addEventListener('hidden.bs.modal', () => { hayModalAbierto = false; cargarDatosServidor(); });
+            });
         });
 
-        setInterval(async () => { if (sesionIniciada) await cargarDatosServidor(); }, 30000);
+        setInterval(async () => { if (sesionIniciada && !hayModalAbierto) await cargarDatosServidor(); }, 30000);
 
         function notificar(mensaje, tipo = 'success') {
             const div = document.createElement('div');
@@ -568,6 +586,7 @@
             if (sec === 'config' && !puedeVerConfig()) return notificar('No autorizado', 'danger');
             if (sec === 'gastos' && !puedeVerGastos()) return notificar('No autorizado', 'danger');
             if (sec === 'metas' && !puedeVerMetas()) return notificar('No autorizado', 'danger');
+            if (sec === 'cierre' && !puedeVerAnalisis()) return notificar('No autorizado', 'danger');
             const secciones = ['dashboard', 'pedidos', 'vacios', 'clientes', 'productos', 'movimientos', 'cierre', 'config', 'gastos', 'analisis-productos', 'analisis-clientes', 'metas'];
             secciones.forEach(s => document.getElementById(`sec-${s}`).style.display = s === sec ? 'block' : 'none');
             document.querySelectorAll('.card-btn').forEach(el => el.classList.remove('active-tab'));
@@ -595,21 +614,35 @@
             const cont = document.getElementById('edicion-rapida-container');
             if (!cont) return;
             let html = '';
-            html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prod"><i class="bi bi-box me-2"></i>Productos <i class="bi bi-chevron-down ms-auto"></i></div>`;
-            html += `<div class="collapse" id="edit-prod"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-productos" placeholder="Buscar producto..." oninput="filtrarTabla('productos', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-productos"><thead><tr><th>Nombre</th><th>Código</th><th>Stock</th><th>Precio $</th><th>Unid/Caja</th><th>Cajas/Paleta</th><th></th></tr></thead><tbody>`;
-            dbProductos.forEach(p => {
-                html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
-                    <td><input type="text" class="form-control form-control-sm" value="${p.nombre}" data-campo="nombre"></td>
-                    <td><input type="text" class="form-control form-control-sm" value="${p.codigo || ''}" data-campo="codigo"></td>
-                    <td><input type="number" class="form-control form-control-sm" value="${p.stock || 0}" data-campo="stock"></td>
-                    <td><input type="number" step="0.01" class="form-control form-control-sm" value="${p.precio || 0}" data-campo="precio"></td>
-                    <td><input type="number" class="form-control form-control-sm" value="${p.unid_por_caja || 24}" data-campo="unid_por_caja"></td>
-                    <td><input type="number" class="form-control form-control-sm" value="${p.cajas_por_paleta || 60}" data-campo="cajas_por_paleta"></td>
-                    <td><button class="btn-guardar-fila" onclick="guardarFilaProducto(${p.id})">Guardar</button></td>
-                </tr>`;
-            });
-            html += `</tbody></table></div></div>`;
 
+            // Productos agrupados por categoría
+            html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prod"><i class="bi bi-box me-2"></i>Productos <i class="bi bi-chevron-down ms-auto"></i></div>`;
+            html += `<div class="collapse" id="edit-prod">`;
+            const porCategoria = {};
+            dbCategorias.forEach(cat => {
+                const productos = dbProductos.filter(p => p.categoria === cat).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+                if (productos.length > 0) porCategoria[cat] = productos;
+            });
+            html += `<input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-productos" placeholder="Buscar producto..." oninput="filtrarTabla('productos', this.value)">`;
+            Object.entries(porCategoria).forEach(([categoria, productos]) => {
+                html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prod-${categoria.replace(/\s+/g,'-')}"><span>${categoria} (${productos.length})</span><i class="bi bi-chevron-down"></i></div>`;
+                html += `<div class="collapse" id="edit-prod-${categoria.replace(/\s+/g,'-')}"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" data-categoria="${categoria}"><thead><tr><th>Nombre</th><th>Código</th><th>Stock</th><th>Precio $</th><th>Unid/Caja</th><th>Cajas/Paleta</th><th></th></tr></thead><tbody>`;
+                productos.forEach(p => {
+                    html += `<tr data-id="${p.id}" data-nombre="${p.nombre.toLowerCase()}">
+                        <td><input type="text" class="form-control form-control-sm" value="${p.nombre}" data-campo="nombre"></td>
+                        <td><input type="text" class="form-control form-control-sm" value="${p.codigo || ''}" data-campo="codigo"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="${p.stock || 0}" data-campo="stock"></td>
+                        <td><input type="number" step="0.01" class="form-control form-control-sm" value="${p.precio || 0}" data-campo="precio"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="${p.unid_por_caja || 24}" data-campo="unid_por_caja"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="${p.cajas_por_paleta || 60}" data-campo="cajas_por_paleta"></td>
+                        <td><button class="btn-guardar-fila" onclick="guardarFilaProducto(${p.id})">Guardar</button></td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div></div>`;
+            });
+            html += `</div>`;
+
+            // Clientes
             html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-cli"><i class="bi bi-people me-2"></i>Clientes <i class="bi bi-chevron-down ms-auto"></i></div>`;
             html += `<div class="collapse" id="edit-cli"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-clientes" placeholder="Buscar cliente..." oninput="filtrarTabla('clientes', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-clientes"><thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th>Vacíos</th><th></th></tr></thead><tbody>`;
             dbClientes.forEach(c => {
@@ -625,6 +658,7 @@
             });
             html += `</tbody></table></div></div>`;
 
+            // Proveedores
             html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prov"><i class="bi bi-building me-2"></i>Proveedores <i class="bi bi-chevron-down ms-auto"></i></div>`;
             html += `<div class="collapse" id="edit-prov"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-proveedores" placeholder="Buscar proveedor..." oninput="filtrarTabla('proveedores', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-proveedores"><thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th></th></tr></thead><tbody>`;
             dbProveedores.forEach(p => {
@@ -644,18 +678,39 @@
         }
 
         function filtrarTabla(tipo, texto) {
-            const tabla = document.getElementById(`tabla-${tipo}`);
-            if (!tabla) return;
-            const filas = tabla.querySelectorAll('tbody tr');
-            const busqueda = texto.toLowerCase();
-            filas.forEach(fila => {
-                const nombre = fila.getAttribute('data-nombre') || '';
-                fila.style.display = nombre.includes(busqueda) ? '' : 'none';
-            });
+            const input = document.getElementById(`buscador-${tipo}`);
+            if (!input) return;
+            if (tipo === 'productos') {
+                const busqueda = texto.toLowerCase();
+                document.querySelectorAll('#edit-prod table').forEach(tabla => {
+                    tabla.querySelectorAll('tbody tr').forEach(fila => {
+                        const nombre = fila.getAttribute('data-nombre') || '';
+                        fila.style.display = nombre.includes(busqueda) ? '' : 'none';
+                    });
+                });
+                // Ocultar categorías sin coincidencias (opcional)
+                document.querySelectorAll('#edit-prod .collapse-header').forEach(header => {
+                    const target = header.getAttribute('data-bs-target');
+                    const catDiv = document.querySelector(target);
+                    if (catDiv) {
+                        const visible = catDiv.querySelectorAll('tbody tr[style*="display: none"]').length < catDiv.querySelectorAll('tbody tr').length;
+                        header.style.display = visible ? 'flex' : 'none';
+                    }
+                });
+            } else {
+                const tabla = document.getElementById(`tabla-${tipo}`);
+                if (!tabla) return;
+                const filas = tabla.querySelectorAll('tbody tr');
+                const busqueda = texto.toLowerCase();
+                filas.forEach(fila => {
+                    const nombre = fila.getAttribute('data-nombre') || '';
+                    fila.style.display = nombre.includes(busqueda) ? '' : 'none';
+                });
+            }
         }
 
         async function guardarFilaProducto(id) {
-            const fila = document.querySelector(`#tabla-productos tr[data-id="${id}"]`);
+            const fila = document.querySelector(`#edit-prod tr[data-id="${id}"]`);
             if (!fila) return;
             const datos = {};
             fila.querySelectorAll('input[data-campo]').forEach(input => {
@@ -1074,7 +1129,6 @@
                     if (!resumen[key]) {
                         const prod = dbProductos.find(pr => pr.id == i.prod_id);
                         const stockFisico = prod ? Number(prod.stock) : 0;
-                        // Reservas de otros pedidos pendientes
                         const reservado = dbPedidos.filter(x => (x.estado === 'pendiente' || x.estado === 'Pendiente') && !x.es_proveedor && x.id !== p.id)
                             .reduce((sum, ped) => {
                                 const it = ped.items.find(item => item.prod_id == i.prod_id);
@@ -1269,6 +1323,7 @@
             document.getElementById('cli-deuda-usd').value = c.deuda_inicial_dinero || 0;
             document.getElementById('cli-deuda-vacios').value = c.deuda_vacios || c.deuda_inicial_vacios || 0;
             toggleForm('formCliente');
+            document.getElementById('formCliente').scrollIntoView({ behavior: 'smooth' });
         }
 
         async function guardarCliente() {
@@ -1329,6 +1384,7 @@
             document.getElementById('prod-gabera').checked = p.usa_gabera;
             document.getElementById('prod-exento-iva').checked = p.exento_iva !== false;
             toggleForm('formProducto');
+            document.getElementById('formProducto').scrollIntoView({ behavior: 'smooth' });
         }
 
         async function guardarProducto() {
