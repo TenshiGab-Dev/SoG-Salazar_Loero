@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
+        /* ========== ESTILOS (sin cambios) ========== */
         :root {
             --color-marfil: #F0EAD6;
             --color-azul-medianoche: #0b132b;
@@ -258,7 +259,7 @@
         <!-- ANÁLISIS Y CIERRES -->
         <div id="sec-cierre" style="display:none;" class="card p-3" style="border: 1px solid var(--color-oro-noble);">
             <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: var(--color-oro-noble) !important;"><h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-graph-up me-2" style="color: var(--color-oro-noble);"></i>Análisis y Cierres</h6><button class="btn btn-sm btn-dorado" onclick="ver('dashboard')">Volver</button></div>
-            <div class="card mb-3 analisis-card" onclick="toggleDetalleDia()"><div class="card-body p-3"><div class="d-flex justify-content-between"><h6 class="fw-bold m-0">📅 Hoy: <span id="fecha-hoy"></span></h6><span class="fw-bold fs-5" id="ganancia-hoy" style="color: var(--color-oro-noble);">$0.00</span></div><small class="text-muted">Click para ver detalle</small><div class="collapse mt-2" id="detalle-dia"><div id="detalle-dia-contenido" class="small"></div></div></div></div>
+            <div class="card mb-3 analisis-card" data-bs-toggle="collapse" data-bs-target="#detalle-dia"><div class="card-body p-3"><div class="d-flex justify-content-between"><h6 class="fw-bold m-0">📅 Hoy: <span id="fecha-hoy"></span></h6><span class="fw-bold fs-5" id="ganancia-hoy" style="color: var(--color-oro-noble);">$0.00</span></div><small class="text-muted">Click para ver detalle</small><div class="collapse mt-2" id="detalle-dia"><div id="detalle-dia-contenido" class="small"></div></div></div></div>
             <div class="card mb-3" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-3"><h6 class="fw-bold mb-2">📋 Resumen de Pedidos del Día</h6><div id="resumen-pedidos-dia"><div class="text-muted small">Sin pedidos hoy</div></div></div></div>
             <div class="card mb-3" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-3"><h6 class="fw-bold mb-2">📈 Ganancia del Mes</h6><div class="grafica-linea-container"><div class="grafica-linea" id="grafica-mensual"></div></div><div class="balance-total" id="balance-mensual">Total: $0.00</div></div></div>
             <div class="card mb-3" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-3"><h6 class="fw-bold mb-2">📊 Ganancia Anual</h6><div class="grafica-linea-container"><div class="grafica-linea" id="grafica-anual"></div></div><div class="balance-total" id="balance-anual">Total: $0.00</div></div></div>
@@ -300,7 +301,7 @@
         <!-- CONFIGURACIÓN -->
         <div id="sec-config" style="display:none;">
             <div class="d-flex justify-content-between mb-3"><h6 class="fw-bold m-0" style="color: var(--color-azul-medianoche); font-family: Georgia, serif;"><i class="bi bi-shield-lock me-2" style="color: var(--color-oro-noble);"></i>Configuración</h6><button class="btn btn-sm btn-dorado" onclick="ver('dashboard')">Volver</button></div>
-            <div class="config-section" id="seccion-proveedores"><div class="config-title"><i class="bi bi-building"></i> Proveedores</div><div id="lista-proveedores-config" class="mb-2"><div class="text-muted small">Sin proveedores</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formProveedor')">+ Agregar Proveedor</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formProveedor"><input type="hidden" id="prov-edit-id"><input type="text" id="prov-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre del Proveedor *"><input type="text" id="prov-rif" class="form-control form-control-sm mb-2" placeholder="RIF"><input type="text" id="prov-tel" class="form-control form-control-sm mb-2" placeholder="Teléfono"><input type="text" id="prov-dir" class="form-control form-control-sm mb-2" placeholder="Dirección"><div class="mb-2"><label class="small text-muted">Categorías</label><div id="prov-categorias-checkbox"></div></div><div class="row g-2 mb-2"><div class="col-6"><label class="small">Deuda Inicial ($)</label><input type="number" id="prov-deuda" class="form-control form-control-sm" step="0.01"></div><div class="col-6"><label class="small">Vacíos (Auto)</label><input type="number" id="prov-vacios" class="form-control form-control-sm" disabled></div></div><div class="d-flex gap-2"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarProveedor()">Guardar</button><button class="btn btn-dorado btn-sm w-100" onclick="toggleForm('formProveedor')">Cancelar</button></div></div></div>
+            <div class="config-section" id="seccion-proveedores"><div class="config-title"><i class="bi bi-building"></i> Proveedores</div><div id="lista-proveedores-config" class="mb-2"><div class="text-muted small">Sin proveedores</div></div><button class="btn btn-dorado btn-sm" onclick="resetFormProveedor(); toggleForm('formProveedor')">+ Agregar Proveedor</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formProveedor"><input type="hidden" id="prov-edit-id"><input type="text" id="prov-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre del Proveedor *"><input type="text" id="prov-rif" class="form-control form-control-sm mb-2" placeholder="RIF"><input type="text" id="prov-tel" class="form-control form-control-sm mb-2" placeholder="Teléfono"><input type="text" id="prov-dir" class="form-control form-control-sm mb-2" placeholder="Dirección"><div class="mb-2"><label class="small text-muted">Categorías</label><div id="prov-categorias-checkbox"></div></div><div class="row g-2 mb-2"><div class="col-6"><label class="small">Deuda Inicial ($)</label><input type="number" id="prov-deuda" class="form-control form-control-sm" step="0.01"></div><div class="col-6"><label class="small">Vacíos (Auto)</label><input type="number" id="prov-vacios" class="form-control form-control-sm" disabled></div></div><div class="d-flex gap-2"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarProveedor()">Guardar</button><button class="btn btn-dorado btn-sm w-100" onclick="toggleForm('formProveedor')">Cancelar</button></div></div></div>
             <div class="config-section" id="seccion-edicion-rapida"><div class="config-title"><i class="bi bi-lightning-charge"></i> Edición Rápida de Gestión</div><div id="edicion-rapida-container"><div class="text-center text-muted">Cargando...</div></div></div>
             <div class="config-section" id="seccion-usuarios"><div class="config-title"><i class="bi bi-people"></i> Usuarios</div><div id="lista-usuarios" class="mb-2"><div class="text-muted small">Sin usuarios</div></div><button class="btn btn-dorado btn-sm" onclick="toggleForm('formUsuario')">+ Agregar Usuario</button><div class="collapse mt-2 border p-3" style="border-color: var(--color-oro-noble) !important;" id="formUsuario"><input type="text" id="usr-usuario" class="form-control form-control-sm mb-2" placeholder="Usuario *"><input type="password" id="usr-clave" class="form-control form-control-sm mb-2" placeholder="Contraseña"><input type="text" id="usr-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre completo"><input type="text" id="usr-labor" class="form-control form-control-sm mb-2" placeholder="Labor / Cargo"><select class="form-select form-select-sm mb-2" id="usr-rol"><option value="Operador">Operador</option><option value="Contador">Contador</option><option value="Dueño">Dueño</option><option value="Admin">Admin</option></select><input type="color" id="usr-color" class="form-control form-control-sm mb-2" value="#D4AF37"><button class="btn btn-dorado-solid btn-sm w-100" onclick="guardarUsuario()">Guardar</button></div></div>
             <div class="config-section" id="seccion-cierre"><div class="config-title"><i class="bi bi-graph-up"></i> Cierre Diario</div><div class="d-flex gap-2"><button class="btn btn-dorado btn-sm" id="btn-desbloquear-cierre" onclick="desbloquearCierre()">Desbloquear Cierre</button><button class="btn btn-peligro btn-sm" id="btn-borrar-cierre" onclick="borrarUltimoCierre()">Borrar Último Cierre</button></div></div>
@@ -322,10 +323,13 @@
     <!-- MODAL DETALLE DÍA -->
     <div class="modal fade" id="modalDetalleDia"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble);" id="modal-detalle-titulo">Detalle</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);" id="modal-detalle-contenido"></div></div></div></div>
 
+    <!-- MODAL EDITAR ITEM CARRITO -->
+    <div class="modal fade" id="modalEditarItem" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble);">Editar Producto</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><input type="hidden" id="edit-item-index"><div class="mb-2"><label class="small text-muted">Cantidad</label><input type="number" id="edit-item-cant" class="form-control form-control-sm" step="any"></div><div class="mb-2"><label class="small text-muted">Precio Base $</label><input type="number" id="edit-item-precio" class="form-control form-control-sm" step="0.01"></div><div class="mb-2"><label class="small text-muted">Descuento %</label><input type="number" id="edit-item-desc" class="form-control form-control-sm" step="0.01" value="0"></div></div><div class="modal-footer" style="background: var(--color-azul-medianoche); border-top: 1px solid var(--color-oro-noble);"><button class="btn btn-dorado-solid" onclick="guardarEdicionItem()">Guardar</button></div></div></div></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ==================== VARIABLES GLOBALES ====================
-        let modalFact, modalCheckDespacho, modalDetalleDia, offcanvasMenu;
+        let modalFact, modalCheckDespacho, modalDetalleDia, modalEditarItem, offcanvasMenu;
         let carrito = [];
         let dbClientes = [], dbProveedores = [], dbProductos = [], dbMovimientos = [], dbPedidos = [], dbCierres = [], dbCategorias = ['General'], dbGastos = [], dbUsuarios = [], dbTrabajadores = [];
         let metasDB = {};
@@ -504,19 +508,20 @@
             modalFact = new bootstrap.Modal(document.getElementById('modalFactura'));
             modalCheckDespacho = new bootstrap.Modal(document.getElementById('modalCheckDespacho'));
             modalDetalleDia = new bootstrap.Modal(document.getElementById('modalDetalleDia'));
+            modalEditarItem = new bootstrap.Modal(document.getElementById('modalEditarItem'));
             offcanvasMenu = new bootstrap.Offcanvas(document.getElementById('menuLateral'));
             document.getElementById('login-overlay').style.display = 'flex';
             sesionIniciada = false;
 
             // Detectar apertura/cierre de modales para pausar/reanudar actualización automática
-            ['modalFactura', 'modalCheckDespacho', 'modalDetalleDia'].forEach(id => {
+            ['modalFactura', 'modalCheckDespacho', 'modalDetalleDia', 'modalEditarItem'].forEach(id => {
                 const el = document.getElementById(id);
                 el.addEventListener('show.bs.modal', () => { hayModalAbierto = true; });
                 el.addEventListener('hidden.bs.modal', () => { hayModalAbierto = false; cargarDatosServidor(); });
             });
         });
 
-        setInterval(async () => { if (sesionIniciada && !hayModalAbierto) await cargarDatosServidor(); }, 30000);
+        setInterval(async () => { if (sesionIniciada && !hayModalAbierto) await cargarDatosServidor(); }, 60000); // Reducido a 60s
 
         function notificar(mensaje, tipo = 'success') {
             const div = document.createElement('div');
@@ -529,6 +534,7 @@
         function formatoMoneda(v) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v || 0); }
         function formatoFecha(ts) { if (!ts) return ""; const d = new Date(ts); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
         function fechaActualVenezuela() { const ahora = new Date(); const offset = -4 * 60; return new Date(ahora.getTime() + (offset * 60 * 1000)).toISOString(); }
+        function escapeAttr(texto) { return (texto || '').replace(/'/g, "\\'"); }
 
         async function ejecutarLogin() {
             const usuario = document.getElementById('login-user').value.trim();
@@ -889,11 +895,13 @@
             } else {
                 filt = dbClientes.filter(c => c.nombre.toLowerCase().includes(q.toLowerCase()));
             }
-            div.innerHTML = filt.map(c => `<div class="p-2 border-bottom" style="cursor:pointer" onmousedown="selCliente('${c.id}','${c.nombre}')">${c.nombre}</div>`).join('');
+            div.innerHTML = filt.map(c => `<div class="p-2 border-bottom" style="cursor:pointer" onclick="selCliente(event, '${c.id}','${escapeAttr(c.nombre)}')">${c.nombre}</div>`).join('');
             div.classList.remove('d-none');
         }
 
-        function selCliente(id, nombre) {
+        function selCliente(event, id, nombre) {
+            event.preventDefault();
+            event.stopPropagation();
             document.getElementById('cliente_id').value = id;
             document.getElementById('search-cliente').value = nombre;
             document.getElementById('res-cliente').classList.add('d-none');
@@ -914,11 +922,13 @@
                 const cats = JSON.parse(provCats);
                 filt = filt.filter(p => cats.includes(p.categoria));
             }
-            div.innerHTML = filt.map(p => `<div class="p-2 border-bottom" style="cursor:pointer" onmousedown="selProductoModal(${p.id})">${p.nombre} - $${p.precio} [${p.stock}]</div>`).join('');
+            div.innerHTML = filt.map(p => `<div class="p-2 border-bottom" style="cursor:pointer" onclick="selProductoModal(event, ${p.id})">${p.nombre} - $${p.precio} [${p.stock}]</div>`).join('');
             div.classList.remove('d-none');
         }
 
-        function selProductoModal(id) {
+        function selProductoModal(event, id) {
+            event.preventDefault();
+            event.stopPropagation();
             productoSeleccionadoModal = dbProductos.find(p => p.id == id);
             if (!productoSeleccionadoModal) return;
             document.getElementById('prod-input').value = productoSeleccionadoModal.nombre;
@@ -1022,17 +1032,22 @@
         function editarItemCarrito(index) {
             const item = carrito[index];
             if (!item) return;
-            const nuevaCant = prompt('Nueva cantidad:', item.cantidad);
-            if (nuevaCant === null) return;
-            const cantNum = Number(nuevaCant);
+            document.getElementById('edit-item-index').value = index;
+            document.getElementById('edit-item-cant').value = item.cantidad;
+            document.getElementById('edit-item-precio').value = item.precio_base;
+            document.getElementById('edit-item-desc').value = item.descuento || 0;
+            modalEditarItem.show();
+        }
+
+        function guardarEdicionItem() {
+            const index = parseInt(document.getElementById('edit-item-index').value);
+            const item = carrito[index];
+            if (!item) return;
+            const cantNum = Number(document.getElementById('edit-item-cant').value);
+            const precioNum = Number(document.getElementById('edit-item-precio').value);
+            const descNum = Number(document.getElementById('edit-item-desc').value) || 0;
             if (isNaN(cantNum) || cantNum <= 0) return notificar('Cantidad inválida', 'warning');
-            const nuevoPrecio = prompt('Nuevo precio base:', item.precio_base.toFixed(2));
-            if (nuevoPrecio === null) return;
-            const precioNum = Number(nuevoPrecio);
             if (isNaN(precioNum) || precioNum <= 0) return notificar('Precio inválido', 'warning');
-            const nuevoDesc = prompt('Descuento (%):', item.descuento);
-            if (nuevoDesc === null) return;
-            const descNum = Number(nuevoDesc) || 0;
             item.cantidad = cantNum;
             item.precio_base = precioNum;
             item.descuento = descNum;
@@ -1063,6 +1078,7 @@
             item.total = total;
             item.precio_final = total / cantNum;
             renderCarrito();
+            modalEditarItem.hide();
         }
 
         function eliminarDelCarrito(i) { carrito.splice(i, 1); renderCarrito(); }
@@ -1080,6 +1096,28 @@
             if (esProveedor && !puedeVerProveedores()) return notificar('No autorizado', 'danger');
             if (docTipo === 'factura' && !esProveedor && carrito.some(i => i.contrapedido)) {
                 return notificar('No se puede facturar: hay productos con contra-pedido', 'danger');
+            }
+            // Validar stock para pedidos pendientes (no facturas)
+            if (docTipo === 'pedido' && !esProveedor) {
+                const reservas = {};
+                dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor && p.id != editId).forEach(p => {
+                    (p.items || []).forEach(i => {
+                        reservas[i.prod_id] = (reservas[i.prod_id] || 0) + Number(i.cant_cajas || 0);
+                    });
+                });
+                carrito.forEach(item => {
+                    const prod = dbProductos.find(p => p.id == item.prod_id);
+                    if (prod) {
+                        const disponible = Math.max(0, Number(prod.stock || 0) - (reservas[item.prod_id] || 0));
+                        if (item.cant_cajas > disponible) {
+                            item.contrapedido = true;
+                            item.faltante = item.cant_cajas - disponible;
+                        } else {
+                            item.contrapedido = false;
+                            item.faltante = 0;
+                        }
+                    }
+                });
             }
             mostrarSpinner();
             let subtotal = 0;
@@ -1122,30 +1160,52 @@
             const div = document.getElementById('carga-camion');
             const pendientes = dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor);
             if (!pendientes.length) { div.innerHTML = '<div class="text-center text-muted small">Sin pedidos pendientes</div>'; return; }
-            const resumen = {};
+            
+            // Calcular reservas totales por producto
+            const reservasTotales = {};
             pendientes.forEach(p => {
                 (p.items || []).forEach(i => {
-                    const key = i.nombre || 'Producto';
-                    if (!resumen[key]) {
-                        const prod = dbProductos.find(pr => pr.id == i.prod_id);
-                        const stockFisico = prod ? Number(prod.stock) : 0;
-                        const reservado = dbPedidos.filter(x => (x.estado === 'pendiente' || x.estado === 'Pendiente') && !x.es_proveedor && x.id !== p.id)
-                            .reduce((sum, ped) => {
-                                const it = ped.items.find(item => item.prod_id == i.prod_id);
-                                return sum + (it ? Number(it.cant_cajas || it.cantidad || 0) : 0);
-                            }, 0);
-                        resumen[key] = { cantidad: 0, stockDisponible: Math.max(0, stockFisico - reservado), faltante: 0 };
-                    }
-                    resumen[key].cantidad += Number(i.cant_cajas || i.cantidad || 0);
-                    if (i.contrapedido) resumen[key].faltante += i.faltante;
+                    reservasTotales[i.prod_id] = (reservasTotales[i.prod_id] || 0) + Number(i.cant_cajas || i.cantidad || 0);
                 });
             });
-            const orden = Object.entries(resumen).sort((a, b) => b[1].cantidad - a[1].cantidad);
-            div.innerHTML = orden.map(([nombre, datos]) => {
-                const falta = datos.cantidad - datos.stockDisponible;
-                const cp = falta > 0 ? `<span class="badge badge-contrapedido">CP ${falta}</span>` : '';
-                return `<div class="camion-item"><span><strong>${nombre}</strong> - ${datos.cantidad} cjs</span><span>Stock: ${datos.stockDisponible} ${cp}</span></div>`;
-            }).join('');
+            
+            // Agrupar por categoría y producto
+            const resumenPorCategoria = {};
+            pendientes.forEach(p => {
+                (p.items || []).forEach(i => {
+                    const prod = dbProductos.find(pr => pr.id == i.prod_id);
+                    const categoria = prod ? prod.categoria : 'General';
+                    if (!resumenPorCategoria[categoria]) resumenPorCategoria[categoria] = {};
+                    const nombre = i.nombre || 'Producto';
+                    if (!resumenPorCategoria[categoria][nombre]) {
+                        resumenPorCategoria[categoria][nombre] = { cantidad: 0, stockDisponible: 0, faltante: 0 };
+                    }
+                    resumenPorCategoria[categoria][nombre].cantidad += Number(i.cant_cajas || i.cantidad || 0);
+                    if (i.contrapedido) {
+                        resumenPorCategoria[categoria][nombre].faltante += i.faltante;
+                    }
+                    // Calcular stock disponible una sola vez
+                    if (!resumenPorCategoria[categoria][nombre].stockCalculado) {
+                        const prodStock = prod ? Number(prod.stock || 0) : 0;
+                        const reservado = reservasTotales[i.prod_id] || 0;
+                        resumenPorCategoria[categoria][nombre].stockDisponible = Math.max(0, prodStock - reservado);
+                        resumenPorCategoria[categoria][nombre].stockCalculado = true;
+                    }
+                });
+            });
+            
+            const categoriasOrdenadas = Object.keys(resumenPorCategoria).sort((a, b) => a.localeCompare(b));
+            let html = '';
+            categoriasOrdenadas.forEach(categoria => {
+                html += `<div class="fw-bold mt-2 mb-1" style="color: var(--color-oro-oscuro);">📦 ${categoria}</div>`;
+                const productos = Object.entries(resumenPorCategoria[categoria]).sort((a, b) => b[1].cantidad - a[1].cantidad);
+                productos.forEach(([nombre, datos]) => {
+                    const falta = datos.cantidad - datos.stockDisponible;
+                    const cp = falta > 0 ? `<span class="badge badge-contrapedido">CP ${falta}</span>` : '';
+                    html += `<div class="camion-item"><span><strong>${nombre}</strong> - ${datos.cantidad} cjs</span><span>Stock: ${datos.stockDisponible} ${cp}</span></div>`;
+                });
+            });
+            div.innerHTML = html || '<div class="text-center text-muted small">Sin productos en pedidos pendientes</div>';
         }
 
         function cargarListaPedidos() {
@@ -1752,8 +1812,8 @@
         function cargarListaProveedores() {
             const divCli = document.getElementById('lista-proveedores');
             const divConfig = document.getElementById('lista-proveedores-config');
-            const htmlCli = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categorias ? p.categorias.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') : ''}<small class="text-muted d-block">${p.rif || 'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div></div>`).join('');
-            const htmlConfig = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categorias ? p.categorias.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') : ''}<small class="text-muted d-block">${p.rif || 'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div><div class="d-flex gap-1">${puedeEliminar() && Number(p.id) !== 0 ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarProveedor(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div>`).join('');
+            const htmlCli = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categorias ? p.categorias.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') : ''}<small class="text-muted d-block">${p.rif || 'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-dorado" onclick="editarProveedor(${p.id})"><i class="bi bi-pencil"></i></button>` : ''}</div>`).join('');
+            const htmlConfig = dbProveedores.map(p => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><div><strong>${p.nombre}</strong> ${p.categorias ? p.categorias.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') : ''}<small class="text-muted d-block">${p.rif || 'S/R'} | Deuda: ${formatoMoneda(p.deuda_inicial_dinero)}</small></div><div class="d-flex gap-1">${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-dorado" onclick="editarProveedor(${p.id})"><i class="bi bi-pencil"></i></button>` : ''}${puedeEliminar() && Number(p.id) !== 0 ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarProveedor(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div>`).join('');
             if (divCli) divCli.innerHTML = htmlCli || '<div class="text-muted small">Sin proveedores</div>';
             if (divConfig) divConfig.innerHTML = htmlConfig || '<div class="text-muted small">Sin proveedores</div>';
         }
@@ -1766,6 +1826,27 @@
             document.getElementById('prov-dir').value = '';
             document.getElementById('prov-deuda').value = '';
             document.querySelectorAll('#prov-categorias-checkbox input').forEach(cb => cb.checked = false);
+        }
+
+        function editarProveedor(id) {
+            const prov = dbProveedores.find(p => String(p.id) === String(id));
+            if (!prov) return;
+            document.getElementById('prov-edit-id').value = prov.id;
+            document.getElementById('prov-nombre').value = prov.nombre;
+            document.getElementById('prov-rif').value = prov.rif || '';
+            document.getElementById('prov-tel').value = prov.telefono || '';
+            document.getElementById('prov-dir').value = prov.direccion || '';
+            document.getElementById('prov-deuda').value = prov.deuda_inicial_dinero || 0;
+            // Marcar categorías
+            const cats = prov.categorias || ['General'];
+            document.querySelectorAll('#prov-categorias-checkbox input').forEach(cb => {
+                cb.checked = cats.includes(cb.value);
+            });
+            // Mostrar formulario
+            const form = document.getElementById('formProveedor');
+            const bs = bootstrap.Collapse.getInstance(form) || new bootstrap.Collapse(form, { toggle: false });
+            if (!form.classList.contains('show')) bs.show();
+            form.scrollIntoView({ behavior: 'smooth' });
         }
 
         async function guardarProveedor() {
