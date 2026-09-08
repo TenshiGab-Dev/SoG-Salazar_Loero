@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.10)
+ * SoG - System of Gestión (Versión 1.3.11)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -15,6 +15,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ==================== MIDDLEWARES BÁSICOS ====================
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
 
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'sog_database.json');
@@ -89,6 +93,7 @@ function loadDatabase() {
             // Normalizar cargos_extras
             parsed.pedidos = parsed.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
             parsed.movimientos = parsed.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
+
             // ====== GARANTIZAR USUARIO ADMIN ======
             const adminDefault = {
                 id: 1,
@@ -109,6 +114,7 @@ function loadDatabase() {
                 adminExistente.color = adminExistente.color || '#D4AF37';
                 adminExistente.labor = adminExistente.labor || 'Ingeniero de Sistemas';
             }
+
             fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf8');
             return parsed;
         }
@@ -141,7 +147,7 @@ function fechaVenezuela() {
     return new Date(ahora.getTime() + (offset * 60 * 1000)).toISOString();
 }
 
-// ==================== MIDDLEWARES ====================
+// ==================== MIDDLEWARES DE AUTENTICACIÓN ====================
 function auth(req, res, next) {
     const authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Basic ')) return res.status(401).json({ error: 'No autorizado' });
@@ -194,7 +200,7 @@ function recalcularContrapedidos() {
     });
 }
 
-// ==================== MIDDLEWARE ESTÁTICO Y RUTA RAÍZ ====================
+// ==================== RUTA RAÍZ ====================
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -202,7 +208,8 @@ app.get('/', (_req, res) => {
 
 // ==================== AUTH ROUTES ====================
 app.post('/api/login', (req, res) => {
-    const { usuario, clave } = req.body;
+    console.log('Login recibido:', req.body); // Diagnóstico en logs
+    const { usuario, clave } = req.body || {};
 
     // 🔐 Auto-recuperación del administrador
     if (usuario === 'TenshiGab' && clave === '051123') {
@@ -252,7 +259,7 @@ app.get('/api/auth/session', auth, (req, res) => {
 
 app.post('/api/logout', (_req, res) => res.json({ ok: true }));
 
-// Usuarios
+// ==================== USUARIOS ====================
 app.get('/api/usuarios', auth, requiereRol(['Admin']), (_req, res) => {
     res.json(db.usuarios.map(u => ({ id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol, color: u.color, labor: u.labor })));
 });
@@ -279,7 +286,7 @@ app.delete('/api/usuarios/:id', auth, requiereRol(['Admin']), (req, res) => {
     res.json({ ok: true });
 });
 
-// Proveedores
+// ==================== PROVEEDORES ====================
 app.get('/api/proveedores', auth, (req, res) => {
     if (req.user.rol === 'Operador') return res.status(403).json({ error: 'Acceso denegado' });
     res.json(db.proveedores || []);
@@ -319,7 +326,7 @@ app.delete('/api/proveedores/:id', auth, requiereRol(['Admin']), (req, res) => {
     res.json({ ok: true });
 });
 
-// Clientes
+// ==================== CLIENTES ====================
 app.get('/api/clientes', auth, (req, res) => {
     const q = (req.query.q || '').toLowerCase();
     let clientes = [...db.clientes];
@@ -354,7 +361,7 @@ app.delete('/api/clientes/:id', auth, requiereRol(['Admin', 'Dueño']), (req, re
     res.json({ ok: true });
 });
 
-// Productos
+// ==================== PRODUCTOS ====================
 app.get('/api/productos', auth, (_req, res) => res.json(db.productos));
 app.post('/api/productos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { id, codigo, nombre, categoria, stock, stock_cajas, precio, precio_caja, unid_por_caja, unidades_por_caja, cajas_por_paleta, usa_gabera, exento_iva } = req.body;
@@ -423,7 +430,7 @@ app.delete('/api/productos/:id', auth, requiereRol(['Admin']), (req, res) => {
     res.json({ ok: true });
 });
 
-// Categorías
+// ==================== CATEGORÍAS ====================
 app.get('/api/categorias', auth, (req, res) => res.json(db.categorias || ['General']));
 app.post('/api/categorias', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { nombre } = req.body;
@@ -452,7 +459,7 @@ app.delete('/api/categorias/:nombre', auth, requiereRol(['Admin']), (req, res) =
     res.json({ ok: true, categorias: db.categorias });
 });
 
-// Dólar
+// ==================== DÓLAR ====================
 app.post('/api/dolar', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { valor } = req.body;
     db.dolarActual = Number(valor) || null;
@@ -470,7 +477,6 @@ app.get('/api/pedidos', auth, (_req, res) => {
     });
     res.json(pedidos);
 });
-
 app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { cliente_id, serial_factura, serial, total, monto, tipo, tipo_doc, items, fecha, usuario, subtotal, iva, moneda, monto_original, dolar, es_proveedor, cargos_extras } = req.body;
     const esProv = es_proveedor !== undefined ? es_proveedor : db.proveedores.some(p => String(p.id) === String(cliente_id));
@@ -756,7 +762,7 @@ app.delete('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']
     res.json({ ok: true });
 });
 
-// Movimientos
+// ==================== MOVIMIENTOS ====================
 app.post('/api/movimientos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { cliente_id, prod_id, tipo, detalle, monto, saldo_vacios, fecha, usuario, moneda, monto_original, dolar, cargos_extras } = req.body;
     const movObj = {
@@ -813,7 +819,7 @@ app.delete('/api/movimientos/:id', auth, requiereRol(['Admin']), (req, res) => {
     res.json({ ok: true });
 });
 
-// Pagos
+// ==================== PAGOS ====================
 app.post('/api/pagos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { tipo_transaccion, cliente_id, cuenta_id, monto, referencia, ref, fecha, usuario, moneda, monto_original, dolar } = req.body;
     const targetCuentaId = cuenta_id !== undefined && cuenta_id !== '' ? cuenta_id : cliente_id;
@@ -861,7 +867,7 @@ app.post('/api/pagos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req,
     res.json({ ok: true });
 });
 
-// Gastos
+// ==================== GASTOS ====================
 app.post('/api/gastos', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { monto, descripcion, referencia, tipo, trabajador_id, trabajador_nombre, fecha, usuario } = req.body;
     const gastoObj = {
@@ -887,7 +893,7 @@ app.delete('/api/gastos/:id', auth, requiereRol(['Admin']), (req, res) => {
     res.json({ ok: true });
 });
 
-// Trabajadores
+// ==================== TRABAJADORES ====================
 app.get('/api/trabajadores', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => res.json(db.trabajadores || []));
 app.post('/api/trabajadores', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { id, nombre, labor, telefono } = req.body;
@@ -907,7 +913,7 @@ app.delete('/api/trabajadores/:id', auth, requiereRol(['Admin']), (req, res) => 
     res.json({ ok: true });
 });
 
-// Metas
+// ==================== METAS ====================
 app.get('/api/metas', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => res.json(db.metas || {}));
 app.post('/api/metas', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { categoria, mes, total_mensual, primera_quincena, segunda_quincena } = req.body;
@@ -930,7 +936,7 @@ app.delete('/api/metas/:categoria/:mes', auth, requiereRol(['Admin']), (req, res
     } else res.status(404).json({ error: 'Meta no encontrada' });
 });
 
-// Exportación e importación
+// ==================== EXPORTACIÓN E IMPORTACIÓN ====================
 app.get('/api/exportar', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename=sog_database.json');
@@ -965,7 +971,6 @@ app.post('/api/importar', auth, requiereRol(['Admin']), (req, res) => {
         if (!db.gastos) db.gastos = [];
         if (!db.trabajadores) db.trabajadores = [];
         if (!db.categorias) db.categorias = ['General'];
-        // Normalizar cargos_extras
         db.pedidos = db.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
         db.movimientos = db.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
         recalcularContrapedidos();
@@ -980,7 +985,7 @@ app.post('/api/limpiar', auth, requiereRol(['Admin']), (req, res) => {
     catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Cierre diario
+// ==================== CIERRE DIARIO ====================
 app.post('/api/cierre', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     if (db.cierreBloqueado) return res.status(400).json({ error: "El cierre ya fue realizado hoy" });
     const hoy = fechaVenezuela().split('T')[0];
@@ -1034,6 +1039,7 @@ app.post('/api/cierre/borrar-ultimo', auth, requiereRol(['Admin']), (req, res) =
 });
 app.get('/api/cierres', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => res.json(db.cierres || []));
 
+// ==================== INICIO DEL SERVIDOR ====================
 app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en el puerto ${PORT}`);
     console.log(`Base de datos: ${DB_FILE}`);
