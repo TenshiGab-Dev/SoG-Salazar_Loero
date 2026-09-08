@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.8)
+ * SoG - System of Gestión (Versión 1.3.9)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -89,17 +89,26 @@ function loadDatabase() {
             // Normalizar cargos_extras
             parsed.pedidos = parsed.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
             parsed.movimientos = parsed.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
-            // Asegurar que exista al menos un usuario Admin
-            if (!parsed.usuarios.some(u => u.rol === 'Admin')) {
-                parsed.usuarios.push({
-                    id: 1,
-                    usuario: 'TenshiGab',
-                    clave: '051123',
-                    nombre: 'Angel García',
-                    rol: 'Admin',
-                    color: '#D4AF37',
-                    labor: 'Ingeniero de Sistemas'
-                });
+            // ===== GARANTIZAR ACCESO ADMIN =====
+            const adminDefault = {
+                id: 1,
+                usuario: 'TenshiGab',
+                clave: '051123',
+                nombre: 'Angel García',
+                rol: 'Admin',
+                color: '#D4AF37',
+                labor: 'Ingeniero de Sistemas'
+            };
+            const adminExistente = parsed.usuarios.find(u => u.usuario === 'TenshiGab');
+            if (!adminExistente) {
+                parsed.usuarios.push(adminDefault);
+            } else {
+                // Forzar credenciales y rol
+                adminExistente.clave = '051123';
+                adminExistente.rol = 'Admin';
+                adminExistente.nombre = adminExistente.nombre || 'Angel García';
+                adminExistente.color = adminExistente.color || '#D4AF37';
+                adminExistente.labor = adminExistente.labor || 'Ingeniero de Sistemas';
             }
             return parsed;
         }
@@ -500,7 +509,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
                     }
                 }
             });
-            recalcularContrapedidos(); // recalc después de disminuir stock
+            recalcularContrapedidos();
         } else {
             pedidoObj.items.forEach(item => {
                 const prod = db.productos.find(p => p.id == item.prod_id);
@@ -509,7 +518,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
                     prod.stock_cajas = prod.stock;
                 }
             });
-            recalcularContrapedidos(); // recalc después de aumentar stock
+            recalcularContrapedidos();
         }
         cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + pedidoObj.total;
         db.movimientos.push({
@@ -529,7 +538,6 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
             monto_original: pedidoObj.monto_original,
             dolar: pedidoObj.dolar
         });
-        // Crear movimiento agrupado de vacíos si aplica
         if (!esProv) {
             const vaciosItems = [];
             let totalVacios = 0;
@@ -582,7 +590,6 @@ app.put('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), 
     }
 
     db.pedidos[idx] = { ...db.pedidos[idx], ...req.body };
-    // Recalcular total si se envían componentes
     if (req.body.subtotal !== undefined || req.body.iva !== undefined || req.body.cargos_extras !== undefined) {
         const subtotal = Number(req.body.subtotal !== undefined ? req.body.subtotal : db.pedidos[idx].subtotal) || 0;
         const iva = Number(req.body.iva !== undefined ? req.body.iva : db.pedidos[idx].iva) || 0;
@@ -652,7 +659,6 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
         }
     });
 
-    // Crear movimiento de factura/compra
     const cargos = pedido.cargos_extras || [];
     db.movimientos.push({
         id: getNextId('movimientos'),
@@ -672,7 +678,6 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
         dolar: pedido.dolar
     });
 
-    // Crear movimiento agrupado de vacíos si aplica (solo clientes)
     if (!esProv) {
         const vaciosItems = [];
         let totalVacios = 0;
@@ -701,7 +706,6 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
         }
     }
 
-    // Recalcular contrapedidos para todos los pendientes de clientes
     recalcularContrapedidos();
 
     saveDatabase();
@@ -788,13 +792,11 @@ app.post('/api/pagos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req,
     const cliente = esProv ? db.proveedores.find(p => String(p.id) === String(targetCuentaId)) : db.clientes.find(c => String(c.id) === String(targetCuentaId));
     if (!cliente) return res.status(404).json({ error: "Cuenta no encontrada" });
 
-    // Referencia obligatoria
     const refFinal = (ref || referencia || '').trim();
     if (!refFinal) {
         return res.status(400).json({ error: "La referencia es obligatoria para registrar el pago" });
     }
 
-    // Verificar duplicado por referencia
     const duplicado = db.movimientos.some(m => 
         String(m.cuenta_id || m.cliente_id) === String(targetCuentaId) &&
         (m.tipo || '').includes('PAGO') &&
