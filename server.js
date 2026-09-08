@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.7)
+ * SoG - System of Gestión (Versión 1.3.8)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -89,6 +89,18 @@ function loadDatabase() {
             // Normalizar cargos_extras
             parsed.pedidos = parsed.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
             parsed.movimientos = parsed.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
+            // Asegurar que exista al menos un usuario Admin
+            if (!parsed.usuarios.some(u => u.rol === 'Admin')) {
+                parsed.usuarios.push({
+                    id: 1,
+                    usuario: 'TenshiGab',
+                    clave: '051123',
+                    nombre: 'Angel García',
+                    rol: 'Admin',
+                    color: '#D4AF37',
+                    labor: 'Ingeniero de Sistemas'
+                });
+            }
             return parsed;
         }
     } catch (e) { console.error("Error cargando BD:", e.message); }
