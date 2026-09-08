@@ -315,7 +315,7 @@
     </div>
 
     <!-- MENÚ LATERAL -->
-    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" id="menu-gastos" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" id="menu-metas" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" id="menu-cierre" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" id="menu-config" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.3.5</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
+    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" id="menu-gastos" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" id="menu-metas" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" id="menu-cierre" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" id="menu-config" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.3.6</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
 
     <!-- MODAL FACTURA -->
     <div class="modal fade" id="modalFactura" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-receipt me-2"></i>Documento</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><input type="hidden" id="pedido-edit-id"><div class="mb-2"><label class="small text-muted">Tipo</label><select class="form-select form-select-sm" id="doc-tipo"><option value="pedido">Pedido</option><option value="factura">Factura</option></select></div><div class="mb-2 position-relative"><div class="d-flex justify-content-between"><label class="small text-muted">Cuenta</label><span class="badge-polar" onclick="mostrarProveedoresEnModal()" id="btn-proveedores"><i class="bi bi-building"></i> PROVEEDORES</span></div><input type="text" class="form-control form-control-sm" id="search-cliente" placeholder="Buscar..." oninput="buscarCliente(this.value)"><div id="res-cliente" class="search-results d-none"></div><input type="hidden" id="cliente_id"></div><div class="mb-2"><label class="small text-muted">Serial</label><input type="text" class="form-control form-control-sm" id="factura-serial" placeholder="001-000000"></div><div class="border rounded p-2 mb-2" style="border-color: var(--color-oro-noble);"><label class="small text-muted">Producto</label><input type="text" class="form-control form-control-sm" id="prod-input" placeholder="Buscar producto..." oninput="buscarProductoModal(this.value)"><div id="res-producto" class="search-results d-none"></div><input type="hidden" id="modal-prod-id"><div class="row g-2 mt-1"><div class="col-3"><label class="small">Empaque</label><select class="form-select form-select-sm" id="empaque" onchange="actualizarPrecioEmpaqueModal()"><option value="caja">Caja</option><option value="unidad">Unidad</option><option value="paleta">Paleta</option></select></div><div class="col-3"><label class="small">Cant</label><input type="number" class="form-control form-control-sm" id="cant" value="1"></div><div class="col-3"><label class="small">Desc%</label><input type="number" class="form-control form-control-sm" id="descuento" value="0"></div><div class="col-3"><label class="small">Precio$</label><input type="number" class="form-control form-control-sm" id="precio_unit" step="0.01"></div></div><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="aplicar-iva" checked><label class="form-check-label small">Aplicar IVA (16%)</label></div><button class="btn btn-dorado-solid btn-sm w-100 mt-1" onclick="agregarAlCarrito()">Añadir</button></div><div><div class="d-flex justify-content-between"><small class="fw-bold">Detalle:</small><small class="text-danger" style="cursor:pointer;" onclick="vaciarCarrito()">Vaciar</small></div><div id="lista-carrito" class="border rounded p-2" style="min-height:80px; max-height:150px; overflow-y:auto; border-color: var(--color-oro-noble) !important;"><div class="text-center text-muted small">Sin productos</div></div><div id="detalle-iva" class="small mt-2"></div><div class="mt-3 border-top pt-2"><div class="d-flex justify-content-between"><label class="small fw-bold">Cargos Extras (ej. LISAEA USD)</label><button class="btn btn-sm btn-dorado" onclick="agregarCargoExtra()"><i class="bi bi-plus"></i></button></div><div id="lista-cargos-extras"></div></div></div></div><div class="modal-footer" style="background: var(--color-azul-medianoche); border-top: 1px solid var(--color-oro-noble);"><div class="text-end"><small class="text-muted" id="lbl-subtotal"></small><span class="fw-bold" style="color: var(--color-oro-noble);" id="lbl-total">$0.00</span></div><button class="btn btn-dorado-solid" onclick="guardarPedido()">Procesar</button></div></div></div></div>
@@ -1135,7 +1135,6 @@
             if (docTipo === 'factura' && !esProveedor && carrito.some(i => i.contrapedido)) {
                 return notificar('No se puede facturar: hay productos con contra-pedido', 'danger');
             }
-            // Validar stock solo si no es proveedor
             if (docTipo === 'pedido' && !esProveedor) {
                 const reservas = {};
                 dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor && p.id != editId).forEach(p => {
@@ -1317,8 +1316,13 @@
             const res = await fetch(`/api/pedidos/${pedidoActualDespacho.id}/facturar`, { method: 'POST', headers: headers() });
             if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
             modalCheckDespacho.hide();
-            notificar('Pedido despachado', 'success');
+            hayModalAbierto = false; // forzar actualización de listas
             await cargarDatosServidor();
+            // Si estamos en la sección de pedidos, actualizar visualmente
+            if (document.getElementById('sec-pedidos').style.display === 'block') {
+                cargarListaPedidos();
+                cargarCargaCamion();
+            }
             ocultarSpinner();
         }
 
@@ -1536,18 +1540,19 @@
             let detalle = {};
             dbProductos.filter(p => p.usa_gabera).forEach(p => detalle[p.id] = { nombre: p.nombre, cant: 0 });
             let totalAsignado = 0;
-            dbMovimientos.filter(m => String(m.cliente_id) === String(clienteId) && ((m.tipo || '').includes('FACTURA') || (m.tipo || '').includes('compra') || (m.tipo || '').includes('SUMA_VACIOS'))).forEach(m => {
-                if ((m.tipo || '').includes('SUMA_VACIOS') && m.prod_id) {
-                    if (detalle[m.prod_id]) { detalle[m.prod_id].cant += Number(m.monto || 0); totalAsignado += Number(m.monto || 0); }
-                }
+            // Solo sumar movimientos SUMA_VACIOS, ya que contienen el desglose por producto
+            dbMovimientos.filter(m => String(m.cliente_id) === String(clienteId) && (m.tipo || '').includes('SUMA_VACIOS')).forEach(m => {
                 (m.items || []).forEach(it => {
-                    const p = dbProductos.find(x => x.id == it.prod_id || x.id == it.prodId || x.id == it.id);
-                    if (p && p.usa_gabera) {
-                        if (!detalle[p.id]) detalle[p.id] = { nombre: p.nombre, cant: 0 };
-                        detalle[p.id].cant += Number(it.cant_cajas || it.cantidad || 0);
+                    const pid = it.prod_id || it.prodId || it.id;
+                    if (detalle[pid]) {
+                        detalle[pid].cant += Number(it.cant_cajas || it.cantidad || 0);
                         totalAsignado += Number(it.cant_cajas || it.cantidad || 0);
                     }
                 });
+                // Si no hay items, sumar el monto total de forma genérica
+                if (!m.items || !m.items.length) {
+                    totalAsignado += Number(m.monto || 0);
+                }
             });
             let html = '<div class="small text-muted ps-3">';
             Object.values(detalle).forEach(d => { if (d.cant > 0) html += `<div>- ${d.nombre}: ${d.cant} cjs</div>`; });
@@ -1616,10 +1621,10 @@
                 if (m.deuda_restante !== undefined) deudaInfo = `<div class="deuda-restante">Deuda: ${formatoMoneda(m.deuda_restante)}</div>`;
                 else if (m.saldo_vacios !== undefined && m.saldo_vacios !== null) deudaInfo = `<div class="deuda-restante">Vacíos: ${m.saldo_vacios} cjs</div>`;
 
-                // Mostrar cargos extras si existen
                 const cargosHtml = (m.cargos_extras && m.cargos_extras.length) ? m.cargos_extras.map(c => `<div>- ${c.descripcion || 'Cargo'}: ${formatoMoneda(c.monto)}</div>`).join('') : '';
+                const ivaHtml = (!esRetiro && !esSuma && m.iva > 0) ? `<div class="mt-1"><strong>IVA (16%):</strong> ${formatoMoneda(m.iva)}</div>` : '';
 
-                html += `<div class="card mb-1" style="border-left: 4px solid var(--color-oro-noble); padding:8px 12px;"><div class="d-flex justify-content-between align-items-center" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#mov-det-${m.id}"><div><strong>${icon} ${m.detalle || tipo || 'Movimiento'}</strong>${deudaInfo}<small class="text-muted d-block">${formatoFecha(fechaMov)} | Por: ${m.usuario || 'N/D'}</small></div><div class="text-end"><strong>${monto}</strong>${puedeEliminar() ? `<button class="btn-eliminar-movimiento" onclick="eliminarMovimiento(${m.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div><div class="collapse border-top pt-2 mt-2" id="mov-det-${m.id}"><div class="small text-muted">${m.detalle_items ? `<div><strong>Detalle:</strong> ${m.detalle_items}</div>` : ''}${m.items && m.items.length ? m.items.map(i => `<div>- ${i.cantidad || i.cant} ${i.empaque || 'caja'}(s) ${i.nombre || 'Producto'} ($${Number(i.total || 0).toFixed(2)})</div>`).join('') : ''}${cargosHtml}${m.referencia ? `<div class="mt-1"><strong>Ref:</strong> ${m.referencia}</div>` : ''}</div></div></div>`;
+                html += `<div class="card mb-1" style="border-left: 4px solid var(--color-oro-noble); padding:8px 12px;"><div class="d-flex justify-content-between align-items-center" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#mov-det-${m.id}"><div><strong>${icon} ${m.detalle || tipo || 'Movimiento'}</strong>${deudaInfo}<small class="text-muted d-block">${formatoFecha(fechaMov)} | Por: ${m.usuario || 'N/D'}</small></div><div class="text-end"><strong>${monto}</strong>${puedeEliminar() ? `<button class="btn-eliminar-movimiento" onclick="eliminarMovimiento(${m.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div><div class="collapse border-top pt-2 mt-2" id="mov-det-${m.id}"><div class="small text-muted">${m.detalle_items ? `<div><strong>Detalle:</strong> ${m.detalle_items}</div>` : ''}${m.items && m.items.length ? m.items.map(i => `<div>- ${i.cantidad || i.cant} ${i.empaque || 'caja'}(s) ${i.nombre || 'Producto'} ($${Number(i.total || 0).toFixed(2)})</div>`).join('') : ''}${cargosHtml}${ivaHtml}${m.referencia ? `<div class="mt-1"><strong>Ref:</strong> ${m.referencia}</div>` : ''}</div></div></div>`;
             });
             div.innerHTML = html;
         }
