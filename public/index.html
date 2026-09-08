@@ -109,6 +109,9 @@
         .meta-card:hover { box-shadow: 0 4px 12px var(--color-sombra); transform: translateY(-1px); }
         .progress { height: 8px; }
         .badge-contrapedido { background-color: #ffc107; color: #000; margin-left: 5px; }
+        .cargo-extra-item { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+        .cargo-extra-item input { flex: 1; }
+        .cargo-extra-item .btn { flex-shrink: 0; }
         @media (min-width: 768px) { .container { max-width: 800px; } .modal-dialog { max-width: 600px; } }
     </style>
 </head>
@@ -312,10 +315,10 @@
     </div>
 
     <!-- MENÚ LATERAL -->
-    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" id="menu-gastos" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" id="menu-metas" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" id="menu-cierre" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" id="menu-config" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.3.4</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
+    <div class="offcanvas offcanvas-start" id="menuLateral"><div class="offcanvas-header" style="border-bottom: 1px solid var(--color-oro-noble);"><h5 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-crown me-2"></i>Salazar Loero</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body p-0"><div class="list-group list-group-flush mt-2"><a href="#" class="list-group-item" onclick="ver('dashboard'); cerrarMenu();"><i class="bi bi-house-door me-3"></i>Inicio</a><a href="#" class="list-group-item" onclick="ver('movimientos'); cerrarMenu();"><i class="bi bi-clock-history me-3"></i>Movimientos</a><a href="#" class="list-group-item" id="menu-gastos" onclick="ver('gastos'); cerrarMenu();"><i class="bi bi-wallet2 me-3"></i>Gastos</a><a href="#" class="list-group-item" id="menu-metas" onclick="ver('metas'); cerrarMenu();"><i class="bi bi-trophy me-3"></i>Metas</a><a href="#" class="list-group-item" id="menu-cierre" onclick="ver('cierre'); cerrarMenu();"><i class="bi bi-graph-up me-3"></i>Análisis</a><a href="#" class="list-group-item" id="menu-config" onclick="ver('config'); cerrarMenu();"><i class="bi bi-shield-lock me-3"></i>Configuración</a><a href="#" class="list-group-item text-danger" onclick="cerrarSesion(); cerrarMenu();"><i class="bi bi-box-arrow-right me-3"></i>Cerrar Sesión</a></div><div class="mt-auto p-3 text-start" style="border-top: 1px solid var(--color-oro-noble);"><div class="watermark-menu"><strong>Salazar Loero</strong><br>Versión: <strong>1.3.5</strong><br><span style="color: var(--color-oro-noble);">🐼 Dev: TenshiGab</span><br><span style="font-size: 0.6rem;">gabriel.aguilar190707@gmail.com</span></div></div></div></div>
 
     <!-- MODAL FACTURA -->
-    <div class="modal fade" id="modalFactura" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-receipt me-2"></i>Documento</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><input type="hidden" id="pedido-edit-id"><div class="mb-2"><label class="small text-muted">Tipo</label><select class="form-select form-select-sm" id="doc-tipo"><option value="pedido">Pedido</option><option value="factura">Factura</option></select></div><div class="mb-2 position-relative"><div class="d-flex justify-content-between"><label class="small text-muted">Cuenta</label><span class="badge-polar" onclick="mostrarProveedoresEnModal()" id="btn-proveedores"><i class="bi bi-building"></i> PROVEEDORES</span></div><input type="text" class="form-control form-control-sm" id="search-cliente" placeholder="Buscar..." oninput="buscarCliente(this.value)"><div id="res-cliente" class="search-results d-none"></div><input type="hidden" id="cliente_id"></div><div class="mb-2"><label class="small text-muted">Serial</label><input type="text" class="form-control form-control-sm" id="factura-serial" placeholder="001-000000"></div><div class="border rounded p-2 mb-2" style="border-color: var(--color-oro-noble);"><label class="small text-muted">Producto</label><input type="text" class="form-control form-control-sm" id="prod-input" placeholder="Buscar producto..." oninput="buscarProductoModal(this.value)"><div id="res-producto" class="search-results d-none"></div><input type="hidden" id="modal-prod-id"><div class="row g-2 mt-1"><div class="col-3"><label class="small">Empaque</label><select class="form-select form-select-sm" id="empaque" onchange="actualizarPrecioEmpaqueModal()"><option value="caja">Caja</option><option value="unidad">Unidad</option><option value="paleta">Paleta</option></select></div><div class="col-3"><label class="small">Cant</label><input type="number" class="form-control form-control-sm" id="cant" value="1"></div><div class="col-3"><label class="small">Desc%</label><input type="number" class="form-control form-control-sm" id="descuento" value="0"></div><div class="col-3"><label class="small">Precio$</label><input type="number" class="form-control form-control-sm" id="precio_unit" step="0.01"></div></div><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="aplicar-iva" checked><label class="form-check-label small">Aplicar IVA (16%)</label></div><button class="btn btn-dorado-solid btn-sm w-100 mt-1" onclick="agregarAlCarrito()">Añadir</button></div><div><div class="d-flex justify-content-between"><small class="fw-bold">Detalle:</small><small class="text-danger" style="cursor:pointer;" onclick="vaciarCarrito()">Vaciar</small></div><div id="lista-carrito" class="border rounded p-2" style="min-height:80px; max-height:150px; overflow-y:auto; border-color: var(--color-oro-noble) !important;"><div class="text-center text-muted small">Sin productos</div></div><div id="detalle-iva" class="small mt-2"></div></div></div><div class="modal-footer" style="background: var(--color-azul-medianoche); border-top: 1px solid var(--color-oro-noble);"><div class="text-end"><small class="text-muted" id="lbl-subtotal"></small><span class="fw-bold" style="color: var(--color-oro-noble);" id="lbl-total">$0.00</span></div><button class="btn btn-dorado-solid" onclick="guardarPedido()">Procesar</button></div></div></div></div>
+    <div class="modal fade" id="modalFactura" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble); font-family: Georgia, serif;"><i class="bi bi-receipt me-2"></i>Documento</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><input type="hidden" id="pedido-edit-id"><div class="mb-2"><label class="small text-muted">Tipo</label><select class="form-select form-select-sm" id="doc-tipo"><option value="pedido">Pedido</option><option value="factura">Factura</option></select></div><div class="mb-2 position-relative"><div class="d-flex justify-content-between"><label class="small text-muted">Cuenta</label><span class="badge-polar" onclick="mostrarProveedoresEnModal()" id="btn-proveedores"><i class="bi bi-building"></i> PROVEEDORES</span></div><input type="text" class="form-control form-control-sm" id="search-cliente" placeholder="Buscar..." oninput="buscarCliente(this.value)"><div id="res-cliente" class="search-results d-none"></div><input type="hidden" id="cliente_id"></div><div class="mb-2"><label class="small text-muted">Serial</label><input type="text" class="form-control form-control-sm" id="factura-serial" placeholder="001-000000"></div><div class="border rounded p-2 mb-2" style="border-color: var(--color-oro-noble);"><label class="small text-muted">Producto</label><input type="text" class="form-control form-control-sm" id="prod-input" placeholder="Buscar producto..." oninput="buscarProductoModal(this.value)"><div id="res-producto" class="search-results d-none"></div><input type="hidden" id="modal-prod-id"><div class="row g-2 mt-1"><div class="col-3"><label class="small">Empaque</label><select class="form-select form-select-sm" id="empaque" onchange="actualizarPrecioEmpaqueModal()"><option value="caja">Caja</option><option value="unidad">Unidad</option><option value="paleta">Paleta</option></select></div><div class="col-3"><label class="small">Cant</label><input type="number" class="form-control form-control-sm" id="cant" value="1"></div><div class="col-3"><label class="small">Desc%</label><input type="number" class="form-control form-control-sm" id="descuento" value="0"></div><div class="col-3"><label class="small">Precio$</label><input type="number" class="form-control form-control-sm" id="precio_unit" step="0.01"></div></div><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="aplicar-iva" checked><label class="form-check-label small">Aplicar IVA (16%)</label></div><button class="btn btn-dorado-solid btn-sm w-100 mt-1" onclick="agregarAlCarrito()">Añadir</button></div><div><div class="d-flex justify-content-between"><small class="fw-bold">Detalle:</small><small class="text-danger" style="cursor:pointer;" onclick="vaciarCarrito()">Vaciar</small></div><div id="lista-carrito" class="border rounded p-2" style="min-height:80px; max-height:150px; overflow-y:auto; border-color: var(--color-oro-noble) !important;"><div class="text-center text-muted small">Sin productos</div></div><div id="detalle-iva" class="small mt-2"></div><div class="mt-3 border-top pt-2"><div class="d-flex justify-content-between"><label class="small fw-bold">Cargos Extras (ej. LISAEA USD)</label><button class="btn btn-sm btn-dorado" onclick="agregarCargoExtra()"><i class="bi bi-plus"></i></button></div><div id="lista-cargos-extras"></div></div></div></div><div class="modal-footer" style="background: var(--color-azul-medianoche); border-top: 1px solid var(--color-oro-noble);"><div class="text-end"><small class="text-muted" id="lbl-subtotal"></small><span class="fw-bold" style="color: var(--color-oro-noble);" id="lbl-total">$0.00</span></div><button class="btn btn-dorado-solid" onclick="guardarPedido()">Procesar</button></div></div></div></div>
 
     <!-- MODAL CHECK DESPACHO -->
     <div class="modal fade" id="modalCheckDespacho" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border: 2px solid var(--color-oro-noble);"><div class="modal-header" style="background: var(--color-azul-medianoche); border-bottom: 1px solid var(--color-oro-noble);"><h6 class="fw-bold m-0" style="color: var(--color-oro-noble);">Confirmar Despacho</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body py-3" style="background: var(--color-marfil);"><p class="small text-muted">Confirme que todos los productos fueron entregados:</p><div id="lista-check-despacho"></div><button class="btn btn-dorado-solid w-100 mt-2" id="btn-confirmar-despacho" onclick="confirmarDespacho()">Confirmar Despacho</button></div></div></div></div>
@@ -331,6 +334,7 @@
         // ==================== VARIABLES GLOBALES ====================
         let modalFact, modalCheckDespacho, modalDetalleDia, modalEditarItem, offcanvasMenu;
         let carrito = [];
+        let cargosExtras = [];
         let dbClientes = [], dbProveedores = [], dbProductos = [], dbMovimientos = [], dbPedidos = [], dbCierres = [], dbCategorias = ['General'], dbGastos = [], dbUsuarios = [], dbTrabajadores = [];
         let metasDB = {};
         let productoSeleccionadoModal = null;
@@ -394,7 +398,6 @@
                 actualizarContadores();
                 actualizarAlertas();
                 if (!hayModalAbierto) {
-                    // Solo recargar selects y listas si no hay modal abierto
                     actualizarSelectPago();
                     cargarListaClientesDropdowns();
                     cargarListaRetiroVacios();
@@ -407,8 +410,6 @@
                     cargarListaProveedores();
                     cargarEdicionRapida();
                     cargarMetas();
-                } else {
-                    // Si hay modal abierto, solo actualizar contadores y alertas, no tocar selects
                 }
                 actualizarDolarDisplay();
             } catch (err) { console.error("Error:", err); }
@@ -513,7 +514,6 @@
             document.getElementById('login-overlay').style.display = 'flex';
             sesionIniciada = false;
 
-            // Detectar apertura/cierre de modales para pausar/reanudar actualización automática
             ['modalFactura', 'modalCheckDespacho', 'modalDetalleDia', 'modalEditarItem'].forEach(id => {
                 const el = document.getElementById(id);
                 el.addEventListener('show.bs.modal', () => { hayModalAbierto = true; });
@@ -521,7 +521,7 @@
             });
         });
 
-        setInterval(async () => { if (sesionIniciada && !hayModalAbierto) await cargarDatosServidor(); }, 60000); // Reducido a 60s
+        setInterval(async () => { if (sesionIniciada && !hayModalAbierto) await cargarDatosServidor(); }, 60000);
 
         function notificar(mensaje, tipo = 'success') {
             const div = document.createElement('div');
@@ -621,7 +621,6 @@
             if (!cont) return;
             let html = '';
 
-            // Productos agrupados por categoría
             html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prod"><i class="bi bi-box me-2"></i>Productos <i class="bi bi-chevron-down ms-auto"></i></div>`;
             html += `<div class="collapse" id="edit-prod">`;
             const porCategoria = {};
@@ -648,7 +647,6 @@
             });
             html += `</div>`;
 
-            // Clientes
             html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-cli"><i class="bi bi-people me-2"></i>Clientes <i class="bi bi-chevron-down ms-auto"></i></div>`;
             html += `<div class="collapse" id="edit-cli"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-clientes" placeholder="Buscar cliente..." oninput="filtrarTabla('clientes', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-clientes"><thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th>Vacíos</th><th></th></tr></thead><tbody>`;
             dbClientes.forEach(c => {
@@ -664,7 +662,6 @@
             });
             html += `</tbody></table></div></div>`;
 
-            // Proveedores
             html += `<div class="collapse-header" data-bs-toggle="collapse" data-bs-target="#edit-prov"><i class="bi bi-building me-2"></i>Proveedores <i class="bi bi-chevron-down ms-auto"></i></div>`;
             html += `<div class="collapse" id="edit-prov"><input type="text" class="form-control form-control-sm buscador-rapido" id="buscador-proveedores" placeholder="Buscar proveedor..." oninput="filtrarTabla('proveedores', this.value)"><div style="overflow-x:auto;"><table class="edicion-rapida-tabla" id="tabla-proveedores"><thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Dirección</th><th>Deuda $</th><th></th></tr></thead><tbody>`;
             dbProveedores.forEach(p => {
@@ -694,7 +691,6 @@
                         fila.style.display = nombre.includes(busqueda) ? '' : 'none';
                     });
                 });
-                // Ocultar categorías sin coincidencias (opcional)
                 document.querySelectorAll('#edit-prod .collapse-header').forEach(header => {
                     const target = header.getAttribute('data-bs-target');
                     const catDiv = document.querySelector(target);
@@ -857,6 +853,7 @@
         // ==================== PEDIDOS Y CAMIÓN ====================
         function abrirModalFactura() {
             carrito = [];
+            cargosExtras = [];
             document.getElementById('pedido-edit-id').value = '';
             document.getElementById('doc-tipo').value = 'pedido';
             document.getElementById('doc-tipo').disabled = false;
@@ -871,6 +868,7 @@
             document.getElementById('aplicar-iva').checked = true;
             document.getElementById('search-cliente').removeAttribute('data-prov-cats');
             renderCarrito();
+            renderCargosExtras();
             modalFact.show();
         }
 
@@ -994,7 +992,7 @@
             const lista = document.getElementById('lista-carrito');
             const detalleIva = document.getElementById('detalle-iva');
             const lblSubtotal = document.getElementById('lbl-subtotal');
-            if (!carrito.length) {
+            if (!carrito.length && !cargosExtras.length) {
                 lista.innerHTML = '<div class="text-center text-muted small">Sin productos</div>';
                 document.getElementById('lbl-total').innerText = '$0.00';
                 if (lblSubtotal) lblSubtotal.innerText = '';
@@ -1016,17 +1014,54 @@
                     <div class="text-end"><strong>$${item.total.toFixed(2)}</strong><br><i class="bi bi-x-circle text-danger" style="cursor:pointer" onclick="eliminarDelCarrito(${i})"></i></div>
                 </div>`;
             });
-            lista.innerHTML = html;
+            lista.innerHTML = html || '<div class="text-center text-muted small">Sin productos</div>';
             const aplicarIva = document.getElementById('aplicar-iva').checked;
             let baseIva = 0;
             carrito.forEach(item => { if (!item.exento_iva) baseIva += item.total; });
             const iva = aplicarIva ? baseIva * 0.16 : 0;
-            const totalFinal = subtotal + iva;
+            const totalExtras = cargosExtras.reduce((sum, cargo) => sum + (Number(cargo.monto) || 0), 0);
+            const totalFinal = subtotal + iva + totalExtras;
             if (lblSubtotal) lblSubtotal.innerText = `Subtotal: ${formatoMoneda(subtotal)}`;
             if (detalleIva) {
                 detalleIva.innerHTML = aplicarIva ? `<div class="d-flex justify-content-between"><span>IVA (16%):</span><strong>${formatoMoneda(iva)}</strong></div>` : '';
+                if (totalExtras > 0) {
+                    detalleIva.innerHTML += `<div class="d-flex justify-content-between"><span>Cargos Extras:</span><strong>${formatoMoneda(totalExtras)}</strong></div>`;
+                }
             }
             document.getElementById('lbl-total').innerText = formatoMoneda(totalFinal);
+        }
+
+        function agregarCargoExtra() {
+            cargosExtras.push({ descripcion: '', monto: 0 });
+            renderCargosExtras();
+            renderCarrito();
+        }
+
+        function eliminarCargoExtra(index) {
+            cargosExtras.splice(index, 1);
+            renderCargosExtras();
+            renderCarrito();
+        }
+
+        function renderCargosExtras() {
+            const div = document.getElementById('lista-cargos-extras');
+            if (!cargosExtras.length) {
+                div.innerHTML = '<div class="text-muted small">Sin cargos extras</div>';
+                return;
+            }
+            div.innerHTML = cargosExtras.map((cargo, i) => `
+                <div class="cargo-extra-item">
+                    <input type="text" class="form-control form-control-sm" placeholder="Descripción" value="${cargo.descripcion}" onchange="actualizarCargoExtra(${i}, 'descripcion', this.value)">
+                    <input type="number" class="form-control form-control-sm" placeholder="Monto $" step="0.01" value="${cargo.monto}" onchange="actualizarCargoExtra(${i}, 'monto', this.value)">
+                    <button class="btn btn-sm btn-peligro" onclick="eliminarCargoExtra(${i})"><i class="bi bi-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function actualizarCargoExtra(index, campo, valor) {
+            if (campo === 'monto') cargosExtras[index].monto = Number(valor) || 0;
+            else cargosExtras[index].descripcion = valor;
+            renderCarrito();
         }
 
         function editarItemCarrito(index) {
@@ -1073,6 +1108,9 @@
                         item.faltante = 0;
                     }
                 }
+            } else {
+                item.contrapedido = false;
+                item.faltante = 0;
             }
             const total = (cantNum * precioNum) * (1 - descNum / 100);
             item.total = total;
@@ -1082,7 +1120,7 @@
         }
 
         function eliminarDelCarrito(i) { carrito.splice(i, 1); renderCarrito(); }
-        function vaciarCarrito() { carrito = []; renderCarrito(); }
+        function vaciarCarrito() { carrito = []; cargosExtras = []; renderCarrito(); renderCargosExtras(); }
 
         async function guardarPedido() {
             const editId = document.getElementById('pedido-edit-id').value;
@@ -1091,13 +1129,13 @@
             const serial = document.getElementById('factura-serial').value.trim();
             if (!clienteId) return notificar('Seleccione cuenta', 'warning');
             if (!serial) return notificar('Serial obligatorio', 'warning');
-            if (!carrito.length) return notificar('Carrito vacío', 'warning');
+            if (!carrito.length && !cargosExtras.length) return notificar('Agregue productos o cargos', 'warning');
             const esProveedor = dbProveedores.some(p => String(p.id) === String(clienteId));
             if (esProveedor && !puedeVerProveedores()) return notificar('No autorizado', 'danger');
             if (docTipo === 'factura' && !esProveedor && carrito.some(i => i.contrapedido)) {
                 return notificar('No se puede facturar: hay productos con contra-pedido', 'danger');
             }
-            // Validar stock para pedidos pendientes (no facturas)
+            // Validar stock solo si no es proveedor
             if (docTipo === 'pedido' && !esProveedor) {
                 const reservas = {};
                 dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor && p.id != editId).forEach(p => {
@@ -1126,7 +1164,8 @@
             let baseIva = 0;
             carrito.forEach(item => { if (!item.exento_iva) baseIva += item.total; });
             const iva = aplicarIva ? baseIva * 0.16 : 0;
-            const total = subtotal + iva;
+            const totalExtras = cargosExtras.reduce((sum, cargo) => sum + (Number(cargo.monto) || 0), 0);
+            const total = subtotal + iva + totalExtras;
             const pedidoObj = {
                 id: editId || undefined,
                 cliente_id: clienteId,
@@ -1137,6 +1176,7 @@
                 total: total,
                 subtotal: subtotal,
                 iva: iva,
+                cargos_extras: cargosExtras,
                 items: carrito,
                 creado_por: currentUser.usuario,
                 es_proveedor: esProveedor,
@@ -1161,7 +1201,6 @@
             const pendientes = dbPedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor);
             if (!pendientes.length) { div.innerHTML = '<div class="text-center text-muted small">Sin pedidos pendientes</div>'; return; }
             
-            // Calcular reservas totales por producto
             const reservasTotales = {};
             pendientes.forEach(p => {
                 (p.items || []).forEach(i => {
@@ -1169,7 +1208,6 @@
                 });
             });
             
-            // Agrupar por categoría y producto
             const resumenPorCategoria = {};
             pendientes.forEach(p => {
                 (p.items || []).forEach(i => {
@@ -1184,7 +1222,6 @@
                     if (i.contrapedido) {
                         resumenPorCategoria[categoria][nombre].faltante += i.faltante;
                     }
-                    // Calcular stock disponible una sola vez
                     if (!resumenPorCategoria[categoria][nombre].stockCalculado) {
                         const prodStock = prod ? Number(prod.stock || 0) : 0;
                         const reservado = reservasTotales[i.prod_id] || 0;
@@ -1212,11 +1249,13 @@
             const pend = dbPedidos.filter(p => p.estado === 'pendiente' || p.estado === 'Pendiente');
             const comp = dbPedidos.filter(p => p.estado !== 'pendiente' && p.estado !== 'Pendiente');
             document.getElementById('lista-pedidos-pendientes').innerHTML = pend.length ? pend.map(p => {
-                const tieneCP = (p.items || []).some(i => i.contrapedido);
+                const esProv = p.es_proveedor;
+                const tieneCP = esProv ? false : (p.items || []).some(i => i.contrapedido);
                 const badgeCP = tieneCP ? '<span class="badge badge-contrapedido">Contra-Pedido</span>' : '';
-                return `<div class="card mb-2" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente || p.cliente_nombre || 'Cliente'} ${p.es_proveedor ? '<span class="badge bg-primary">PROVEEDOR</span>' : ''} ${badgeCP}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)} | Por: ${p.creado_por || 'N/D'}</small><div class="small text-muted">${(p.items || []).map(i => i.nombre).join(', ')}</div><div class="d-flex gap-1 mt-1"><button class="btn btn-dorado-solid btn-sm py-0" onclick="abrirCheckDespacho(${p.id})">Despachar</button><button class="btn btn-dorado btn-sm py-0" onclick="editarPedido(${p.id})"><i class="bi bi-pencil"></i></button>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarPedido(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div></div>`;
+                const badgeProv = esProv ? '<span class="badge bg-primary">COMPRA</span>' : '';
+                return `<div class="card mb-2" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente || p.cliente_nombre || 'Cliente'} ${badgeProv} ${badgeCP}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)} | Por: ${p.creado_por || 'N/D'}</small><div class="small text-muted">${(p.items || []).map(i => i.nombre).join(', ')}</div><div class="d-flex gap-1 mt-1"><button class="btn btn-dorado-solid btn-sm py-0" onclick="abrirCheckDespacho(${p.id})">${esProv ? 'Procesar' : 'Despachar'}</button><button class="btn btn-dorado btn-sm py-0" onclick="editarPedido(${p.id})"><i class="bi bi-pencil"></i></button>${puedeEliminar() ? `<button class="btn btn-sm py-0 btn-peligro" onclick="eliminarPedido(${p.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div></div>`;
             }).join('') : '<div class="text-center text-muted small">Sin pendientes</div>';
-            document.getElementById('lista-pedidos-completados').innerHTML = comp.length ? comp.map(p => `<div class="card mb-1" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#comp-det-${p.id}"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente || p.cliente_nombre || 'Cliente'} ${p.es_proveedor ? '<span class="badge bg-primary">PROVEEDOR</span>' : ''}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)}</small></div><div class="collapse" id="comp-det-${p.id}"><div class="small text-muted p-2">${(p.items || []).map(i => `<div class="d-flex justify-content-between"><span>${i.cantidad} ${i.empaque}(s) ${i.nombre}</span><span>$${Number(i.total || 0).toFixed(2)}</span></div>`).join('')}</div></div></div>`).join('') : '<div class="text-center text-muted small">Sin completados</div>';
+            document.getElementById('lista-pedidos-completados').innerHTML = comp.length ? comp.map(p => `<div class="card mb-1" style="border: 1px solid var(--color-oro-noble);"><div class="card-body p-2" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#comp-det-${p.id}"><div class="d-flex justify-content-between"><strong>${p.serial} - ${p.nombre_cliente || p.cliente_nombre || 'Cliente'} ${p.es_proveedor ? '<span class="badge bg-primary">COMPRA</span>' : ''}</strong><span class="fw-bold" style="color: var(--color-oro-noble);">${formatoMoneda(p.total)}</span></div><small class="text-muted">${formatoFecha(p.fecha)}</small></div><div class="collapse" id="comp-det-${p.id}"><div class="small text-muted p-2">${(p.items || []).map(i => `<div class="d-flex justify-content-between"><span>${i.cantidad} ${i.empaque}(s) ${i.nombre}</span><span>$${Number(i.total || 0).toFixed(2)}</span></div>`).join('')}</div></div></div>`).join('') : '<div class="text-center text-muted small">Sin completados</div>';
         }
 
         function abrirCheckDespacho(id) {
@@ -1224,19 +1263,21 @@
             if (!ped) return;
             pedidoActualDespacho = ped;
             checkItemsDespacho = (ped.items || []).map(i => ({ ...i, checked: false, errorStock: false }));
-            checkItemsDespacho.forEach(item => {
-                const prod = dbProductos.find(p => p.id == item.prod_id);
-                if (prod) {
-                    const stockFisico = Number(prod.stock) || 0;
-                    const reservado = dbPedidos.filter(x => (x.estado === 'pendiente' || x.estado === 'Pendiente') && !x.es_proveedor && x.id != ped.id).reduce((sum, p) => {
-                        const it = p.items.find(i => i.prod_id == item.prod_id);
-                        return sum + (it ? Number(it.cant_cajas || 0) : 0);
-                    }, 0);
-                    const disponible = Math.max(0, stockFisico - reservado);
-                    if (Number(item.cant_cajas || 0) > disponible) item.errorStock = true;
-                    item.faltante = Math.max(0, Number(item.cant_cajas || 0) - disponible);
-                }
-            });
+            if (!ped.es_proveedor) {
+                checkItemsDespacho.forEach(item => {
+                    const prod = dbProductos.find(p => p.id == item.prod_id);
+                    if (prod) {
+                        const stockFisico = Number(prod.stock) || 0;
+                        const reservado = dbPedidos.filter(x => (x.estado === 'pendiente' || x.estado === 'Pendiente') && !x.es_proveedor && x.id != ped.id).reduce((sum, p) => {
+                            const it = p.items.find(i => i.prod_id == item.prod_id);
+                            return sum + (it ? Number(it.cant_cajas || 0) : 0);
+                        }, 0);
+                        const disponible = Math.max(0, stockFisico - reservado);
+                        if (Number(item.cant_cajas || 0) > disponible) item.errorStock = true;
+                        item.faltante = Math.max(0, Number(item.cant_cajas || 0) - disponible);
+                    }
+                });
+            }
             renderCheckDespacho();
             modalCheckDespacho.show();
         }
@@ -1250,14 +1291,17 @@
             });
             div.innerHTML = html;
             const btn = document.getElementById('btn-confirmar-despacho');
+            const esProv = pedidoActualDespacho?.es_proveedor;
             const todosChecked = checkItemsDespacho.every(i => i.checked);
             const hayErrorStock = checkItemsDespacho.some(i => i.errorStock);
-            btn.disabled = !todosChecked || hayErrorStock;
-            btn.style.opacity = (!todosChecked || hayErrorStock) ? '0.5' : '1';
+            const bloqueado = !todosChecked || (!esProv && hayErrorStock);
+            btn.disabled = bloqueado;
+            btn.style.opacity = bloqueado ? '0.5' : '1';
         }
 
         function toggleCheckDespacho(index) {
-            if (checkItemsDespacho[index].errorStock) return notificar('No se puede confirmar: stock insuficiente', 'danger');
+            const esProv = pedidoActualDespacho?.es_proveedor;
+            if (!esProv && checkItemsDespacho[index].errorStock) return notificar('No se puede confirmar: stock insuficiente', 'danger');
             checkItemsDespacho[index].checked = !checkItemsDespacho[index].checked;
             renderCheckDespacho();
         }
@@ -1266,8 +1310,9 @@
             if (!pedidoActualDespacho) return;
             const todosChecked = checkItemsDespacho.every(i => i.checked);
             if (!todosChecked) return notificar('Confirme todos los productos', 'warning');
+            const esProv = pedidoActualDespacho.es_proveedor;
             const hayErrorStock = checkItemsDespacho.some(i => i.errorStock);
-            if (hayErrorStock) return notificar('Hay productos sin stock suficiente', 'danger');
+            if (!esProv && hayErrorStock) return notificar('Hay productos sin stock suficiente', 'danger');
             mostrarSpinner();
             const res = await fetch(`/api/pedidos/${pedidoActualDespacho.id}/facturar`, { method: 'POST', headers: headers() });
             if (!res.ok) { const err = await res.json(); notificar(err.error || 'Error', 'danger'); ocultarSpinner(); return; }
@@ -1304,7 +1349,9 @@
                 document.getElementById('search-cliente').removeAttribute('data-prov-cats');
             }
             carrito = [...(ped.items || [])];
+            cargosExtras = [...(ped.cargos_extras || [])];
             renderCarrito();
+            renderCargosExtras();
             modalFact.show();
         }
 
@@ -1568,7 +1615,11 @@
                 let deudaInfo = '';
                 if (m.deuda_restante !== undefined) deudaInfo = `<div class="deuda-restante">Deuda: ${formatoMoneda(m.deuda_restante)}</div>`;
                 else if (m.saldo_vacios !== undefined && m.saldo_vacios !== null) deudaInfo = `<div class="deuda-restante">Vacíos: ${m.saldo_vacios} cjs</div>`;
-                html += `<div class="card mb-1" style="border-left: 4px solid var(--color-oro-noble); padding:8px 12px;"><div class="d-flex justify-content-between align-items-center" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#mov-det-${m.id}"><div><strong>${icon} ${m.detalle || tipo || 'Movimiento'}</strong>${deudaInfo}<small class="text-muted d-block">${formatoFecha(fechaMov)} | Por: ${m.usuario || 'N/D'}</small></div><div class="text-end"><strong>${monto}</strong>${puedeEliminar() ? `<button class="btn-eliminar-movimiento" onclick="eliminarMovimiento(${m.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div><div class="collapse border-top pt-2 mt-2" id="mov-det-${m.id}"><div class="small text-muted">${m.detalle_items ? `<div><strong>Detalle:</strong> ${m.detalle_items}</div>` : ''}${m.items && m.items.length ? m.items.map(i => `<div>- ${i.cantidad || i.cant} ${i.empaque || 'caja'}(s) ${i.nombre || 'Producto'} ($${Number(i.total || 0).toFixed(2)})</div>`).join('') : ''}${m.referencia ? `<div class="mt-1"><strong>Ref:</strong> ${m.referencia}</div>` : ''}</div></div></div>`;
+
+                // Mostrar cargos extras si existen
+                const cargosHtml = (m.cargos_extras && m.cargos_extras.length) ? m.cargos_extras.map(c => `<div>- ${c.descripcion || 'Cargo'}: ${formatoMoneda(c.monto)}</div>`).join('') : '';
+
+                html += `<div class="card mb-1" style="border-left: 4px solid var(--color-oro-noble); padding:8px 12px;"><div class="d-flex justify-content-between align-items-center" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#mov-det-${m.id}"><div><strong>${icon} ${m.detalle || tipo || 'Movimiento'}</strong>${deudaInfo}<small class="text-muted d-block">${formatoFecha(fechaMov)} | Por: ${m.usuario || 'N/D'}</small></div><div class="text-end"><strong>${monto}</strong>${puedeEliminar() ? `<button class="btn-eliminar-movimiento" onclick="eliminarMovimiento(${m.id})"><i class="bi bi-trash"></i></button>` : ''}</div></div><div class="collapse border-top pt-2 mt-2" id="mov-det-${m.id}"><div class="small text-muted">${m.detalle_items ? `<div><strong>Detalle:</strong> ${m.detalle_items}</div>` : ''}${m.items && m.items.length ? m.items.map(i => `<div>- ${i.cantidad || i.cant} ${i.empaque || 'caja'}(s) ${i.nombre || 'Producto'} ($${Number(i.total || 0).toFixed(2)})</div>`).join('') : ''}${cargosHtml}${m.referencia ? `<div class="mt-1"><strong>Ref:</strong> ${m.referencia}</div>` : ''}</div></div></div>`;
             });
             div.innerHTML = html;
         }
@@ -1837,12 +1888,10 @@
             document.getElementById('prov-tel').value = prov.telefono || '';
             document.getElementById('prov-dir').value = prov.direccion || '';
             document.getElementById('prov-deuda').value = prov.deuda_inicial_dinero || 0;
-            // Marcar categorías
             const cats = prov.categorias || ['General'];
             document.querySelectorAll('#prov-categorias-checkbox input').forEach(cb => {
                 cb.checked = cats.includes(cb.value);
             });
-            // Mostrar formulario
             const form = document.getElementById('formProveedor');
             const bs = bootstrap.Collapse.getInstance(form) || new bootstrap.Collapse(form, { toggle: false });
             if (!form.classList.contains('show')) bs.show();

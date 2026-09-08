@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.3)
+ * SoG - System of Gestión (Versión 1.3.4)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -86,6 +86,9 @@ function loadDatabase() {
             if (!parsed.nextId) parsed.nextId = defaultDB.nextId;
             if (parsed.dolarActual === undefined || parsed.dolarActual === null) parsed.dolarActual = null;
             if (!parsed.metas) parsed.metas = {};
+            // Asegurar que pedidos y movimientos tengan cargos_extras
+            parsed.pedidos = parsed.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
+            parsed.movimientos = parsed.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
             return parsed;
         }
     } catch (e) { console.error("Error cargando BD:", e.message); }
@@ -165,7 +168,6 @@ app.post('/api/logout', (_req, res) => res.json({ ok: true }));
 app.get('/api/usuarios', auth, requiereRol(['Admin']), (_req, res) => {
     res.json(db.usuarios.map(u => ({ id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol, color: u.color, labor: u.labor })));
 });
-
 app.post('/api/usuarios', auth, requiereRol(['Admin']), (req, res) => {
     const { id, usuario, clave, nombre, rol, color, labor } = req.body;
     if (id) {
@@ -194,7 +196,6 @@ app.get('/api/proveedores', auth, (req, res) => {
     if (req.user.rol === 'Operador') return res.status(403).json({ error: 'Acceso denegado' });
     res.json(db.proveedores || []);
 });
-
 app.post('/api/proveedores', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { id, rif, nombre, telefono, direccion, deuda_inicial_dinero, categorias } = req.body;
     const cats = Array.isArray(categorias) ? categorias : (req.body.categoria ? [req.body.categoria] : ['General']);
@@ -209,7 +210,6 @@ app.post('/api/proveedores', auth, requiereRol(['Admin', 'Dueño']), (req, res) 
     saveDatabase();
     res.json({ ok: true });
 });
-
 app.put('/api/proveedores/:id', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { id } = req.params;
     const idx = db.proveedores.findIndex(p => String(p.id) === String(id));
@@ -223,7 +223,6 @@ app.put('/api/proveedores/:id', auth, requiereRol(['Admin', 'Dueño']), (req, re
         res.json({ ok: true });
     } else res.status(404).json({ error: "Proveedor no encontrado" });
 });
-
 app.delete('/api/proveedores/:id', auth, requiereRol(['Admin']), (req, res) => {
     const { id } = req.params;
     if (Number(id) === 0) return res.status(400).json({ error: "No se puede eliminar POLAR" });
@@ -239,7 +238,6 @@ app.get('/api/clientes', auth, (req, res) => {
     if (q) clientes = clientes.filter(c => (c.nombre && c.nombre.toLowerCase().includes(q)) || (c.rif && c.rif.includes(q)));
     res.json(clientes);
 });
-
 app.post('/api/clientes', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { id, rif, nombre, telefono, direccion, deuda_inicial_dinero, deuda_inicial_vacios, deuda_vacios } = req.body;
     if (id !== undefined && id !== null && id !== '') {
@@ -253,14 +251,12 @@ app.post('/api/clientes', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (r
     saveDatabase();
     res.json({ ok: true });
 });
-
 app.put('/api/clientes/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { id } = req.params;
     const idx = db.clientes.findIndex(c => String(c.id) === String(id));
     if (idx !== -1) { db.clientes[idx] = { ...db.clientes[idx], ...req.body }; saveDatabase(); res.json({ ok: true }); }
     else res.status(404).json({ error: "Cliente no encontrado" });
 });
-
 app.delete('/api/clientes/:id', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { id } = req.params;
     db.clientes = db.clientes.filter(c => String(c.id) !== String(id));
@@ -272,7 +268,6 @@ app.delete('/api/clientes/:id', auth, requiereRol(['Admin', 'Dueño']), (req, re
 
 // Productos
 app.get('/api/productos', auth, (_req, res) => res.json(db.productos));
-
 app.post('/api/productos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { id, codigo, nombre, categoria, stock, stock_cajas, precio, precio_caja, unid_por_caja, unidades_por_caja, cajas_por_paleta, usa_gabera, exento_iva } = req.body;
     const prodObj = {
@@ -289,14 +284,12 @@ app.post('/api/productos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (
     saveDatabase();
     res.json({ ok: true });
 });
-
 app.put('/api/productos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { id } = req.params;
     const idx = db.productos.findIndex(p => p.id == id);
     if (idx !== -1) { db.productos[idx] = { ...db.productos[idx], ...req.body }; saveDatabase(); res.json({ ok: true }); }
     else res.status(404).json({ error: "Producto no encontrado" });
 });
-
 app.put('/api/productos/precio/:id', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { id } = req.params;
     const { precio } = req.body;
@@ -304,7 +297,6 @@ app.put('/api/productos/precio/:id', auth, requiereRol(['Admin', 'Dueño']), (re
     if (idx !== -1) { db.productos[idx].precio = Number(precio) || 0; db.productos[idx].precio_caja = Number(precio) || 0; saveDatabase(); res.json({ ok: true }); }
     else res.status(404).json({ error: "Producto no encontrado" });
 });
-
 app.put('/api/productos/rapido/:id', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { id } = req.params;
     const { nombre, codigo, stock, precio, unid_por_caja, cajas_por_paleta, usa_gabera, exento_iva } = req.body;
@@ -322,7 +314,6 @@ app.put('/api/productos/rapido/:id', auth, requiereRol(['Admin', 'Dueño']), (re
         res.json({ ok: true, producto: db.productos[idx] });
     } else res.status(404).json({ error: "Producto no encontrado" });
 });
-
 app.delete('/api/productos/:id', auth, requiereRol(['Admin']), (req, res) => {
     const { id } = req.params;
     db.productos = db.productos.filter(p => p.id != id);
@@ -332,13 +323,11 @@ app.delete('/api/productos/:id', auth, requiereRol(['Admin']), (req, res) => {
 
 // Categorías
 app.get('/api/categorias', auth, (req, res) => res.json(db.categorias || ['General']));
-
 app.post('/api/categorias', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { nombre } = req.body;
     if (nombre && !db.categorias.includes(nombre)) { db.categorias.push(nombre); saveDatabase(); }
     res.json({ ok: true, categorias: db.categorias });
 });
-
 app.put('/api/categorias/:nombre', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { nombre } = req.params;
     const { nuevoNombre } = req.body;
@@ -351,7 +340,6 @@ app.put('/api/categorias/:nombre', auth, requiereRol(['Admin', 'Dueño']), (req,
         res.json({ ok: true, categorias: db.categorias });
     } else res.status(404).json({ error: "Categoría no encontrada" });
 });
-
 app.delete('/api/categorias/:nombre', auth, requiereRol(['Admin']), (req, res) => {
     const { nombre } = req.params;
     if (nombre === 'General') return res.status(400).json({ error: "No se puede eliminar General" });
@@ -394,18 +382,23 @@ app.get('/api/pedidos', auth, (_req, res) => {
 });
 
 app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
-    const { cliente_id, serial_factura, serial, total, monto, tipo, tipo_doc, items, fecha, usuario, subtotal, iva, moneda, monto_original, dolar, es_proveedor } = req.body;
+    const { cliente_id, serial_factura, serial, total, monto, tipo, tipo_doc, items, fecha, usuario, subtotal, iva, moneda, monto_original, dolar, es_proveedor, cargos_extras } = req.body;
     const esProv = es_proveedor !== undefined ? es_proveedor : db.proveedores.some(p => String(p.id) === String(cliente_id));
     if (esProv && req.user.rol === 'Operador') return res.status(403).json({ error: 'Operador no puede crear pedidos a proveedores' });
     const cliente = esProv ? db.proveedores.find(p => String(p.id) === String(cliente_id)) : db.clientes.find(c => String(c.id) === String(cliente_id));
     if (!cliente) return res.status(400).json({ error: "Cuenta no encontrada" });
+
+    const cargos = Array.isArray(cargos_extras) ? cargos_extras : [];
+    const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
+    const totalCalculado = (Number(subtotal) || 0) + (Number(iva) || 0) + totalExtras;
+    const totalFinal = Number(total || monto) || totalCalculado;
 
     const pedidoObj = {
         id: getNextId('pedidos'),
         cliente_id: cliente_id,
         serial_factura: serial_factura || serial || 'N/A',
         serial: serial_factura || serial || 'N/A',
-        total: Number(total || monto) || 0,
+        total: totalFinal,
         subtotal: Number(subtotal) || 0,
         iva: Number(iva) || 0,
         estado: tipo_doc === 'factura' || tipo === 'factura' ? 'completado' : 'pendiente',
@@ -418,7 +411,8 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
         moneda: moneda || null,
         monto_original: monto_original || null,
         dolar: dolar || null,
-        contrapedido: false
+        contrapedido: false,
+        cargos_extras: cargos
     };
 
     if (!esProv) {
@@ -476,6 +470,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
             subtotal: pedidoObj.subtotal,
             iva: pedidoObj.iva,
             items: pedidoObj.items,
+            cargos_extras: cargos,
             usuario: pedidoObj.creado_por,
             moneda: pedidoObj.moneda,
             monto_original: pedidoObj.monto_original,
@@ -506,7 +501,17 @@ app.put('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), 
     }
 
     db.pedidos[idx] = { ...db.pedidos[idx], ...req.body };
-
+    // Asegurar cargos_extras
+    if (req.body.cargos_extras !== undefined) {
+        db.pedidos[idx].cargos_extras = Array.isArray(req.body.cargos_extras) ? req.body.cargos_extras : [];
+    } else {
+        db.pedidos[idx].cargos_extras = pedidoAnterior.cargos_extras || [];
+    }
+    // Recalcular total si no se envía
+    if (req.body.total === undefined && req.body.subtotal !== undefined) {
+        const totalExtras = db.pedidos[idx].cargos_extras.reduce((s, c) => s + (Number(c.monto) || 0), 0);
+        db.pedidos[idx].total = (Number(req.body.subtotal) || 0) + (Number(req.body.iva) || 0) + totalExtras;
+    }
     const esProv = db.pedidos[idx].es_proveedor;
     if (!esProv && (db.pedidos[idx].estado === 'pendiente' || db.pedidos[idx].estado === 'Pendiente')) {
         db.pedidos[idx].contrapedido = false;
@@ -546,7 +551,6 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
             }
         }
     }
-
     pedido.estado = 'completado';
     pedido.tipo = 'factura';
     cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + Number(pedido.total || 0);
@@ -568,6 +572,7 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
         }
     });
 
+    const cargos = pedido.cargos_extras || [];
     db.movimientos.push({
         id: getNextId('movimientos'),
         cliente_id: pedido.cliente_id,
@@ -579,6 +584,7 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
         subtotal: pedido.subtotal,
         iva: pedido.iva,
         items: pedido.items,
+        cargos_extras: cargos,
         usuario: pedido.creado_por || req.user.usuario,
         moneda: pedido.moneda,
         monto_original: pedido.monto_original,
@@ -622,7 +628,7 @@ app.delete('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']
 
 // Movimientos
 app.post('/api/movimientos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
-    const { cliente_id, prod_id, tipo, detalle, monto, saldo_vacios, fecha, usuario, moneda, monto_original, dolar } = req.body;
+    const { cliente_id, prod_id, tipo, detalle, monto, saldo_vacios, fecha, usuario, moneda, monto_original, dolar, cargos_extras } = req.body;
     const movObj = {
         id: getNextId('movimientos'),
         cliente_id: cliente_id,
@@ -636,7 +642,8 @@ app.post('/api/movimientos', auth, requiereRol(['Admin', 'Dueño', 'Operador']),
         usuario: usuario || req.user.usuario,
         moneda: moneda || null,
         monto_original: monto_original || null,
-        dolar: dolar || null
+        dolar: dolar || null,
+        cargos_extras: cargos_extras || []
     };
     db.movimientos.push(movObj);
     const cliente = db.clientes.find(c => String(c.id) === String(cliente_id));
@@ -661,7 +668,6 @@ app.get('/api/movimientos/:cuenta_id', auth, (req, res) => {
 });
 
 app.get('/api/movimientos', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => res.json(db.movimientos));
-
 app.delete('/api/movimientos/:id', auth, requiereRol(['Admin']), (req, res) => {
     const { id } = req.params;
     const mov = db.movimientos.find(m => m.id == id);
@@ -703,7 +709,8 @@ app.post('/api/pagos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req,
         usuario: usuario || req.user.usuario,
         moneda: moneda || null,
         monto_original: monto_original || null,
-        dolar: dolar || null
+        dolar: dolar || null,
+        cargos_extras: []
     });
     saveDatabase();
     res.json({ ok: true });
@@ -757,7 +764,6 @@ app.delete('/api/trabajadores/:id', auth, requiereRol(['Admin']), (req, res) => 
 
 // Metas
 app.get('/api/metas', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => res.json(db.metas || {}));
-
 app.post('/api/metas', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     const { categoria, mes, total_mensual, primera_quincena, segunda_quincena } = req.body;
     if (!categoria || !mes) return res.status(400).json({ error: 'Categoría y mes son obligatorios' });
@@ -769,7 +775,6 @@ app.post('/api/metas', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     saveDatabase();
     res.json({ ok: true, metas: db.metas });
 });
-
 app.delete('/api/metas/:categoria/:mes', auth, requiereRol(['Admin']), (req, res) => {
     const { categoria, mes } = req.params;
     if (db.metas[categoria] && db.metas[categoria][mes]) {
@@ -786,13 +791,11 @@ app.get('/api/exportar', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => 
     res.setHeader('Content-Disposition', 'attachment; filename=sog_database.json');
     res.send(JSON.stringify(db, null, 2));
 });
-
 app.get('/api/backup/descargar', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => {
     const backupFile = hacerBackup();
     if (backupFile) res.download(backupFile, `backup_${new Date().toISOString().split('T')[0]}.json`);
     else res.status(500).json({ error: "Error creando backup" });
 });
-
 app.post('/api/importar', auth, requiereRol(['Admin']), (req, res) => {
     try {
         const datos = req.body;
@@ -817,13 +820,15 @@ app.post('/api/importar', auth, requiereRol(['Admin']), (req, res) => {
         if (!db.gastos) db.gastos = [];
         if (!db.trabajadores) db.trabajadores = [];
         if (!db.categorias) db.categorias = ['General'];
+        // Normalizar cargos_extras
+        db.pedidos = db.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
+        db.movimientos = db.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
         saveDatabase();
         res.json({ ok: true, mensaje: 'Base de datos importada correctamente' });
     } catch (e) {
         res.status(500).json({ error: 'Error al importar: ' + e.message });
     }
 });
-
 app.post('/api/limpiar', auth, requiereRol(['Admin']), (req, res) => {
     try { hacerBackup(); db = JSON.parse(JSON.stringify(defaultDB)); saveDatabase(); res.json({ ok: true }); }
     catch (e) { res.status(500).json({ error: e.message }); }
@@ -868,13 +873,11 @@ app.post('/api/cierre', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
     saveDatabase();
     res.json({ ok: true, cierre: cierreObj });
 });
-
 app.post('/api/cierre/desbloquear', auth, requiereRol(['Admin']), (req, res) => {
     db.cierreBloqueado = false;
     saveDatabase();
     res.json({ ok: true });
 });
-
 app.post('/api/cierre/borrar-ultimo', auth, requiereRol(['Admin']), (req, res) => {
     if (db.cierres && db.cierres.length > 0) {
         db.cierres.pop();
@@ -883,7 +886,6 @@ app.post('/api/cierre/borrar-ultimo', auth, requiereRol(['Admin']), (req, res) =
         res.json({ ok: true });
     } else res.status(404).json({ error: "No hay cierres para borrar" });
 });
-
 app.get('/api/cierres', auth, requiereRol(['Admin', 'Dueño']), (_req, res) => res.json(db.cierres || []));
 
 app.listen(PORT, () => {
