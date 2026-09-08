@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.6)
+ * SoG - System of Gestión (Versión 1.3.7)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -120,7 +120,39 @@ function fechaVenezuela() {
     return new Date(ahora.getTime() + (offset * 60 * 1000)).toISOString();
 }
 
-// ===== NUEVA FUNCIÓN PARA RECALCULAR CONTRAPEDIDOS =====
+// ==================== MIDDLEWARES ====================
+function auth(req, res, next) {
+    const authHeader = req.headers.authorization || '';
+    if (!authHeader.startsWith('Basic ')) return res.status(401).json({ error: 'No autorizado' });
+    const token = Buffer.from(authHeader.slice(6), 'base64').toString();
+    const [usuario, clave] = token.split(':');
+    const user = db.usuarios.find(u => u.usuario === usuario && u.clave === clave);
+    if (!user) return res.status(401).json({ error: 'Credenciales inválidas' });
+    req.user = user;
+    next();
+}
+
+function requiereRol(roles) {
+    return (req, res, next) => {
+        if (!req.user) return res.status(401).json({ error: 'No autenticado' });
+        if (roles.includes(req.user.rol) || req.user.rol === 'Admin') return next();
+        return res.status(403).json({ error: 'Acceso denegado' });
+    };
+}
+
+// ===== FUNCIÓN PARA RECALCULAR CONTRAPEDIDOS =====
+function stockDisponibleReal(prodId, excluirPedidoId = null) {
+    const prod = db.productos.find(p => p.id == prodId);
+    if (!prod) return 0;
+    const reservado = db.pedidos
+        .filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor && String(p.id) !== String(excluirPedidoId))
+        .reduce((sum, pedido) => {
+            const item = pedido.items.find(i => i.prod_id == prodId);
+            return sum + (item ? Number(item.cant_cajas || 0) : 0);
+        }, 0);
+    return Math.max(0, Number(prod.stock) - reservado);
+}
+
 function recalcularContrapedidos() {
     const pendientes = db.pedidos.filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor);
     pendientes.forEach(pedido => {
@@ -141,7 +173,7 @@ function recalcularContrapedidos() {
     });
 }
 
-// ==================== AUTH ====================
+// ==================== AUTH ROUTES ====================
 app.post('/api/login', (req, res) => {
     const { usuario, clave } = req.body;
     const user = db.usuarios.find(u => u.usuario === usuario && u.clave === clave);
@@ -288,7 +320,6 @@ app.put('/api/productos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador'])
     if (idx !== -1) {
         const stockAnterior = Number(db.productos[idx].stock);
         db.productos[idx] = { ...db.productos[idx], ...req.body };
-        // Si cambió el stock, recalcular contrapedidos
         if (req.body.stock !== undefined && Number(req.body.stock) !== stockAnterior) {
             recalcularContrapedidos();
         }
@@ -372,18 +403,6 @@ app.post('/api/dolar', auth, requiereRol(['Admin', 'Dueño']), (req, res) => {
 app.get('/api/dolar', auth, (_req, res) => res.json({ dolar: db.dolarActual }));
 
 // ==================== PEDIDOS ====================
-function stockDisponibleReal(prodId, excluirPedidoId = null) {
-    const prod = db.productos.find(p => p.id == prodId);
-    if (!prod) return 0;
-    const reservado = db.pedidos
-        .filter(p => (p.estado === 'pendiente' || p.estado === 'Pendiente') && !p.es_proveedor && String(p.id) !== String(excluirPedidoId))
-        .reduce((sum, pedido) => {
-            const item = pedido.items.find(i => i.prod_id == prodId);
-            return sum + (item ? Number(item.cant_cajas || 0) : 0);
-        }, 0);
-    return Math.max(0, Number(prod.stock) - reservado);
-}
-
 app.get('/api/pedidos', auth, (_req, res) => {
     const pedidos = db.pedidos.map(p => {
         const cliente = db.clientes.find(c => String(c.id) === String(p.cliente_id));
@@ -400,10 +419,12 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
     const cliente = esProv ? db.proveedores.find(p => String(p.id) === String(cliente_id)) : db.clientes.find(c => String(c.id) === String(cliente_id));
     if (!cliente) return res.status(400).json({ error: "Cuenta no encontrada" });
 
+    // Calcular total siempre desde subtotal + iva + cargos
     const cargos = Array.isArray(cargos_extras) ? cargos_extras : [];
     const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
-    const totalCalculado = (Number(subtotal) || 0) + (Number(iva) || 0) + totalExtras;
-    const totalFinal = Number(total || monto) || totalCalculado;
+    const subtotalFinal = Number(subtotal) || (items || []).reduce((sum, it) => sum + (Number(it.total) || 0), 0);
+    const ivaFinal = Number(iva) || 0;
+    const totalFinal = subtotalFinal + ivaFinal + totalExtras;
 
     const pedidoObj = {
         id: getNextId('pedidos'),
@@ -411,8 +432,8 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
         serial_factura: serial_factura || serial || 'N/A',
         serial: serial_factura || serial || 'N/A',
         total: totalFinal,
-        subtotal: Number(subtotal) || 0,
-        iva: Number(iva) || 0,
+        subtotal: subtotalFinal,
+        iva: ivaFinal,
         estado: tipo_doc === 'factura' || tipo === 'factura' ? 'completado' : 'pendiente',
         tipo: tipo_doc || tipo || 'pedido',
         items: items || [],
@@ -461,6 +482,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
                     }
                 }
             });
+            recalcularContrapedidos(); // recalc después de disminuir stock
         } else {
             pedidoObj.items.forEach(item => {
                 const prod = db.productos.find(p => p.id == item.prod_id);
@@ -469,7 +491,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
                     prod.stock_cajas = prod.stock;
                 }
             });
-            recalcularContrapedidos();
+            recalcularContrapedidos(); // recalc después de aumentar stock
         }
         cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + pedidoObj.total;
         db.movimientos.push({
@@ -542,16 +564,15 @@ app.put('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), 
     }
 
     db.pedidos[idx] = { ...db.pedidos[idx], ...req.body };
-    // Asegurar cargos_extras
-    if (req.body.cargos_extras !== undefined) {
-        db.pedidos[idx].cargos_extras = Array.isArray(req.body.cargos_extras) ? req.body.cargos_extras : [];
-    } else {
-        db.pedidos[idx].cargos_extras = pedidoAnterior.cargos_extras || [];
-    }
-    // Recalcular total si no se envía
-    if (req.body.total === undefined && req.body.subtotal !== undefined) {
-        const totalExtras = db.pedidos[idx].cargos_extras.reduce((s, c) => s + (Number(c.monto) || 0), 0);
-        db.pedidos[idx].total = (Number(req.body.subtotal) || 0) + (Number(req.body.iva) || 0) + totalExtras;
+    // Recalcular total si se envían componentes
+    if (req.body.subtotal !== undefined || req.body.iva !== undefined || req.body.cargos_extras !== undefined) {
+        const subtotal = Number(req.body.subtotal !== undefined ? req.body.subtotal : db.pedidos[idx].subtotal) || 0;
+        const iva = Number(req.body.iva !== undefined ? req.body.iva : db.pedidos[idx].iva) || 0;
+        const cargos = Array.isArray(req.body.cargos_extras) ? req.body.cargos_extras : db.pedidos[idx].cargos_extras;
+        const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
+        db.pedidos[idx].total = subtotal + iva + totalExtras;
+        db.pedidos[idx].subtotal = subtotal;
+        db.pedidos[idx].iva = iva;
     }
     const esProv = db.pedidos[idx].es_proveedor;
     if (!esProv && (db.pedidos[idx].estado === 'pendiente' || db.pedidos[idx].estado === 'Pendiente')) {
@@ -662,9 +683,9 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
         }
     }
 
-    if (esProv) {
-        recalcularContrapedidos();
-    }
+    // Recalcular contrapedidos para todos los pendientes de clientes
+    recalcularContrapedidos();
+
     saveDatabase();
     res.json({ ok: true });
 });
@@ -749,17 +770,20 @@ app.post('/api/pagos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req,
     const cliente = esProv ? db.proveedores.find(p => String(p.id) === String(targetCuentaId)) : db.clientes.find(c => String(c.id) === String(targetCuentaId));
     if (!cliente) return res.status(404).json({ error: "Cuenta no encontrada" });
 
-    // Verificar duplicado por referencia si se proporciona
+    // Referencia obligatoria
     const refFinal = (ref || referencia || '').trim();
-    if (refFinal) {
-        const duplicado = db.movimientos.some(m => 
-            String(m.cuenta_id || m.cliente_id) === String(targetCuentaId) &&
-            (m.tipo || '').includes('PAGO') &&
-            (m.referencia || '').trim() === refFinal
-        );
-        if (duplicado) {
-            return res.status(400).json({ error: "Ya existe un pago con la misma referencia para esta cuenta" });
-        }
+    if (!refFinal) {
+        return res.status(400).json({ error: "La referencia es obligatoria para registrar el pago" });
+    }
+
+    // Verificar duplicado por referencia
+    const duplicado = db.movimientos.some(m => 
+        String(m.cuenta_id || m.cliente_id) === String(targetCuentaId) &&
+        (m.tipo || '').includes('PAGO') &&
+        (m.referencia || '').trim() === refFinal
+    );
+    if (duplicado) {
+        return res.status(400).json({ error: "Ya existe un pago con la misma referencia para esta cuenta" });
     }
 
     const deudaAnterior = Number(cliente.deuda_inicial_dinero) || 0;
