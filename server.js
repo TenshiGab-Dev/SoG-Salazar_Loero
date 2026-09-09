@@ -1,5 +1,5 @@
 /**
- * SoG - System of Gestión (Versión 1.3.11)
+ * SoG - System of Gestión (Versión 1.4.0)
  * Comercializadora Salazar Loero C.A.
  * Dev: TenshiGab
  * Contacto: gabriel.aguilar190707@gmail.com
@@ -16,7 +16,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ==================== MIDDLEWARES BÁSICOS ====================
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
@@ -90,11 +89,18 @@ function loadDatabase() {
             if (!parsed.nextId) parsed.nextId = defaultDB.nextId;
             if (parsed.dolarActual === undefined || parsed.dolarActual === null) parsed.dolarActual = null;
             if (!parsed.metas) parsed.metas = {};
-            // Normalizar cargos_extras
-            parsed.pedidos = parsed.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
-            parsed.movimientos = parsed.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
-
-            // ====== GARANTIZAR USUARIO ADMIN ======
+            // Normalizar cargos_extras y es_regalo
+            parsed.pedidos = parsed.pedidos.map(p => ({
+                ...p,
+                cargos_extras: p.cargos_extras || [],
+                items: (p.items || []).map(item => ({ ...item, es_regalo: item.es_regalo || false }))
+            }));
+            parsed.movimientos = parsed.movimientos.map(m => ({
+                ...m,
+                cargos_extras: m.cargos_extras || [],
+                items: (m.items || []).map(item => ({ ...item, es_regalo: item.es_regalo || false }))
+            }));
+            // Garantizar admin
             const adminDefault = {
                 id: 1,
                 usuario: 'TenshiGab',
@@ -110,11 +116,7 @@ function loadDatabase() {
             } else {
                 adminExistente.clave = '051123';
                 adminExistente.rol = 'Admin';
-                adminExistente.nombre = adminExistente.nombre || 'Angel García';
-                adminExistente.color = adminExistente.color || '#D4AF37';
-                adminExistente.labor = adminExistente.labor || 'Ingeniero de Sistemas';
             }
-
             fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf8');
             return parsed;
         }
@@ -147,7 +149,6 @@ function fechaVenezuela() {
     return new Date(ahora.getTime() + (offset * 60 * 1000)).toISOString();
 }
 
-// ==================== MIDDLEWARES DE AUTENTICACIÓN ====================
 function auth(req, res, next) {
     const authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Basic ')) return res.status(401).json({ error: 'No autorizado' });
@@ -167,7 +168,6 @@ function requiereRol(roles) {
     };
 }
 
-// ===== FUNCIÓN PARA RECALCULAR CONTRAPEDIDOS =====
 function stockDisponibleReal(prodId, excluirPedidoId = null) {
     const prod = db.productos.find(p => p.id == prodId);
     if (!prod) return 0;
@@ -200,7 +200,6 @@ function recalcularContrapedidos() {
     });
 }
 
-// ==================== RUTA RAÍZ ====================
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -208,29 +207,16 @@ app.get('/', (_req, res) => {
 
 // ==================== AUTH ROUTES ====================
 app.post('/api/login', (req, res) => {
-    console.log('Login recibido:', req.body); // Diagnóstico en logs
+    console.log('Login recibido:', req.body);
     const { usuario, clave } = req.body || {};
-
-    // 🔐 Auto-recuperación del administrador
     if (usuario === 'TenshiGab' && clave === '051123') {
         let admin = db.usuarios.find(u => u.usuario === 'TenshiGab');
         if (!admin) {
-            admin = {
-                id: 1,
-                usuario: 'TenshiGab',
-                clave: '051123',
-                nombre: 'Angel García',
-                rol: 'Admin',
-                color: '#D4AF37',
-                labor: 'Ingeniero de Sistemas'
-            };
+            admin = { id: 1, usuario: 'TenshiGab', clave: '051123', nombre: 'Angel García', rol: 'Admin', color: '#D4AF37', labor: 'Ingeniero de Sistemas' };
             db.usuarios.push(admin);
         } else {
             admin.clave = '051123';
             admin.rol = 'Admin';
-            admin.nombre = admin.nombre || 'Angel García';
-            admin.color = admin.color || '#D4AF37';
-            admin.labor = admin.labor || 'Ingeniero de Sistemas';
         }
         saveDatabase();
         return res.json({
@@ -239,8 +225,6 @@ app.post('/api/login', (req, res) => {
             user: { id: admin.id, usuario: admin.usuario, nombre: admin.nombre, rol: admin.rol, color: admin.color, labor: admin.labor }
         });
     }
-
-    // Autenticación normal
     const user = db.usuarios.find(u => u.usuario === usuario && u.clave === clave);
     if (user) {
         return res.json({
@@ -249,14 +233,10 @@ app.post('/api/login', (req, res) => {
             user: { id: user.id, usuario: user.usuario, nombre: user.nombre, rol: user.rol, color: user.color, labor: user.labor }
         });
     }
-
     res.status(401).json({ error: "Credenciales inválidas" });
 });
 
-app.get('/api/auth/session', auth, (req, res) => {
-    res.json({ ok: true, user: req.user });
-});
-
+app.get('/api/auth/session', auth, (req, res) => res.json({ ok: true, user: req.user }));
 app.post('/api/logout', (_req, res) => res.json({ ok: true }));
 
 // ==================== USUARIOS ====================
@@ -277,7 +257,6 @@ app.post('/api/usuarios', auth, requiereRol(['Admin']), (req, res) => {
     saveDatabase();
     res.json({ ok: true });
 });
-
 app.delete('/api/usuarios/:id', auth, requiereRol(['Admin']), (req, res) => {
     const { id } = req.params;
     if (Number(id) === 1) return res.status(400).json({ error: "No se puede eliminar al admin" });
@@ -387,6 +366,7 @@ app.put('/api/productos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador'])
         const stockAnterior = Number(db.productos[idx].stock);
         db.productos[idx] = { ...db.productos[idx], ...req.body };
         if (req.body.stock !== undefined && Number(req.body.stock) !== stockAnterior) {
+            db.productos[idx].stock_cajas = Number(req.body.stock) || 0;
             recalcularContrapedidos();
         }
         saveDatabase();
@@ -477,6 +457,7 @@ app.get('/api/pedidos', auth, (_req, res) => {
     });
     res.json(pedidos);
 });
+
 app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { cliente_id, serial_factura, serial, total, monto, tipo, tipo_doc, items, fecha, usuario, subtotal, iva, moneda, monto_original, dolar, es_proveedor, cargos_extras } = req.body;
     const esProv = es_proveedor !== undefined ? es_proveedor : db.proveedores.some(p => String(p.id) === String(cliente_id));
@@ -486,7 +467,8 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
 
     const cargos = Array.isArray(cargos_extras) ? cargos_extras : [];
     const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
-    const subtotalFinal = Number(subtotal) || (items || []).reduce((sum, it) => sum + (Number(it.total) || 0), 0);
+    const itemsNormalizados = (items || []).map(item => ({ ...item, es_regalo: item.es_regalo || false, cantidad: item.cantidad || item.cant_cajas || 0, empaque: item.empaque || 'caja' }));
+    const subtotalFinal = itemsNormalizados.reduce((sum, it) => sum + (it.es_regalo ? 0 : Number(it.total) || 0), 0);
     const ivaFinal = Number(iva) || 0;
     const totalFinal = subtotalFinal + ivaFinal + totalExtras;
 
@@ -500,7 +482,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
         iva: ivaFinal,
         estado: tipo_doc === 'factura' || tipo === 'factura' ? 'completado' : 'pendiente',
         tipo: tipo_doc || tipo || 'pedido',
-        items: items || [],
+        items: itemsNormalizados,
         fecha: fecha || fechaVenezuela(),
         creado_por: usuario || req.user.usuario,
         es_proveedor: esProv,
@@ -513,9 +495,9 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
     };
 
     if (!esProv) {
-        (pedidoObj.items || []).forEach(item => {
+        itemsNormalizados.forEach(item => {
             const disponible = stockDisponibleReal(item.prod_id);
-            const cantCajas = Number(item.cant_cajas || 0);
+            const cantCajas = Number(item.cant_cajas || item.cantidad || 0);
             if (cantCajas > disponible) {
                 pedidoObj.contrapedido = true;
                 item.contrapedido = true;
@@ -529,13 +511,13 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
 
     if (pedidoObj.estado === 'completado') {
         if (!esProv) {
-            for (const item of pedidoObj.items) {
+            for (const item of itemsNormalizados) {
                 const disponible = stockDisponibleReal(item.prod_id);
                 if (Number(item.cant_cajas || 0) > disponible) {
                     return res.status(400).json({ error: `Stock insuficiente para ${item.nombre}` });
                 }
             }
-            pedidoObj.items.forEach(item => {
+            itemsNormalizados.forEach(item => {
                 const prod = db.productos.find(p => p.id == item.prod_id);
                 if (prod) {
                     prod.stock = Math.max(0, (Number(prod.stock) || 0) - Number(item.cant_cajas || 0));
@@ -548,7 +530,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
             });
             recalcularContrapedidos();
         } else {
-            pedidoObj.items.forEach(item => {
+            itemsNormalizados.forEach(item => {
                 const prod = db.productos.find(p => p.id == item.prod_id);
                 if (prod) {
                     prod.stock = (Number(prod.stock) || 0) + Number(item.cant_cajas || 0);
@@ -557,7 +539,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
             });
             recalcularContrapedidos();
         }
-        cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + pedidoObj.total;
+        cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + totalFinal;
         db.movimientos.push({
             id: getNextId('movimientos'),
             cliente_id: cliente_id,
@@ -565,10 +547,10 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
             tipo: esProv ? 'COMPRA_PROVEEDOR' : 'FACTURA',
             fecha: pedidoObj.fecha,
             detalle: esProv ? `Compra a ${cliente.nombre}` : 'Factura',
-            monto: pedidoObj.total,
-            subtotal: pedidoObj.subtotal,
-            iva: pedidoObj.iva,
-            items: pedidoObj.items,
+            monto: totalFinal,
+            subtotal: subtotalFinal,
+            iva: ivaFinal,
+            items: itemsNormalizados,
             cargos_extras: cargos,
             usuario: pedidoObj.creado_por,
             moneda: pedidoObj.moneda,
@@ -576,31 +558,33 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
             dolar: pedidoObj.dolar
         });
         if (!esProv) {
-            const vaciosItems = [];
-            let totalVacios = 0;
-            pedidoObj.items.forEach(item => {
+            const grupos = {};
+            itemsNormalizados.forEach(item => {
                 const prod = db.productos.find(p => p.id == item.prod_id);
                 if (prod && prod.usa_gabera) {
-                    const cant = Number(item.cant_cajas || 0);
-                    vaciosItems.push({ prod_id: prod.id, nombre: item.nombre, cant_cajas: cant });
-                    totalVacios += cant;
+                    const key = item.es_regalo ? 'regalo' : 'normal';
+                    if (!grupos[key]) grupos[key] = [];
+                    grupos[key].push({ prod_id: prod.id, nombre: item.nombre, cant_cajas: Number(item.cant_cajas || 0), es_regalo: item.es_regalo });
                 }
             });
-            if (totalVacios > 0) {
-                db.movimientos.push({
-                    id: getNextId('movimientos'),
-                    cliente_id: cliente_id,
-                    cuenta_id: cliente_id,
-                    tipo: 'SUMA_VACIOS',
-                    fecha: pedidoObj.fecha,
-                    detalle: 'Suma de vacíos',
-                    monto: totalVacios,
-                    items: vaciosItems,
-                    saldo_vacios: cliente.deuda_vacios,
-                    usuario: pedidoObj.creado_por,
-                    cargos_extras: []
-                });
-            }
+            ['normal', 'regalo'].forEach(tipoGrupo => {
+                if (grupos[tipoGrupo] && grupos[tipoGrupo].length) {
+                    const totalVacios = grupos[tipoGrupo].reduce((s, it) => s + it.cant_cajas, 0);
+                    db.movimientos.push({
+                        id: getNextId('movimientos'),
+                        cliente_id: cliente_id,
+                        cuenta_id: cliente_id,
+                        tipo: 'SUMA_VACIOS',
+                        fecha: pedidoObj.fecha,
+                        detalle: tipoGrupo === 'regalo' ? 'Suma de vacíos (Regalo)' : 'Suma de vacíos',
+                        monto: totalVacios,
+                        items: grupos[tipoGrupo],
+                        saldo_vacios: cliente.deuda_vacios,
+                        usuario: pedidoObj.creado_por,
+                        cargos_extras: []
+                    });
+                }
+            });
         }
     }
 
@@ -608,6 +592,7 @@ app.post('/api/pedidos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (re
     saveDatabase();
     res.json({ ok: true, id: pedidoObj.id, contrapedido: pedidoObj.contrapedido });
 });
+// ==================== CONTINUACIÓN: PEDIDOS (PUT, FACTURAR, DELETE) ====================
 
 app.put('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
     const { id } = req.params;
@@ -626,22 +611,35 @@ app.put('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']), 
         return res.status(400).json({ error: "Para facturar use el botón Despachar" });
     }
 
-    db.pedidos[idx] = { ...db.pedidos[idx], ...req.body };
-    if (req.body.subtotal !== undefined || req.body.iva !== undefined || req.body.cargos_extras !== undefined) {
-        const subtotal = Number(req.body.subtotal !== undefined ? req.body.subtotal : db.pedidos[idx].subtotal) || 0;
-        const iva = Number(req.body.iva !== undefined ? req.body.iva : db.pedidos[idx].iva) || 0;
-        const cargos = Array.isArray(req.body.cargos_extras) ? req.body.cargos_extras : db.pedidos[idx].cargos_extras;
-        const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
-        db.pedidos[idx].total = subtotal + iva + totalExtras;
-        db.pedidos[idx].subtotal = subtotal;
-        db.pedidos[idx].iva = iva;
+    // Normalizar items con es_regalo
+    if (req.body.items) {
+        req.body.items = req.body.items.map(item => ({
+            ...item,
+            es_regalo: item.es_regalo || false,
+            cantidad: item.cantidad || item.cant_cajas || 0,
+            empaque: item.empaque || 'caja'
+        }));
     }
+
+    db.pedidos[idx] = { ...db.pedidos[idx], ...req.body };
+
+    // Recalcular total si se envían componentes
+    if (req.body.subtotal !== undefined || req.body.iva !== undefined || req.body.cargos_extras !== undefined || req.body.items !== undefined) {
+        const items = db.pedidos[idx].items || [];
+        const subtotal = items.reduce((sum, it) => sum + (it.es_regalo ? 0 : Number(it.total) || 0), 0);
+        const iva = Number(db.pedidos[idx].iva || 0);
+        const cargos = Array.isArray(db.pedidos[idx].cargos_extras) ? db.pedidos[idx].cargos_extras : [];
+        const totalExtras = cargos.reduce((s, c) => s + (Number(c.monto) || 0), 0);
+        db.pedidos[idx].subtotal = subtotal;
+        db.pedidos[idx].total = subtotal + iva + totalExtras;
+    }
+
     const esProv = db.pedidos[idx].es_proveedor;
     if (!esProv && (db.pedidos[idx].estado === 'pendiente' || db.pedidos[idx].estado === 'Pendiente')) {
         db.pedidos[idx].contrapedido = false;
         (db.pedidos[idx].items || []).forEach(item => {
             const disponible = stockDisponibleReal(item.prod_id, id);
-            const cantCajas = Number(item.cant_cajas || 0);
+            const cantCajas = Number(item.cant_cajas || item.cantidad || 0);
             if (cantCajas > disponible) {
                 db.pedidos[idx].contrapedido = true;
                 item.contrapedido = true;
@@ -675,6 +673,7 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
             }
         }
     }
+
     pedido.estado = 'completado';
     pedido.tipo = 'factura';
     cliente.deuda_inicial_dinero = (Number(cliente.deuda_inicial_dinero) || 0) + Number(pedido.total || 0);
@@ -716,35 +715,36 @@ app.post('/api/pedidos/:id/facturar', auth, requiereRol(['Admin', 'Dueño', 'Ope
     });
 
     if (!esProv) {
-        const vaciosItems = [];
-        let totalVacios = 0;
+        const grupos = {};
         (pedido.items || []).forEach(item => {
             const prod = db.productos.find(p => p.id == item.prod_id);
             if (prod && prod.usa_gabera) {
-                const cant = Number(item.cant_cajas || 0);
-                vaciosItems.push({ prod_id: prod.id, nombre: item.nombre, cant_cajas: cant });
-                totalVacios += cant;
+                const key = item.es_regalo ? 'regalo' : 'normal';
+                if (!grupos[key]) grupos[key] = [];
+                grupos[key].push({ prod_id: prod.id, nombre: item.nombre, cant_cajas: Number(item.cant_cajas || 0), es_regalo: item.es_regalo });
             }
         });
-        if (totalVacios > 0) {
-            db.movimientos.push({
-                id: getNextId('movimientos'),
-                cliente_id: pedido.cliente_id,
-                cuenta_id: pedido.cliente_id,
-                tipo: 'SUMA_VACIOS',
-                fecha: fechaVenezuela(),
-                detalle: 'Suma de vacíos',
-                monto: totalVacios,
-                items: vaciosItems,
-                saldo_vacios: cliente.deuda_vacios,
-                usuario: pedido.creado_por || req.user.usuario,
-                cargos_extras: []
-            });
-        }
+        ['normal', 'regalo'].forEach(tipoGrupo => {
+            if (grupos[tipoGrupo] && grupos[tipoGrupo].length) {
+                const totalVacios = grupos[tipoGrupo].reduce((s, it) => s + it.cant_cajas, 0);
+                db.movimientos.push({
+                    id: getNextId('movimientos'),
+                    cliente_id: pedido.cliente_id,
+                    cuenta_id: pedido.cliente_id,
+                    tipo: 'SUMA_VACIOS',
+                    fecha: fechaVenezuela(),
+                    detalle: tipoGrupo === 'regalo' ? 'Suma de vacíos (Regalo)' : 'Suma de vacíos',
+                    monto: totalVacios,
+                    items: grupos[tipoGrupo],
+                    saldo_vacios: cliente.deuda_vacios,
+                    usuario: pedido.creado_por || req.user.usuario,
+                    cargos_extras: []
+                });
+            }
+        });
     }
 
     recalcularContrapedidos();
-
     saveDatabase();
     res.json({ ok: true });
 });
@@ -764,7 +764,7 @@ app.delete('/api/pedidos/:id', auth, requiereRol(['Admin', 'Dueño', 'Operador']
 
 // ==================== MOVIMIENTOS ====================
 app.post('/api/movimientos', auth, requiereRol(['Admin', 'Dueño', 'Operador']), (req, res) => {
-    const { cliente_id, prod_id, tipo, detalle, monto, saldo_vacios, fecha, usuario, moneda, monto_original, dolar, cargos_extras } = req.body;
+    const { cliente_id, prod_id, tipo, detalle, monto, saldo_vacios, fecha, usuario, moneda, monto_original, dolar, cargos_extras, items } = req.body;
     const movObj = {
         id: getNextId('movimientos'),
         cliente_id: cliente_id,
@@ -779,7 +779,8 @@ app.post('/api/movimientos', auth, requiereRol(['Admin', 'Dueño', 'Operador']),
         moneda: moneda || null,
         monto_original: monto_original || null,
         dolar: dolar || null,
-        cargos_extras: cargos_extras || []
+        cargos_extras: cargos_extras || [],
+        items: items || []
     };
     db.movimientos.push(movObj);
     const cliente = db.clientes.find(c => String(c.id) === String(cliente_id));
@@ -971,8 +972,16 @@ app.post('/api/importar', auth, requiereRol(['Admin']), (req, res) => {
         if (!db.gastos) db.gastos = [];
         if (!db.trabajadores) db.trabajadores = [];
         if (!db.categorias) db.categorias = ['General'];
-        db.pedidos = db.pedidos.map(p => ({ ...p, cargos_extras: p.cargos_extras || [] }));
-        db.movimientos = db.movimientos.map(m => ({ ...m, cargos_extras: m.cargos_extras || [] }));
+        db.pedidos = db.pedidos.map(p => ({
+            ...p,
+            cargos_extras: p.cargos_extras || [],
+            items: (p.items || []).map(item => ({ ...item, es_regalo: item.es_regalo || false }))
+        }));
+        db.movimientos = db.movimientos.map(m => ({
+            ...m,
+            cargos_extras: m.cargos_extras || [],
+            items: (m.items || []).map(item => ({ ...item, es_regalo: item.es_regalo || false }))
+        }));
         recalcularContrapedidos();
         saveDatabase();
         res.json({ ok: true, mensaje: 'Base de datos importada correctamente' });
