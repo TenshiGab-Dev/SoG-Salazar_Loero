@@ -1225,7 +1225,8 @@
           "unid_por_caja": 36,
           "cajas_por_paleta": 72,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T18:16:38.136Z",
@@ -1235,7 +1236,9 @@
       "moneda": null,
       "monto_original": null,
       "dolar": null,
-      "contrapedido": false
+      "contrapedido": false,
+      "cargos_extras": [],
+      "notas": ""
     },
     {
       "id": 3,
@@ -1262,7 +1265,8 @@
           "unid_por_caja": 36,
           "cajas_por_paleta": 72,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T18:18:29.337Z",
@@ -1272,7 +1276,9 @@
       "moneda": null,
       "monto_original": null,
       "dolar": null,
-      "contrapedido": false
+      "contrapedido": false,
+      "cargos_extras": [],
+      "notas": ""
     },
     {
       "id": "4",
@@ -1299,7 +1305,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435458154,
@@ -1315,7 +1322,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435555086,
@@ -1331,7 +1339,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435587737,
@@ -1347,7 +1356,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435839349,
@@ -1363,7 +1373,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788436440849,
@@ -1379,7 +1390,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788436351496,
@@ -1395,7 +1407,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435891138,
@@ -1411,7 +1424,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000043,
@@ -1427,7 +1441,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T18:22:39.532Z",
@@ -1438,7 +1453,9 @@
       "monto_original": null,
       "dolar": null,
       "contrapedido": false,
-      "factura_serial": "08-8418642"
+      "factura_serial": "08-8418642",
+      "cargos_extras": [],
+      "notas": ""
     },
     {
       "id": 5,
@@ -1465,7 +1482,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000042,
@@ -1481,7 +1499,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T18:27:37.996Z",
@@ -1491,7 +1510,9 @@
       "moneda": null,
       "monto_original": null,
       "dolar": null,
-      "contrapedido": false
+      "contrapedido": false,
+      "cargos_extras": [],
+      "notas": ""
     },
     {
       "id": 6,
@@ -1518,7 +1539,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788436485267,
@@ -1534,7 +1556,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000023,
@@ -1550,7 +1573,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000022,
@@ -1566,7 +1590,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000043,
@@ -1582,7 +1607,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": true,
-          "faltante": 1
+          "faltante": 1,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000002,
@@ -1598,7 +1624,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T18:48:13.340Z",
@@ -1608,7 +1635,9 @@
       "moneda": null,
       "monto_original": null,
       "dolar": null,
-      "contrapedido": true
+      "contrapedido": true,
+      "cargos_extras": [],
+      "notas": ""
     },
     {
       "id": "7",
@@ -1635,7 +1664,8 @@
           "unid_por_caja": 36,
           "cajas_por_paleta": 72,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788409432966,
@@ -1651,7 +1681,8 @@
           "unid_por_caja": 36,
           "cajas_por_paleta": 72,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000019,
@@ -1667,7 +1698,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000032,
@@ -1683,7 +1715,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000022,
@@ -1699,7 +1732,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000002,
@@ -1715,7 +1749,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000008,
@@ -1731,7 +1766,8 @@
           "unid_por_caja": 12,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000010,
@@ -1747,7 +1783,8 @@
           "unid_por_caja": 12,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000016,
@@ -1763,7 +1800,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000029,
@@ -1779,7 +1817,8 @@
           "unid_por_caja": 12,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000030,
@@ -1795,7 +1834,8 @@
           "unid_por_caja": 12,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000011,
@@ -1811,7 +1851,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000046,
@@ -1827,7 +1868,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000044,
@@ -1843,7 +1885,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000045,
@@ -1859,7 +1902,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T18:59:18.749Z",
@@ -1870,7 +1914,9 @@
       "monto_original": null,
       "dolar": null,
       "contrapedido": false,
-      "factura_serial": "8334"
+      "factura_serial": "8334",
+      "cargos_extras": [],
+      "notas": ""
     },
     {
       "id": 8,
@@ -1897,7 +1943,8 @@
           "unid_por_caja": 36,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000019,
@@ -1913,7 +1960,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435289258,
@@ -1929,7 +1977,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435458154,
@@ -1945,7 +1994,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": true,
-          "faltante": 2
+          "faltante": 2,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435637234,
@@ -1961,7 +2011,8 @@
           "unid_por_caja": 24,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435839349,
@@ -1977,7 +2028,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000042,
@@ -1993,7 +2045,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": true,
-          "faltante": 2
+          "faltante": 2,
+          "es_regalo": false
         },
         {
           "prod_id": 1788435891138,
@@ -2009,7 +2062,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788436440849,
@@ -2025,7 +2079,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000023,
@@ -2041,7 +2096,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000043,
@@ -2057,7 +2113,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": true,
-          "faltante": 2
+          "faltante": 2,
+          "es_regalo": false
         },
         {
           "prod_id": 1788436917212,
@@ -2073,7 +2130,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": true,
-          "faltante": 2
+          "faltante": 2,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000022,
@@ -2089,7 +2147,8 @@
           "unid_por_caja": 6,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000002,
@@ -2105,7 +2164,8 @@
           "unid_por_caja": 20,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         },
         {
           "prod_id": 1788530000033,
@@ -2121,7 +2181,8 @@
           "unid_por_caja": 12,
           "cajas_por_paleta": 60,
           "contrapedido": false,
-          "faltante": 0
+          "faltante": 0,
+          "es_regalo": false
         }
       ],
       "fecha": "2026-09-07T19:16:03.066Z",
@@ -2131,7 +2192,9 @@
       "moneda": null,
       "monto_original": null,
       "dolar": null,
-      "contrapedido": true
+      "contrapedido": true,
+      "cargos_extras": [],
+      "notas": ""
     }
   ],
   "movimientos": [],
@@ -2172,7 +2235,19 @@
     "movimientos": 1,
     "gastos": 1,
     "trabajadores": 1,
-    "usuarios": 3
+    "usuarios": 3,
+    "auditoria": 1
   },
-  "metas": {}
+  "metas": {},
+  "auditoria": [],
+  "contadorFacturas": {},
+  "usuariosActivos": {},
+  "checksPedidos": {},
+  "config": {
+    "tamanoFactura": "carta",
+    "anchoPersonalizado": null,
+    "altoPersonalizado": null,
+    "margenFactura": 5,
+    "logoBase64": null
+  }
 }
